@@ -10,6 +10,7 @@ import {
   pgEnum,
   unique,
   pgSequence,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -32,6 +33,7 @@ export const projectStatusEnum = pgEnum("project_status", [
   "DRAFT",
   "SUBMITTED",
   "AVAILABLE",
+  "ACCEPTED_PENDING_QUOTE",
   "QUOTATION_SENT",
   "CLIENT_ACCEPTED",
   "AWAITING_ADVANCE",
@@ -383,6 +385,25 @@ export const emailVerificationTokens = pgTable("email_verification_tokens", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// 17. project_builder_rejections
+export const projectBuilderRejections = pgTable(
+  "project_builder_rejections",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    builderId: uuid("builder_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("project_builder_rejections_project_id_idx").on(table.projectId),
+    index("project_builder_rejections_builder_id_idx").on(table.builderId),
+  ]
+);
+
 // ==========================================
 // DRIZZLE RELATIONS
 // ==========================================
@@ -399,6 +420,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   disputesResolved: many(disputes, { relationName: "resolved_by" }),
   sessions: many(sessions),
   emailVerificationTokens: many(emailVerificationTokens),
+  builderRejections: many(projectBuilderRejections),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -445,6 +467,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   changeRequests: many(changeRequests),
   disputes: many(disputes),
   messages: many(messages),
+  builderRejections: many(projectBuilderRejections),
 }));
 
 export const projectRequirementsRelations = relations(
@@ -552,3 +575,18 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const projectBuilderRejectionsRelations = relations(
+  projectBuilderRejections,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [projectBuilderRejections.projectId],
+      references: [projects.id],
+    }),
+    builder: one(users, {
+      fields: [projectBuilderRejections.builderId],
+      references: [users.id],
+    }),
+  })
+);
+
