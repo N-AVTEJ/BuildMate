@@ -9,8 +9,18 @@ import {
   jsonb,
   pgEnum,
   unique,
+  pgSequence,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+// ==========================================
+// SEQUENCES
+// ==========================================
+
+export const projectCodeSeq = pgSequence("project_code_seq", {
+  startWith: 1,
+  increment: 1,
+});
 
 // ==========================================
 // ALL 8 POSTGRESQL ENUMS
