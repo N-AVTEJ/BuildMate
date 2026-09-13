@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectRequirements } from "@/db/schema";
-import { requireAuth, requireRole, requireVerifiedEmail, AuthError } from "@/lib/auth/guards";
+import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { can } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 import { validateUploadFile } from "@/lib/storage/validation";
 import { storageProvider } from "@/lib/storage";
@@ -14,24 +15,22 @@ export async function POST(
   let savedStorageKey: string | null = null;
 
   try {
-    // 1. Authentication, Role, and Email Verification Guards
+    // 1. Authenticate Session
     const auth = await requireAuth();
-    await requireRole(["CLIENT"]);
-    await requireVerifiedEmail();
 
     const { id } = await params;
     if (!id || typeof id !== "string") {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    // 2. Fetch Project & Enforce Ownership (IDOR Defense)
+    // 2. Fetch Project & Enforce Ownership via Central Authorization (IDOR Defense)
     const [project] = await db
       .select()
       .from(projects)
       .where(eq(projects.id, id))
       .limit(1);
 
-    if (!project || project.clientId !== auth.user.id) {
+    if (!project || !can(auth, "PROJECT_UPLOAD_REQUIREMENT", { clientId: project.clientId }).allowed) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 

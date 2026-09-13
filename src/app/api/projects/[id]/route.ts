@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectRequirements } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { can } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 
 export async function GET(
@@ -24,9 +25,10 @@ export async function GET(
       .where(eq(projects.id, id))
       .limit(1);
 
-    // 2. IDOR Defense & Existence Protection
-    // Return identical 404 if project does not exist OR belongs to another client
-    if (!project || project.clientId !== auth.user.id) {
+    // 2. IDOR Defense & Central Authorization
+    // Central authorization allows OWNER, ASSIGNED BUILDER, AVAILABLE BUILDER, or ADMIN.
+    // Return identical 404 if project does not exist OR user is unauthorized (preventing existence probing).
+    if (!project || !can(auth, "PROJECT_VIEW_OWN", { clientId: project.clientId, builderId: project.builderId, status: project.status }).allowed) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 

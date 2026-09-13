@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectStatusHistory } from "@/db/schema";
-import { requireAuth, requireRole, requireVerifiedEmail, AuthError } from "@/lib/auth/guards";
+import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { authorize } from "@/lib/authorization";
 import { generateProjectCode } from "@/lib/projects/code";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 
 export async function POST(req: Request) {
   try {
-    // 1. Authentication, Role, and Email Verification Guards
+    // 1. Centralized Authorization Guard
     const auth = await requireAuth();
-    await requireRole(["CLIENT"]);
-    await requireVerifiedEmail();
+    authorize(auth, "PROJECT_CREATE");
 
     // 2. Parse & Validate Payload
     const body = await req.json().catch(() => null);
@@ -124,8 +124,9 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
-    // 1. Authenticate Session
+    // 1. Authenticate Session & Central Authorization
     const auth = await requireAuth();
+    authorize(auth, "PROJECT_LIST_OWN");
 
     // 2. Query Strictly by Authenticated Client's User ID (Ignores any client_id overrides)
     const clientProjects = await db
