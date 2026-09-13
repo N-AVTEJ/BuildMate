@@ -84,7 +84,7 @@ export function detectProjectSimilarity(
   if (sharedTitleTokens >= 1 && (stackSimilarity >= 0.4 || compositeScore >= 0.35)) {
     return {
       isSimilar: true,
-      score: compositeScore,
+      score: Math.max(compositeScore, 0.6),
       reason: "Matching domain keywords with overlapping tech stack.",
     };
   }
