@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
     .select({
       id: users.id,
       email: users.email,
-      fullName: users.fullName,
+      name: users.name,
     })
     .from(users);
 
@@ -162,11 +162,11 @@ export default async function AdminDashboardPage() {
                           {p.title}
                         </td>
                         <td className="px-6 py-4 text-xs text-gray-600">
-                          {client ? client.fullName || client.email : p.clientId}
+                          {client ? client.name || client.email : p.clientId}
                         </td>
                         <td className="px-6 py-4 text-xs text-gray-600">
                           {builder ? (
-                            builder.fullName || builder.email
+                            builder.name || builder.email
                           ) : (
                             <span className="text-gray-400 italic">Unassigned</span>
                           )}
