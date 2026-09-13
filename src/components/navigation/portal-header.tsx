@@ -8,7 +8,7 @@ import { RoleSwitcher } from "./role-switcher";
 interface PortalHeaderProps {
   user: {
     email: string;
-    fullName?: string | null;
+    name?: string | null;
   };
   roles: UserRole[];
   currentPortalTitle: string;
@@ -42,7 +42,7 @@ export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderPr
           <RoleSwitcher roles={roles} />
 
           <div className="hidden md:flex flex-col items-end text-xs">
-            <span className="font-semibold text-gray-900">{user.fullName || user.email}</span>
+            <span className="font-semibold text-gray-900">{user.name || user.email}</span>
             <span className="text-gray-500">{roles.join(", ")}</span>
           </div>
 

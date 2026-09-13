@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
+import { PortalHeader } from "@/components/navigation/portal-header";
 
 export default async function ProjectsPage() {
   // 1. Server-Side Authentication Guard
@@ -58,8 +59,14 @@ export default async function ProjectsPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <PortalHeader
+        user={auth.user}
+        roles={auth.roles}
+        currentPortalTitle="Client Portal"
+      />
+
+      <main className="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Projects</h1>
@@ -159,5 +166,6 @@ export default async function ProjectsPage() {
         )}
       </div>
     </main>
+  </div>
   );
 }
