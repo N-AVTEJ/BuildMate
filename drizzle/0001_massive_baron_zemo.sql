@@ -1,0 +1,2 @@
+ALTER TABLE "scope_versions" ADD CONSTRAINT "scope_versions_project_id_version_unique" UNIQUE("project_id","version_number");--> statement-breakpoint
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_role_unique" UNIQUE("user_id","role");
