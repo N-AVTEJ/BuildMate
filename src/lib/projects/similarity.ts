@@ -5,14 +5,14 @@
 
 const STOP_WORDS = new Set([
   "a", "an", "the", "in", "on", "at", "to", "for", "of", "with", "and", "or",
-  "app", "application", "platform", "system", "web", "website", "mobile",
-  "service", "portal", "build", "project"
+  "by", "from", "as", "is", "are", "be", "this", "that"
 ]);
 
 function tokenize(text: string): Set<string> {
+  // Normalize hyphens and slashes to spaces, but also preserve unhyphenated compounds (e.g. ecommerce)
+  const normalized = text.toLowerCase().replace(/[-/]/g, " ");
   return new Set(
-    text
-      .toLowerCase()
+    normalized
       .replace(/[^a-z0-9\s]/g, " ")
       .split(/\s+/)
       .filter((t) => t.length > 2 && !STOP_WORDS.has(t))
@@ -55,6 +55,13 @@ export function detectProjectSimilarity(
   const titleSimilarity = calculateJaccardSimilarity(candTitleTokens, existTitleTokens);
   const stackSimilarity = calculateJaccardSimilarity(candStackTokens, existStackTokens);
 
+  let sharedTitleTokens = 0;
+  for (const t of candTitleTokens) {
+    if (existTitleTokens.has(t)) {
+      sharedTitleTokens++;
+    }
+  }
+
   // Check direct title substring or high token overlap
   const normCandTitle = candidate.title.toLowerCase().trim();
   const normExistTitle = existing.title.toLowerCase().trim();
@@ -66,19 +73,19 @@ export function detectProjectSimilarity(
   // Weighted score: Title similarity carries 60% weight, tech stack carries 40%
   const compositeScore = titleSimilarity * 0.6 + stackSimilarity * 0.4;
 
-  if (isDirectTitleMatch || titleSimilarity >= 0.5) {
+  if (isDirectTitleMatch || titleSimilarity >= 0.4) {
     return {
       isSimilar: true,
       score: Math.max(compositeScore, 0.8),
-      reason: "High project title and requirement similarity.",
+      reason: "High project title and scope similarity.",
     };
   }
 
-  if (titleSimilarity >= 0.3 && stackSimilarity >= 0.4) {
+  if (sharedTitleTokens >= 1 && (stackSimilarity >= 0.4 || compositeScore >= 0.35)) {
     return {
       isSimilar: true,
       score: compositeScore,
-      reason: "Moderate project title overlap with matching tech stack.",
+      reason: "Matching domain keywords with overlapping tech stack.",
     };
   }
 
