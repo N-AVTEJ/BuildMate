@@ -213,6 +213,9 @@ export function can(
       if (!isBuilder) {
         return { allowed: false, reason: "Builder role required to submit change requests." };
       }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to submit change requests." };
+      }
       if (resource && resource.builderId && resource.builderId !== auth.user.id) {
         return { allowed: false, reason: "Cannot submit change request for a project assigned to another builder." };
       }

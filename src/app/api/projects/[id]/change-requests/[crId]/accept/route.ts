@@ -85,7 +85,14 @@ export async function POST(
       }
 
       // 5. Server-side price recalculation
-      const currentTotal = project.totalPrice ?? 0;
+      // Invariant: totalPrice must be set (scope must have been locked previously).
+      if (project.totalPrice === null) {
+        return {
+          type: "CONFLICT" as const,
+          message: "Cannot accept change request: project total price is not set. The scope must be locked first.",
+        };
+      }
+      const currentTotal = project.totalPrice;
       const newTotalPrice = currentTotal + cr.additionalCost;
       const { advanceAmount: newAdvance, remainingAmount: newRemaining } =
         computeAdvanceBreakdown(newTotalPrice);
@@ -96,7 +103,7 @@ export async function POST(
         .from(scopeVersions)
         .where(eq(scopeVersions.projectId, projectId));
 
-      const nextVersion = (maxVersionRow?.maxVersion ?? 0) + 1;
+      const nextVersion = (Number(maxVersionRow?.maxVersion) || 0) + 1;
 
       const requirementsList = await tx
         .select()

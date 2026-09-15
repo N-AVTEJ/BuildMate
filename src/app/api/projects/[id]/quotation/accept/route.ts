@@ -79,7 +79,7 @@ export async function POST(
         .from(scopeVersions)
         .where(eq(scopeVersions.projectId, projectId));
 
-      const nextVersion = (maxVersionRow?.maxVersion ?? 0) + 1;
+      const nextVersion = (Number(maxVersionRow?.maxVersion) || 0) + 1;
 
       const projectSnapshot = {
         id: project.id,

@@ -119,7 +119,7 @@ export async function POST(
       // 6. Insert Client Notification in the SAME transaction
       await tx.insert(notifications).values({
         userId: project.clientId,
-        message: `New change request submitted for project "${project.title}" (ID: ${project.id}): Change Request ${newChangeRequest.id} - additional cost ₹${newChangeRequest.additionalCost / 100}, +${newChangeRequest.additionalTimeDays} days. Description: ${newChangeRequest.description.slice(0, 100)}`,
+        message: `New change request submitted for project "${project.title}" (ID: ${project.id}): Change Request ${newChangeRequest.id} - additional cost ₹${newChangeRequest.additionalCost}, +${newChangeRequest.additionalTimeDays} days. Description: ${newChangeRequest.description.slice(0, 100)}`,
         read: false,
       });
 
