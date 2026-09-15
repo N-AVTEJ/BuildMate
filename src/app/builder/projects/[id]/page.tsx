@@ -9,6 +9,7 @@ import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/projec
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { BuilderProjectActions } from "@/components/builder/builder-project-actions";
+import { QuotationForm } from "@/components/builder/quotation-form";
 
 export default async function BuilderProjectDetailPage({
   params,

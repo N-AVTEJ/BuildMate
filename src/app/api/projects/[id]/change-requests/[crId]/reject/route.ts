@@ -1,0 +1,125 @@
+import { NextResponse } from "next/server";
+import { eq, and } from "drizzle-orm";
+import { db } from "@/db";
+import { projects, changeRequests } from "@/db/schema";
+import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { authorize } from "@/lib/authorization";
+
+const CR_ELIGIBLE_STATUSES = [
+  "AWAITING_ADVANCE",
+  "ADVANCE_PROOF_SUBMITTED",
+  "ADVANCE_VERIFICATION",
+  "ADVANCE_VERIFIED",
+  "IN_PROGRESS",
+] as const;
+
+export async function POST(
+  _req: Request,
+  { params }: { params: Promise<{ id: string; crId: string }> }
+) {
+  try {
+    const auth = await requireAuth();
+    authorize(auth, "CHANGE_REQUEST_RESPOND");
+
+    const { id: projectId, crId } = await params;
+    if (!projectId || !crId) {
+      return NextResponse.json({ error: "Project or Change Request not found." }, { status: 404 });
+    }
+
+    const now = new Date();
+
+    const result = await db.transaction(async (tx) => {
+      // 1. Lock project row
+      const [project] = await tx
+        .select()
+        .from(projects)
+        .where(eq(projects.id, projectId))
+        .for("update")
+        .limit(1);
+
+      if (!project) {
+        return { type: "NOT_FOUND" as const };
+      }
+
+      // 2. Client ownership check
+      if (project.clientId !== auth.user.id) {
+        return { type: "FORBIDDEN" as const };
+      }
+
+      // 3. Status eligibility check
+      if (!CR_ELIGIBLE_STATUSES.includes(project.status as any)) {
+        return {
+          type: "CONFLICT" as const,
+          message: `Cannot respond to change request when project is in ${project.status} status.`,
+        };
+      }
+
+      // 4. Fetch Change Request
+      const [cr] = await tx
+        .select()
+        .from(changeRequests)
+        .where(
+          and(
+            eq(changeRequests.id, crId),
+            eq(changeRequests.projectId, projectId)
+          )
+        )
+        .limit(1);
+
+      if (!cr) {
+        return { type: "CR_NOT_FOUND" as const };
+      }
+
+      if (cr.status !== "PENDING") {
+        return {
+          type: "CONFLICT" as const,
+          message: `Change request is already ${cr.status}.`,
+        };
+      }
+
+      // 5. Update status to REJECTED (no price changes, no scope versions)
+      const [updatedCR] = await tx
+        .update(changeRequests)
+        .set({
+          status: "REJECTED",
+          updatedAt: now,
+        })
+        .where(eq(changeRequests.id, cr.id))
+        .returning();
+
+      return {
+        type: "SUCCESS" as const,
+        changeRequest: updatedCR,
+      };
+    });
+
+    if (result.type === "NOT_FOUND" || result.type === "CR_NOT_FOUND") {
+      return NextResponse.json({ error: "Project or Change Request not found." }, { status: 404 });
+    }
+
+    if (result.type === "FORBIDDEN") {
+      return NextResponse.json(
+        { error: "Forbidden. You are not the client owner of this project." },
+        { status: 403 }
+      );
+    }
+
+    if (result.type === "CONFLICT") {
+      return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      changeRequest: result.changeRequest,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error("[Projects/ChangeRequests/Reject] Unexpected error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred while rejecting change request." },
+      { status: 500 }
+    );
+  }
+}
