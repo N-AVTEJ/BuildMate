@@ -173,6 +173,57 @@ export default async function ProjectDetailPage({
             <RequirementUploadForm projectId={project.id} />
           )}
         </div>
+
+        {/* Phase 5 Status Cards */}
+        {project.status === "QUOTATION_SENT" && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-amber-950">Quotation Received</h3>
+              <p className="text-xs text-amber-700 mt-0.5">
+                The assigned builder has submitted a formal quotation for your review. Inspect the breakdown and accept or reject the proposal.
+              </p>
+            </div>
+            <Link
+              href={`/projects/${project.id}/quotation`}
+              className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm rounded-lg transition whitespace-nowrap shadow-sm"
+            >
+              Review Quotation →
+            </Link>
+          </div>
+        )}
+
+        {project.status === "ACCEPTED_PENDING_QUOTE" && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6 flex items-start gap-4">
+            <span className="text-2xl">⏳</span>
+            <div>
+              <h3 className="text-base font-bold text-blue-900">Builder Assigned — Preparing Quotation</h3>
+              <p className="text-xs text-blue-700 mt-0.5">
+                A builder has acquired your project and is preparing the total quotation and work schedule.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {project.status === "AWAITING_ADVANCE" && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6 flex items-start gap-4">
+            <span className="text-2xl">🔒</span>
+            <div>
+              <h3 className="text-base font-bold text-emerald-950">Scope Locked — Advance Payment Pending</h3>
+              <p className="text-xs text-emerald-800 mt-0.5">
+                Quotation has been accepted and project scope (Version 1) is locked. Advance payment submission and verification will be enabled in Phase 6.
+              </p>
+              {project.totalPrice && (
+                <div className="mt-3 flex gap-4 text-xs font-medium text-emerald-900">
+                  <span>Contracted Total: ₹{project.totalPrice.toLocaleString()}</span>
+                  <span>•</span>
+                  <span>Advance Due: ₹{project.advanceAmount?.toLocaleString()}</span>
+                  <span>•</span>
+                  <span>Remaining: ₹{project.remainingAmount?.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
