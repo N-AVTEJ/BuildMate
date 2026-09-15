@@ -1,0 +1,1 @@
+ALTER TABLE "scope_versions" ADD COLUMN "project_snapshot" jsonb NOT NULL;

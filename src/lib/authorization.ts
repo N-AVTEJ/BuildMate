@@ -21,7 +21,14 @@ export type AuthAction =
   | "PROJECT_REJECT"
   // Admin actions (Phase 4)
   | "ADMIN_VIEW_DASHBOARD"
-  | "ADMIN_VIEW_ALL_PROJECTS";
+  | "ADMIN_VIEW_ALL_PROJECTS"
+  // Quotation & Scope Lock actions (Phase 5)
+  | "QUOTATION_SUBMIT"
+  | "QUOTATION_VIEW"
+  | "QUOTATION_ACCEPT"
+  | "QUOTATION_REJECT"
+  | "CHANGE_REQUEST_SUBMIT"
+  | "CHANGE_REQUEST_RESPOND";
 
 export interface ProjectResourceContext {
   clientId?: string;
@@ -151,6 +158,72 @@ export function can(
     case "ADMIN_VIEW_ALL_PROJECTS":
       if (!isAdmin) {
         return { allowed: false, reason: "Administrator role required." };
+      }
+      return { allowed: true };
+
+    case "QUOTATION_SUBMIT":
+      if (!isBuilder) {
+        return { allowed: false, reason: "Builder role required to submit quotations." };
+      }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to submit quotations." };
+      }
+      if (resource && resource.builderId && resource.builderId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot submit quotation for a project assigned to another builder." };
+      }
+      return { allowed: true };
+
+    case "QUOTATION_VIEW":
+      if (isAdmin) {
+        return { allowed: true };
+      }
+      if (isClient && resource && resource.clientId === auth.user.id) {
+        return { allowed: true };
+      }
+      if (isBuilder && resource && resource.builderId === auth.user.id) {
+        return { allowed: true };
+      }
+      return { allowed: false, reason: "Access denied to project quotation." };
+
+    case "QUOTATION_ACCEPT":
+      if (!isClient) {
+        return { allowed: false, reason: "Client role required to accept quotations." };
+      }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to accept quotations." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot accept quotation for a project you do not own." };
+      }
+      return { allowed: true };
+
+    case "QUOTATION_REJECT":
+      if (!isClient) {
+        return { allowed: false, reason: "Client role required to reject quotations." };
+      }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to reject quotations." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot reject quotation for a project you do not own." };
+      }
+      return { allowed: true };
+
+    case "CHANGE_REQUEST_SUBMIT":
+      if (!isBuilder) {
+        return { allowed: false, reason: "Builder role required to submit change requests." };
+      }
+      if (resource && resource.builderId && resource.builderId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot submit change request for a project assigned to another builder." };
+      }
+      return { allowed: true };
+
+    case "CHANGE_REQUEST_RESPOND":
+      if (!isClient) {
+        return { allowed: false, reason: "Client role required to respond to change requests." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot respond to change request for a project you do not own." };
       }
       return { allowed: true };
 

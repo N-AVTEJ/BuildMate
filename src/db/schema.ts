@@ -214,6 +214,7 @@ export const scopeVersions = pgTable(
     versionNumber: integer("version_number").notNull(),
     requirementsSnapshot: jsonb("requirements_snapshot").notNull(),
     quotationSnapshot: jsonb("quotation_snapshot").notNull(),
+    projectSnapshot: jsonb("project_snapshot").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
