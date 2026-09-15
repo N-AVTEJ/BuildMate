@@ -222,20 +222,95 @@ export default async function BuilderProjectDetailPage({
         )}
 
         {project.status === "ACCEPTED_PENDING_QUOTE" && isAssignedToCurrentBuilder && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <div className="flex items-center gap-3">
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 flex items-center gap-3">
               <span className="text-2xl">📋</span>
               <div>
-                <h3 className="text-base font-bold text-blue-900">
-                  Project Acquired — Awaiting Quotation (Phase 5)
-                </h3>
-                <p className="text-xs text-blue-700 mt-1">
+                <h3 className="text-sm font-bold text-blue-900">Project Acquired — Submit Quotation</h3>
+                <p className="text-xs text-blue-700 mt-0.5">
                   You accepted this project on{" "}
                   {project.builderAcceptedAt
                     ? new Date(project.builderAcceptedAt).toLocaleString()
                     : "recently"}
-                  . Quotation price entry and submission will be available in Phase 5.
+                  . Enter your total quotation price below to submit it to the client.
                 </p>
+              </div>
+            </div>
+            <QuotationForm projectId={project.id} />
+          </div>
+        )}
+
+        {project.status === "QUOTATION_SENT" && isAssignedToCurrentBuilder && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <span className="text-2xl">⏳</span>
+              <div className="space-y-3 flex-1">
+                <div>
+                  <h3 className="text-base font-bold text-amber-900">
+                    Quotation Sent — Awaiting Client Review
+                  </h3>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Your quotation has been sent to the client. Scope locking and advance deposit will proceed once accepted.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/80 p-3.5 rounded-lg border border-amber-200/60 text-xs">
+                  <div>
+                    <span className="text-gray-500 block">Total Quotation</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      ₹{project.totalPrice ? project.totalPrice.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Required Advance</span>
+                    <span className="text-sm font-bold text-emerald-700">
+                      ₹{project.advanceAmount ? project.advanceAmount.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Remaining Balance</span>
+                    <span className="text-sm font-bold text-gray-700">
+                      ₹{project.remainingAmount ? project.remainingAmount.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {project.status === "AWAITING_ADVANCE" && isAssignedToCurrentBuilder && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <span className="text-2xl">🔒</span>
+              <div className="space-y-3 flex-1">
+                <div>
+                  <h3 className="text-base font-bold text-emerald-900">
+                    Scope Locked — Awaiting Client Advance Payment
+                  </h3>
+                  <p className="text-xs text-emerald-700 mt-1">
+                    The client has accepted your quotation. Scope version 1 is locked. The project will advance to development once the client pays the required advance.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/80 p-3.5 rounded-lg border border-emerald-200/60 text-xs">
+                  <div>
+                    <span className="text-gray-500 block">Locked Total</span>
+                    <span className="text-sm font-bold text-gray-900">
+                      ₹{project.totalPrice ? project.totalPrice.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Advance Due</span>
+                    <span className="text-sm font-bold text-emerald-700">
+                      ₹{project.advanceAmount ? project.advanceAmount.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Remaining Due on Delivery</span>
+                    <span className="text-sm font-bold text-gray-700">
+                      ₹{project.remainingAmount ? project.remainingAmount.toLocaleString() : "—"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
