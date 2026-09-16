@@ -16,7 +16,7 @@ export async function POST(
     const auth = await requireAuth();
 
     // 2. Authorize Action
-    authorize(auth, "PROJECT_ACCEPT", { isEmailVerified: auth.user.emailVerified });
+    authorize(auth, "PROJECT_ACCEPT");
 
     // 3. Resolve Project ID
     const { id: projectId } = await params;

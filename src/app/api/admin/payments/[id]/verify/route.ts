@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "@/db";
 import {
   payments,
   projects,
   projectStatusHistory,
   notifications,
+  quotations,
+  scopeVersions,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
@@ -94,14 +96,42 @@ export async function POST(
           changedBy: auth.user.id,
         });
 
-        // Transition 2: Project -> IN_PROGRESS
-        // Note: Phase 7 owns the formal development deadline engine.
-        // developmentStartedAt is set to now; developmentDeadline remains null/unchanged.
+        // Determine agreed duration from scope snapshot or accepted quotation
+        const [latestScope] = await tx
+          .select()
+          .from(scopeVersions)
+          .where(eq(scopeVersions.projectId, project.id))
+          .orderBy(desc(scopeVersions.versionNumber))
+          .limit(1);
+
+        let durationDays = (latestScope?.quotationSnapshot as any)?.estimatedDurationDays;
+        if (!durationDays) {
+          const [acceptedQuote] = await tx
+            .select()
+            .from(quotations)
+            .where(
+              and(
+                eq(quotations.projectId, project.id),
+                eq(quotations.status, "ACCEPTED")
+              )
+            )
+            .limit(1);
+          durationDays = acceptedQuote?.estimatedDurationDays;
+        }
+
+        const safeDuration = durationDays && durationDays > 0 ? durationDays : 14;
+        const developmentDeadline = new Date(
+          now.getTime() + safeDuration * 24 * 60 * 60 * 1000
+        );
+
+        // Transition 2: Project -> IN_PROGRESS with development deadline & initialized progress
         await tx
           .update(projects)
           .set({
             status: "IN_PROGRESS",
             developmentStartedAt: now,
+            lastProgressUpdateAt: now,
+            developmentDeadline,
             updatedAt: now,
           })
           .where(eq(projects.id, project.id));
