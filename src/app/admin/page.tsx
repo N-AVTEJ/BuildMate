@@ -78,13 +78,22 @@ export default async function AdminDashboardPage() {
       />
 
       <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Administrator Control Center
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Global overview of platform activity, project lifecycles, and verification queues.
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              Administrator Control Center
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Global overview of platform activity, project lifecycles, and verification queues.
+            </p>
+          </div>
+          <Link
+            href="/admin/payments"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
+          >
+            <span>💳 Payment Verification Queue</span>
+            <span>→</span>
+          </Link>
         </div>
 
         {/* Quick Metrics Cards */}
