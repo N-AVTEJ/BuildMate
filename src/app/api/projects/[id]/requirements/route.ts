@@ -36,11 +36,11 @@ export async function POST(
 
     // 3. Strict Upload Status & Expiry Check
     const now = new Date();
-    const effectiveStatus = computeEffectiveStatus(project, now);
+    const effective = computeEffectiveStatus(project, now);
 
-    if (effectiveStatus !== "AVAILABLE") {
-      // If stored status was AVAILABLE but deadline has passed, transactionally reconcile to EXPIRED_NO_BUILDER
-      if (project.status === "AVAILABLE" && project.acceptanceDeadline && project.acceptanceDeadline < now) {
+    if (effective.status !== "AVAILABLE") {
+      // If stored status was AVAILABLE but deadline has passed, transactionally reconcile
+      if (effective.changed) {
         await reconcileProjectStatusInDb(project.id, now);
       }
       return NextResponse.json(

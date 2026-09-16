@@ -33,12 +33,12 @@ export async function GET(
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    // 3. Reconcile Effective Status if Expired
+    // 3. Reconcile Effective Status if Expired/Overdue
     const now = new Date();
-    const effectiveStatus = computeEffectiveStatus(project, now);
-    if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
-      await reconcileProjectStatusInDb(project.id, now);
-      project.status = "EXPIRED_NO_BUILDER";
+    const effective = computeEffectiveStatus(project, now);
+    if (effective.changed) {
+      const newStatus = await reconcileProjectStatusInDb(project.id, now);
+      project.status = newStatus;
     }
 
     // 3.5 Reconcile On-Demand Payment Reminders (Spec Section 18)

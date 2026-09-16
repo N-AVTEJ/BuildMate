@@ -35,9 +35,9 @@ export async function POST(
 
     // 4. Effective Status Verification
     const now = new Date();
-    const effectiveStatus = computeEffectiveStatus(project, now);
+    const effective = computeEffectiveStatus(project, now);
 
-    if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
+    if (effective.changed) {
       await reconcileProjectStatusInDb(project.id, now);
       return NextResponse.json(
         { error: "The acceptance deadline for this project has expired." },
