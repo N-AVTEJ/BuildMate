@@ -53,14 +53,14 @@ export default async function BuilderDiscoveryPage() {
   const availableProjects: Array<(typeof candidateProjects)[0] & { requirementCount: number }> = [];
 
   for (const proj of candidateProjects) {
-    const effectiveStatus = computeEffectiveStatus(proj, now);
+    const effective = computeEffectiveStatus(proj, now);
 
-    if (proj.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
+    if (effective.changed) {
       await reconcileProjectStatusInDb(proj.id, now);
       continue;
     }
 
-    if (effectiveStatus === "AVAILABLE") {
+    if (effective.status === "AVAILABLE") {
       const [reqs] = await db
         .select({ count: projects.id })
         .from(projectRequirements)

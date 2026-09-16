@@ -50,6 +50,13 @@
       "when": 1789537728689,
       "tag": "0006_sparkling_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789550893483,
+      "tag": "0007_wandering_the_captain",
+      "breakpoints": true
     }
   ]
 }

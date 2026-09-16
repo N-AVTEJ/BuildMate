@@ -177,6 +177,12 @@ export const projects = pgTable("projects", {
   finalAdvanceReminderSentAt: timestamp("final_advance_reminder_sent_at", {
     withTimezone: true,
   }),
+  lastProgressUpdateAt: timestamp("last_progress_update_at", {
+    withTimezone: true,
+  }),
+  overdueNotificationSentAt: timestamp("overdue_notification_sent_at", {
+    withTimezone: true,
+  }),
   submittedAt: timestamp("submitted_at", { withTimezone: true }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -208,6 +214,7 @@ export const quotations = pgTable("quotations", {
   totalPrice: integer("total_price").notNull(),
   advanceAmount: integer("advance_amount").notNull(),
   remainingAmount: integer("remaining_amount").notNull(),
+  estimatedDurationDays: integer("estimated_duration_days").notNull(),
   status: quotationStatusEnum("status").default("PENDING").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -421,6 +428,19 @@ export const projectBuilderRejections = pgTable(
   ]
 );
 
+// 18. progress_updates
+export const progressUpdates = pgTable("progress_updates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  builderId: uuid("builder_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "restrict" }),
+  note: text("note").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ==========================================
 // DRIZZLE RELATIONS
 // ==========================================
@@ -438,6 +458,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   emailVerificationTokens: many(emailVerificationTokens),
   builderRejections: many(projectBuilderRejections),
+  progressUpdates: many(progressUpdates),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -485,6 +506,7 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   disputes: many(disputes),
   messages: many(messages),
   builderRejections: many(projectBuilderRejections),
+  progressUpdates: many(progressUpdates),
 }));
 
 export const projectRequirementsRelations = relations(
@@ -606,4 +628,15 @@ export const projectBuilderRejectionsRelations = relations(
     }),
   })
 );
+
+export const progressUpdatesRelations = relations(progressUpdates, ({ one }) => ({
+  project: one(projects, {
+    fields: [progressUpdates.projectId],
+    references: [projects.id],
+  }),
+  builder: one(users, {
+    fields: [progressUpdates.builderId],
+    references: [users.id],
+  }),
+}));
 

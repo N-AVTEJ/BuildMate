@@ -59,10 +59,10 @@ export default async function ProjectDetailPage({
 
   // 4. Reconcile Effective Status Server-Side
   const now = new Date();
-  const effectiveStatus = computeEffectiveStatus(project, now);
-  if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
-    await reconcileProjectStatusInDb(project.id, now);
-    project.status = "EXPIRED_NO_BUILDER";
+  const effective = computeEffectiveStatus(project, now);
+  if (effective.changed) {
+    const updatedStatus = await reconcileProjectStatusInDb(project.id, now);
+    project.status = updatedStatus;
   }
 
   // 4.5 Reconcile On-Demand Payment Reminders (Spec Section 18)

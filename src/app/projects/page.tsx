@@ -45,16 +45,16 @@ export default async function ProjectsPage() {
     .where(eq(projects.clientId, auth.user.id))
     .orderBy(desc(projects.createdAt));
 
-  // 4. Reconcile Effective Status for Expired Projects
+  // 4. Reconcile Effective Status for Expired/Overdue Projects
   const now = new Date();
   const reconciled = await Promise.all(
     clientProjects.map(async (p) => {
       const effective = computeEffectiveStatus(p, now);
-      if (p.status === "AVAILABLE" && effective === "EXPIRED_NO_BUILDER") {
-        await reconcileProjectStatusInDb(p.id, now);
-        return { ...p, status: "EXPIRED_NO_BUILDER" as const };
+      if (effective.changed) {
+        const newStatus = await reconcileProjectStatusInDb(p.id, now);
+        return { ...p, status: newStatus };
       }
-      return { ...p, status: effective };
+      return { ...p, status: effective.status };
     })
   );
 

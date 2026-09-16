@@ -84,12 +84,12 @@ export default async function BuilderProjectDetailPage({
     );
   }
 
-  // 5. Reconcile Lazy Expiry
+  // 5. Reconcile Lazy Status
   const now = new Date();
-  const effectiveStatus = computeEffectiveStatus(project, now);
-  if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
-    await reconcileProjectStatusInDb(project.id, now);
-    project.status = "EXPIRED_NO_BUILDER";
+  const effective = computeEffectiveStatus(project, now);
+  if (effective.changed) {
+    const updatedStatus = await reconcileProjectStatusInDb(project.id, now);
+    project.status = updatedStatus;
   }
 
   // 6. Fetch Project Requirements / Attachments
