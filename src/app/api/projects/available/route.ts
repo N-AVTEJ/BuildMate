@@ -39,16 +39,16 @@ export async function GET() {
     const availableProjects: Array<(typeof candidateProjects)[0] & { requirements: any[] }> = [];
 
     for (const proj of candidateProjects) {
-      const effectiveStatus = computeEffectiveStatus(proj, now);
+      const effective = computeEffectiveStatus(proj, now);
 
-      if (proj.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
+      if (effective.changed) {
         // Transactionally reconcile in DB
         await reconcileProjectStatusInDb(proj.id, now);
         // Excluded from available results
         continue;
       }
 
-      if (effectiveStatus === "AVAILABLE") {
+      if (effective.status === "AVAILABLE") {
         // Fetch requirement reference files for this available project
         const requirements = await db
           .select({

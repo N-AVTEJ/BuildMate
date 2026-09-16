@@ -105,9 +105,9 @@ async function runTests() {
   const expiredProject = { status: "AVAILABLE" as const, acceptanceDeadline: pastDeadline };
   const acceptedProject = { status: "ACCEPTED_PENDING_QUOTE" as const, acceptanceDeadline: futureDeadline };
 
-  assert.strictEqual(computeEffectiveStatus(availableProject, now), "AVAILABLE");
-  assert.strictEqual(computeEffectiveStatus(expiredProject, now), "EXPIRED_NO_BUILDER");
-  assert.strictEqual(computeEffectiveStatus(acceptedProject, now), "ACCEPTED_PENDING_QUOTE");
+  assert.strictEqual(computeEffectiveStatus(availableProject, now).status, "AVAILABLE");
+  assert.strictEqual(computeEffectiveStatus(expiredProject, now).status, "EXPIRED_NO_BUILDER");
+  assert.strictEqual(computeEffectiveStatus(acceptedProject, now).status, "ACCEPTED_PENDING_QUOTE");
   console.log("  ✓ Effective status logic passed (AVAILABLE, EXPIRED_NO_BUILDER, ACCEPTED_PENDING_QUOTE)");
 
   // 5. Acceptance Eligibility Rules

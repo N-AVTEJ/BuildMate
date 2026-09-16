@@ -32,21 +32,21 @@ async function runTests() {
     status: "AVAILABLE",
     acceptanceDeadline: futureDeadline,
   });
-  assert.strictEqual(effectiveActive, "AVAILABLE");
+  assert.strictEqual(effectiveActive.status, "AVAILABLE");
 
   // Available with past deadline -> derives EXPIRED_NO_BUILDER
   const effectiveExpired = computeEffectiveStatus({
     status: "AVAILABLE",
     acceptanceDeadline: pastDeadline,
   });
-  assert.strictEqual(effectiveExpired, "EXPIRED_NO_BUILDER");
+  assert.strictEqual(effectiveExpired.status, "EXPIRED_NO_BUILDER");
 
-  // Other statuses (e.g. IN_PROGRESS) are not affected by acceptance deadline
+  // Other statuses (e.g. IN_PROGRESS) are not affected by acceptance deadline alone
   const inProgressProject = computeEffectiveStatus({
     status: "IN_PROGRESS",
     acceptanceDeadline: pastDeadline,
   });
-  assert.strictEqual(inProgressProject, "IN_PROGRESS");
+  assert.strictEqual(inProgressProject.status, "IN_PROGRESS");
   console.log("  ✓ computeEffectiveStatus derivations passed");
 
   // 4. File Allowlist & Magic Bytes Validation

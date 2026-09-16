@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { projects, projectStatusHistory } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
-import { computeEffectiveStatus } from "@/lib/project-status";
+import { computeEffectiveStatus, SYSTEM_ACTOR_ID, ensureSystemActor } from "@/lib/project-status";
 import { detectProjectSimilarity } from "@/lib/projects/similarity";
 
 export async function POST(
@@ -15,37 +15,35 @@ export async function POST(
     // 1. Authenticate Session
     const auth = await requireAuth();
 
-    // 2. Central Authorization: BUILDER role & verified email
-    authorize(auth, "PROJECT_ACCEPT");
+    // 2. Authorize Action
+    authorize(auth, "PROJECT_ACCEPT", { isEmailVerified: auth.user.emailVerified });
 
+    // 3. Resolve Project ID
     const { id: projectId } = await params;
-    if (!projectId || typeof projectId !== "string") {
-      return NextResponse.json({ error: "Project not found." }, { status: 404 });
-    }
 
-    // 3. Parse Confirmation Payload
+    // Parse Confirmation Payload
     const body = await req.json().catch(() => ({}));
     const confirmed = body?.confirmed === true;
 
     const now = new Date();
 
-    // 4. Transactional Acceptance Flow with Concurrency Control
+    // 4. Transactional Acceptance with Serialized/Locked Evaluation
     const result = await db.transaction(async (tx) => {
-      // 4.1 Re-read project inside transaction
+      // 4.1 Lock the project row for update
       const [project] = await tx
         .select()
         .from(projects)
         .where(eq(projects.id, projectId))
-        .limit(1);
+        .for("update");
 
       if (!project) {
         return { type: "NOT_FOUND" as const };
       }
 
       // 4.2 Check effective status & expiry
-      const effectiveStatus = computeEffectiveStatus(project, now);
+      const effective = computeEffectiveStatus(project, now);
 
-      if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
+      if (effective.changed) {
         // Lazily reconcile to EXPIRED_NO_BUILDER
         const [updatedExpired] = await tx
           .update(projects)
@@ -62,11 +60,12 @@ export async function POST(
           .returning({ id: projects.id, clientId: projects.clientId });
 
         if (updatedExpired) {
+          await ensureSystemActor(tx);
           await tx.insert(projectStatusHistory).values({
             projectId: updatedExpired.id,
             fromStatus: "AVAILABLE",
             toStatus: "EXPIRED_NO_BUILDER",
-            changedBy: auth.user.id,
+            changedBy: SYSTEM_ACTOR_ID,
           });
         }
 
