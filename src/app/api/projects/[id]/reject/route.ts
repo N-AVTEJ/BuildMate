@@ -45,7 +45,7 @@ export async function POST(
       );
     }
 
-    if (effectiveStatus !== "AVAILABLE") {
+    if (effective.status !== "AVAILABLE") {
       return NextResponse.json(
         { error: "Project is not available for builder rejection." },
         { status: 400 }
