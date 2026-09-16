@@ -363,9 +363,9 @@ async function runPhase6Tests() {
     transactionReference: "UPI-TXN-123456",
     status: "PROOF_SUBMITTED",
     submittedAt: now,
-    verifiedAt: null,
-    verifiedBy: null,
-    rejectionReason: null,
+    verifiedAt: null as Date | null,
+    verifiedBy: null as string | null,
+    rejectionReason: null as string | null,
   };
   paymentsTable.push(paymentRecord);
 
