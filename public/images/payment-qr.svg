@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+  <!-- Background -->
+  <rect width="280" height="280" fill="#ffffff" rx="16" />
+  <rect x="10" y="10" width="260" height="260" fill="#f8fafc" rx="12" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <!-- Outer Corner Positioning Squares -->
+  <!-- Top-Left -->
+  <rect x="30" y="30" width="60" height="60" fill="#0f172a" rx="8"/>
+  <rect x="40" y="40" width="40" height="40" fill="#ffffff" rx="4"/>
+  <rect x="48" y="48" width="24" height="24" fill="#2563eb" rx="2"/>
+
+  <!-- Top-Right -->
+  <rect x="190" y="30" width="60" height="60" fill="#0f172a" rx="8"/>
+  <rect x="200" y="40" width="40" height="40" fill="#ffffff" rx="4"/>
+  <rect x="208" y="48" width="24" height="24" fill="#2563eb" rx="2"/>
+
+  <!-- Bottom-Left -->
+  <rect x="30" y="190" width="60" height="60" fill="#0f172a" rx="8"/>
+  <rect x="40" y="200" width="40" height="40" fill="#ffffff" rx="4"/>
+  <rect x="48" y="208" width="24" height="24" fill="#2563eb" rx="2"/>
+
+  <!-- QR Matrix Mock Bits -->
+  <rect x="105" y="35" width="12" height="12" fill="#0f172a"/>
+  <rect x="125" y="35" width="12" height="12" fill="#0f172a"/>
+  <rect x="145" y="35" width="12" height="12" fill="#0f172a"/>
+  <rect x="165" y="35" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="105" y="55" width="12" height="12" fill="#0f172a"/>
+  <rect x="135" y="55" width="12" height="12" fill="#0f172a"/>
+  <rect x="155" y="55" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="115" y="75" width="12" height="12" fill="#0f172a"/>
+  <rect x="145" y="75" width="12" height="12" fill="#0f172a"/>
+  <rect x="165" y="75" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="35" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="55" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="75" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="95" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="115" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="135" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="155" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="175" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="195" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="215" y="105" width="12" height="12" fill="#0f172a"/>
+  <rect x="235" y="105" width="12" height="12" fill="#0f172a"/>
+
+  <!-- Center Logo Badge -->
+  <circle cx="140" cy="140" r="26" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+  <text x="140" y="146" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="900" fill="#2563eb" text-anchor="middle">₹</text>
+
+  <rect x="35" y="125" width="12" height="12" fill="#0f172a"/>
+  <rect x="65" y="125" width="12" height="12" fill="#0f172a"/>
+  <rect x="85" y="125" width="12" height="12" fill="#0f172a"/>
+  <rect x="185" y="125" width="12" height="12" fill="#0f172a"/>
+  <rect x="205" y="125" width="12" height="12" fill="#0f172a"/>
+  <rect x="235" y="125" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="45" y="155" width="12" height="12" fill="#0f172a"/>
+  <rect x="75" y="155" width="12" height="12" fill="#0f172a"/>
+  <rect x="95" y="155" width="12" height="12" fill="#0f172a"/>
+  <rect x="175" y="155" width="12" height="12" fill="#0f172a"/>
+  <rect x="195" y="155" width="12" height="12" fill="#0f172a"/>
+  <rect x="225" y="155" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="105" y="195" width="12" height="12" fill="#0f172a"/>
+  <rect x="125" y="195" width="12" height="12" fill="#0f172a"/>
+  <rect x="155" y="195" width="12" height="12" fill="#0f172a"/>
+  <rect x="175" y="195" width="12" height="12" fill="#0f172a"/>
+  <rect x="205" y="195" width="12" height="12" fill="#0f172a"/>
+  <rect x="225" y="195" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="115" y="215" width="12" height="12" fill="#0f172a"/>
+  <rect x="135" y="215" width="12" height="12" fill="#0f172a"/>
+  <rect x="165" y="215" width="12" height="12" fill="#0f172a"/>
+  <rect x="185" y="215" width="12" height="12" fill="#0f172a"/>
+  <rect x="215" y="215" width="12" height="12" fill="#0f172a"/>
+
+  <rect x="105" y="235" width="12" height="12" fill="#0f172a"/>
+  <rect x="145" y="235" width="12" height="12" fill="#0f172a"/>
+  <rect x="175" y="235" width="12" height="12" fill="#0f172a"/>
+  <rect x="195" y="235" width="12" height="12" fill="#0f172a"/>
+  <rect x="235" y="235" width="12" height="12" fill="#0f172a"/>
+</svg>
