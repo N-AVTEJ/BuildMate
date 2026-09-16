@@ -9,6 +9,14 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+// Re-export storageProvider for existing routes (e.g. project requirements upload)
+export {
+  storageProvider,
+  LocalStorageProvider,
+  type StorageProvider,
+  type StorageResult,
+} from "./storage/index";
+
 export const ALLOWED_PROOF_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
 export type AllowedProofExtension = (typeof ALLOWED_PROOF_EXTENSIONS)[number];
 
