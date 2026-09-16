@@ -23,12 +23,16 @@ import {
 } from "../payment-reminders";
 
 // Mock Actors
+const mockTimestamp = new Date();
+
 const verifiedClientAuth: SessionValidationResult = {
   user: {
     id: "client-101",
     email: "client@buildmate.com",
     name: "Verified Client",
     emailVerified: true,
+    createdAt: mockTimestamp,
+    updatedAt: mockTimestamp,
   },
   roles: ["CLIENT"],
   session: { id: "sess-1", userId: "client-101", expiresAt: new Date(Date.now() + 86400000) },
@@ -40,6 +44,8 @@ const unverifiedClientAuth: SessionValidationResult = {
     email: "unverified@buildmate.com",
     name: "Unverified Client",
     emailVerified: false,
+    createdAt: mockTimestamp,
+    updatedAt: mockTimestamp,
   },
   roles: ["CLIENT"],
   session: { id: "sess-2", userId: "client-unverified", expiresAt: new Date(Date.now() + 86400000) },
@@ -51,6 +57,8 @@ const otherClientAuth: SessionValidationResult = {
     email: "other@buildmate.com",
     name: "Other Client",
     emailVerified: true,
+    createdAt: mockTimestamp,
+    updatedAt: mockTimestamp,
   },
   roles: ["CLIENT"],
   session: { id: "sess-3", userId: "client-other", expiresAt: new Date(Date.now() + 86400000) },
@@ -62,6 +70,8 @@ const builderAuth: SessionValidationResult = {
     email: "builder@buildmate.com",
     name: "Builder User",
     emailVerified: true,
+    createdAt: mockTimestamp,
+    updatedAt: mockTimestamp,
   },
   roles: ["BUILDER"],
   session: { id: "sess-4", userId: "builder-202", expiresAt: new Date(Date.now() + 86400000) },
@@ -73,6 +83,8 @@ const adminAuth: SessionValidationResult = {
     email: "admin@buildmate.com",
     name: "Platform Admin",
     emailVerified: true,
+    createdAt: mockTimestamp,
+    updatedAt: mockTimestamp,
   },
   roles: ["ADMIN"],
   session: { id: "sess-5", userId: "admin-999", expiresAt: new Date(Date.now() + 86400000) },
