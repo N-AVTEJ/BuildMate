@@ -22,73 +22,30 @@ import {
   ProjectReminderInput,
 } from "../payment-reminders";
 
-// Mock Actors
-const mockTimestamp = new Date();
+// Mock Actors Helper
+function createMockAuth(
+  id: string,
+  roles: ("CLIENT" | "BUILDER" | "ADMIN")[],
+  emailVerified = true
+): SessionValidationResult {
+  return {
+    user: {
+      id,
+      name: `User ${id}`,
+      email: `${id}@example.com`,
+      emailVerified,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    roles,
+  };
+}
 
-const verifiedClientAuth: SessionValidationResult = {
-  user: {
-    id: "client-101",
-    email: "client@buildmate.com",
-    name: "Verified Client",
-    emailVerified: true,
-    createdAt: mockTimestamp,
-    updatedAt: mockTimestamp,
-  },
-  roles: ["CLIENT"],
-  session: { id: "sess-1", userId: "client-101", expiresAt: new Date(Date.now() + 86400000) },
-};
-
-const unverifiedClientAuth: SessionValidationResult = {
-  user: {
-    id: "client-unverified",
-    email: "unverified@buildmate.com",
-    name: "Unverified Client",
-    emailVerified: false,
-    createdAt: mockTimestamp,
-    updatedAt: mockTimestamp,
-  },
-  roles: ["CLIENT"],
-  session: { id: "sess-2", userId: "client-unverified", expiresAt: new Date(Date.now() + 86400000) },
-};
-
-const otherClientAuth: SessionValidationResult = {
-  user: {
-    id: "client-other",
-    email: "other@buildmate.com",
-    name: "Other Client",
-    emailVerified: true,
-    createdAt: mockTimestamp,
-    updatedAt: mockTimestamp,
-  },
-  roles: ["CLIENT"],
-  session: { id: "sess-3", userId: "client-other", expiresAt: new Date(Date.now() + 86400000) },
-};
-
-const builderAuth: SessionValidationResult = {
-  user: {
-    id: "builder-202",
-    email: "builder@buildmate.com",
-    name: "Builder User",
-    emailVerified: true,
-    createdAt: mockTimestamp,
-    updatedAt: mockTimestamp,
-  },
-  roles: ["BUILDER"],
-  session: { id: "sess-4", userId: "builder-202", expiresAt: new Date(Date.now() + 86400000) },
-};
-
-const adminAuth: SessionValidationResult = {
-  user: {
-    id: "admin-999",
-    email: "admin@buildmate.com",
-    name: "Platform Admin",
-    emailVerified: true,
-    createdAt: mockTimestamp,
-    updatedAt: mockTimestamp,
-  },
-  roles: ["ADMIN"],
-  session: { id: "sess-5", userId: "admin-999", expiresAt: new Date(Date.now() + 86400000) },
-};
+const verifiedClientAuth = createMockAuth("client-101", ["CLIENT"]);
+const unverifiedClientAuth = createMockAuth("client-unverified", ["CLIENT"], false);
+const otherClientAuth = createMockAuth("client-other", ["CLIENT"]);
+const builderAuth = createMockAuth("builder-202", ["BUILDER"]);
+const adminAuth = createMockAuth("admin-999", ["ADMIN"]);
 
 async function runPhase6Tests() {
   console.log("=== Phase 6 Payment-Proof System Test Suite ===\n");
