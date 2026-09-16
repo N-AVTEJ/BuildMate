@@ -2,11 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { projects, projectRequirements } from "@/db/schema";
+import { projects, projectRequirements, payments } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
+import { reconcilePaymentReminders } from "@/lib/projects/payment-reminders";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { RequirementUploadForm } from "@/components/projects/requirement-upload-form";
+import { PaymentProofUploadForm } from "@/components/projects/payment-proof-upload-form";
 
 export default async function ProjectDetailPage({
   params,
@@ -62,11 +65,24 @@ export default async function ProjectDetailPage({
     project.status = "EXPIRED_NO_BUILDER";
   }
 
+  // 4.5 Reconcile On-Demand Payment Reminders (Spec Section 18)
+  if (project.status === "AWAITING_ADVANCE") {
+    await reconcilePaymentReminders(project, now);
+  }
+
   // 5. Fetch Requirements
   const requirements = await db
     .select()
     .from(projectRequirements)
     .where(eq(projectRequirements.projectId, project.id));
+
+  // 6. Fetch Latest Payment Record
+  const [existingPayment] = await db
+    .select()
+    .from(payments)
+    .where(eq(payments.projectId, project.id))
+    .orderBy(desc(payments.createdAt))
+    .limit(1);
 
   return (
     <main className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -204,21 +220,46 @@ export default async function ProjectDetailPage({
           </div>
         )}
 
-        {project.status === "AWAITING_ADVANCE" && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6 flex items-start gap-4">
-            <span className="text-2xl">🔒</span>
+        {/* Phase 6 Payment Cards */}
+        {(project.status === "AWAITING_ADVANCE" || project.status === "PAYMENT_REJECTED") && (
+          <PaymentProofUploadForm
+            projectId={project.id}
+            projectCode={project.projectCode}
+            expectedAmount={project.advanceAmount || 0}
+            paymentType="ADVANCE"
+            advancePaymentDeadline={project.advancePaymentDeadline?.toISOString()}
+            rejectionReason={existingPayment?.status === "REJECTED" ? existingPayment.rejectionReason : null}
+          />
+        )}
+
+        {project.status === "ADVANCE_PROOF_SUBMITTED" && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6 flex items-start gap-4">
+            <span className="text-2xl">⏳</span>
             <div>
-              <h3 className="text-base font-bold text-emerald-950">Scope Locked — Advance Payment Pending</h3>
-              <p className="text-xs text-emerald-800 mt-0.5">
-                Quotation has been accepted and project scope (Version 1) is locked. Advance payment submission and verification will be enabled in Phase 6.
+              <h3 className="text-base font-bold text-blue-900">Advance Payment Submitted — Under Review</h3>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Your payment proof has been submitted and is currently being verified by an administrator. Development will automatically begin once verified.
               </p>
-              {project.totalPrice && (
-                <div className="mt-3 flex gap-4 text-xs font-medium text-emerald-900">
-                  <span>Contracted Total: ₹{project.totalPrice.toLocaleString()}</span>
-                  <span>•</span>
-                  <span>Advance Due: ₹{project.advanceAmount?.toLocaleString()}</span>
-                  <span>•</span>
-                  <span>Remaining: ₹{project.remainingAmount?.toLocaleString()}</span>
+              {existingPayment?.transactionReference && (
+                <div className="mt-2 text-xs font-mono text-blue-800">
+                  Transaction Ref: {existingPayment.transactionReference}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {project.status === "IN_PROGRESS" && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6 flex items-start gap-4">
+            <span className="text-2xl">🚀</span>
+            <div>
+              <h3 className="text-base font-bold text-emerald-950">Development In Progress</h3>
+              <p className="text-xs text-emerald-800 mt-0.5">
+                Advance payment has been verified and work is actively underway.
+              </p>
+              {project.developmentStartedAt && (
+                <div className="mt-2 text-xs text-emerald-700">
+                  Started on: {new Date(project.developmentStartedAt).toLocaleDateString()}
                 </div>
               )}
             </div>
