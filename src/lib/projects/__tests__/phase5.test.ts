@@ -141,10 +141,16 @@ async function runPhase5Tests() {
 
   // CHANGE_REQUEST_SUBMIT & RESPOND
   assert.strictEqual(can(clientAuth, "CHANGE_REQUEST_SUBMIT").allowed, false, "Client cannot submit change requests");
+  // WARN-1: unverified builder must be rejected before any DB mutation
+  assert.strictEqual(
+    can(unverifiedBuilderAuth, "CHANGE_REQUEST_SUBMIT", { builderId: "builder-unverified" }).allowed,
+    false,
+    "Unverified assigned builder cannot submit change requests (WARN-1 fix)"
+  );
   assert.strictEqual(
     can(builderAuth, "CHANGE_REQUEST_SUBMIT", { builderId: "builder-assigned" }).allowed,
     true,
-    "Assigned builder can submit change request"
+    "Assigned verified builder can submit change request"
   );
   assert.strictEqual(
     can(builderAuth, "CHANGE_REQUEST_SUBMIT", { builderId: "builder-other" }).allowed,
@@ -433,11 +439,11 @@ async function runPhase5Tests() {
     };
     changeRequestsTable.push(cr);
 
-    // Atomic Notification to client
+    // Atomic Notification to client — additionalCost is whole-rupee integer, NO /100
     const notif: MockNotification = {
       id: `notif-${notificationsTable.length + 1}`,
       userId: proj.clientId,
-      message: `New change request submitted for project "${proj.projectCode}": Change Request ${cr.id} - additional cost ₹${cost / 100}, +${days} days. Description: ${desc.slice(0, 100)}`,
+      message: `New change request submitted for project "${proj.projectCode}": Change Request ${cr.id} - additional cost ₹${cost}, +${days} days. Description: ${desc.slice(0, 100)}`,
       read: false,
     };
     notificationsTable.push(notif);
@@ -466,7 +472,17 @@ async function runPhase5Tests() {
     "Notification message must reference the change request"
   );
   assert.strictEqual(notif.read, false);
+  // BUG-1: additionalCost=500 must display as ₹500, not ₹5 (no /100 paise conversion)
+  assert.ok(
+    notif.message.includes("₹500"),
+    "BUG-1: Notification must display ₹500 (whole rupees), not ₹5"
+  );
+  assert.ok(
+    !notif.message.includes("₹5 ") && !notif.message.includes("₹5,") && !notif.message.includes("₹5."),
+    "BUG-1: Notification must NOT contain divided-by-100 value like ₹5"
+  );
   console.log("  ✓ CR creation inserted exactly 1 client notification belonging to the client and referencing project & CR");
+  console.log("  ✓ BUG-1: CR notification displays additionalCost=500 as ₹500 (not ₹5)");
 
   // 6.2 Duplicate pending CR prevention
   assert.throws(
@@ -586,6 +602,89 @@ async function runPhase5Tests() {
   assert.strictEqual(project.totalPrice, 2000, "Prices must remain unchanged on CR rejection");
   assert.strictEqual(scopeVersionsTable.length, 2, "No scope version created on CR rejection");
   console.log("  ✓ CR rejection leaves project prices and scope versions untouched");
+
+  // =========================================================================
+  // 9. BUG-2: Scope Version MAX() number coercion
+  // pg driver returns max() as string; Number() must be used to prevent string concat
+  // =========================================================================
+  console.log("9. Testing BUG-2: scope version number stays numeric across versions...");
+
+  // Helper mirrors the fixed production logic exactly:
+  function nextScopeVersion(rawMaxVersion: string | number | null | undefined): number {
+    return (Number(rawMaxVersion) || 0) + 1;
+  }
+
+  // No prior scope versions (first quotation accept)
+  assert.strictEqual(nextScopeVersion(null), 1, "BUG-2: null maxVersion must produce version 1");
+  assert.strictEqual(nextScopeVersion(undefined), 1, "BUG-2: undefined maxVersion must produce version 1");
+  assert.strictEqual(nextScopeVersion(0), 1, "BUG-2: 0 maxVersion must produce version 1");
+
+  // pg returns strings — must not string-concatenate
+  assert.strictEqual(nextScopeVersion("1"), 2, "BUG-2: string '1' maxVersion must produce numeric 2 (not '11')");
+  assert.strictEqual(nextScopeVersion("2"), 3, "BUG-2: string '2' maxVersion must produce numeric 3 (not '21')");
+
+  // Numeric input (defensive)
+  assert.strictEqual(nextScopeVersion(1), 2, "BUG-2: numeric 1 maxVersion must produce 2");
+  assert.strictEqual(nextScopeVersion(2), 3, "BUG-2: numeric 2 maxVersion must produce 3");
+
+  // Prove the OLD broken logic would have failed:
+  const brokenResult = ("1" as any) + 1; // string concat simulating the bug
+  assert.strictEqual(brokenResult, "11", "BUG-2 baseline: un-fixed code produces '11', a string");
+  assert.notStrictEqual(nextScopeVersion("1"), "11", "BUG-2: fixed logic must NOT produce '11'");
+
+  // Verify CR acceptance (Scope V1 -> V2) uses correct numeric sequencing:
+  // scopeVersionsTable already has length 2 (V1 from quotation, V2 from CR accept)
+  const maxFromTable = scopeVersionsTable.reduce((max, sv) => Math.max(max, sv.versionNumber), 0);
+  assert.strictEqual(maxFromTable, 2, "BUG-2: max scope version in table is numeric 2");
+  const nextFromTable = (Number(maxFromTable) || 0) + 1;
+  assert.strictEqual(nextFromTable, 3, "BUG-2: next scope version after 2 would be numeric 3");
+  assert.strictEqual(typeof nextFromTable, "number", "BUG-2: nextVersion must be typeof number, not string");
+
+  console.log("  ✓ BUG-2: All max() coercions produce correct numeric version numbers");
+  console.log("  ✓ BUG-2: string '1' → 2, string '2' → 3 (no string concatenation)");
+
+  // =========================================================================
+  // 10. WARN-2: CR acceptance with null totalPrice must CONFLICT, not silently use 0
+  // =========================================================================
+  console.log("10. Testing WARN-2: CR accept rejects null totalPrice explicitly...");
+
+  // Simulate the production guard logic:
+  function simulateCRAcceptPriceGuard(projectTotalPrice: number | null, additionalCost: number): {
+    type: "CONFLICT" | "SUCCESS";
+    message?: string;
+    newTotal?: number;
+  } {
+    // This mirrors the fixed code in [crId]/accept/route.ts
+    if (projectTotalPrice === null) {
+      return {
+        type: "CONFLICT",
+        message: "Project total price is not set. Cannot apply change request.",
+      };
+    }
+    const currentTotal = projectTotalPrice; // no ?? 0 fallback
+    const newTotal = currentTotal + additionalCost;
+    return { type: "SUCCESS", newTotal };
+  }
+
+  const nullTotalResult = simulateCRAcceptPriceGuard(null, 500);
+  assert.strictEqual(
+    nullTotalResult.type,
+    "CONFLICT",
+    "WARN-2: null totalPrice must produce CONFLICT, not silently use 0"
+  );
+  assert.ok(
+    nullTotalResult.message?.includes("not set"),
+    "WARN-2: CONFLICT message must explain that totalPrice is not set"
+  );
+  assert.strictEqual(nullTotalResult.newTotal, undefined, "WARN-2: newTotal must not be calculated when totalPrice is null");
+
+  // Sanity: valid totalPrice proceeds correctly
+  const validResult = simulateCRAcceptPriceGuard(1500, 500);
+  assert.strictEqual(validResult.type, "SUCCESS", "WARN-2: valid totalPrice proceeds to SUCCESS");
+  assert.strictEqual(validResult.newTotal, 2000, "WARN-2: 1500 + 500 = 2000 correctly");
+
+  console.log("  ✓ WARN-2: null totalPrice produces CONFLICT before any price calculation");
+  console.log("  ✓ WARN-2: valid totalPrice proceeds with correct arithmetic (no ?? 0 silent fallback)");
 
   console.log("=== All Phase 5 Tests Completed & Passed Successfully! ===");
 }

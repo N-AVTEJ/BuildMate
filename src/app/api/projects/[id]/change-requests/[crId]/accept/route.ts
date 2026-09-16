@@ -85,11 +85,12 @@ export async function POST(
       }
 
       // 5. Server-side price recalculation
-      // Invariant: totalPrice must be set (scope must have been locked previously).
+      // WARN-2 guard: totalPrice must not be null at this point.
+      // Status eligibility prevents this in practice, but we enforce it explicitly.
       if (project.totalPrice === null) {
         return {
           type: "CONFLICT" as const,
-          message: "Cannot accept change request: project total price is not set. The scope must be locked first.",
+          message: "Project total price is not set. Cannot apply change request.",
         };
       }
       const currentTotal = project.totalPrice;

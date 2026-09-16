@@ -35,11 +35,10 @@ export const projectStatusEnum = pgEnum("project_status", [
   "AVAILABLE",
   "ACCEPTED_PENDING_QUOTE",
   "QUOTATION_SENT",
-  // RESERVED / DEPRECATED: CLIENT_ACCEPTED was considered during Phase 5 design
-  // but was intentionally removed in favour of a single-hop QUOTATION_SENT →
-  // AWAITING_ADVANCE transition. This value must NOT be written by any Phase 5+
-  // business logic. It is kept here only because removing a PostgreSQL enum value
-  // requires a destructive migration and there is no data using it.
+  // RESERVED / DEPRECATED: CLIENT_ACCEPTED is intentionally unused.
+  // Phase 5 transitions directly from QUOTATION_SENT -> AWAITING_ADVANCE (single hop).
+  // This value is preserved only because PostgreSQL enums cannot drop values without a
+  // table-rewrite migration. Do NOT write this value from application code.
   "CLIENT_ACCEPTED",
   "AWAITING_ADVANCE",
   "ADVANCE_PROOF_SUBMITTED",
