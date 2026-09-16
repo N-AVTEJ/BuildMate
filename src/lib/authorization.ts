@@ -35,7 +35,10 @@ export type AuthAction =
   | "PAYMENT_VIEW"
   | "ADMIN_PAYMENT_LIST"
   | "ADMIN_PAYMENT_VERIFY"
-  | "ADMIN_PAYMENT_REJECT";
+  | "ADMIN_PAYMENT_REJECT"
+  // Deadline Engine & Progress actions (Phase 7)
+  | "PROJECT_UPDATE_PROGRESS"
+  | "ADMIN_RESOLVE_OVERDUE";
 
 export interface ProjectResourceContext {
   clientId?: string;
@@ -263,8 +266,21 @@ export function can(
     case "ADMIN_PAYMENT_LIST":
     case "ADMIN_PAYMENT_VERIFY":
     case "ADMIN_PAYMENT_REJECT":
+    case "ADMIN_RESOLVE_OVERDUE":
       if (!isAdmin) {
         return { allowed: false, reason: "Administrator role required." };
+      }
+      return { allowed: true };
+
+    case "PROJECT_UPDATE_PROGRESS":
+      if (!isBuilder) {
+        return { allowed: false, reason: "Builder role required to post progress updates." };
+      }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to post progress updates." };
+      }
+      if (resource && resource.builderId && resource.builderId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot post progress updates for a project you are not assigned to." };
       }
       return { allowed: true };
 

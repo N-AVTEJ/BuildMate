@@ -124,6 +124,7 @@ export async function POST(
         .update(projects)
         .set({
           status: "AWAITING_ADVANCE",
+          advancePaymentDeadline: new Date(now.getTime() + 24 * 60 * 60 * 1000),
           updatedAt: now,
         })
         .where(eq(projects.id, projectId))

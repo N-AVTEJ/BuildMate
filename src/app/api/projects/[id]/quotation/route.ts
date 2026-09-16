@@ -21,6 +21,7 @@ export async function POST(
 
     const body = await req.json().catch(() => ({}));
     const rawTotalPrice = body?.totalPrice;
+    const rawDuration = body?.estimatedDurationDays;
 
     if (
       typeof rawTotalPrice !== "number" ||
@@ -33,7 +34,20 @@ export async function POST(
       );
     }
 
+    if (
+      typeof rawDuration !== "number" ||
+      !Number.isInteger(rawDuration) ||
+      rawDuration < 1 ||
+      rawDuration > 365
+    ) {
+      return NextResponse.json(
+        { error: "estimatedDurationDays is required and must be an integer between 1 and 365." },
+        { status: 400 }
+      );
+    }
+
     const totalPrice = rawTotalPrice;
+    const estimatedDurationDays = rawDuration;
     const { advanceAmount, remainingAmount } = computeAdvanceBreakdown(totalPrice);
     const now = new Date();
 
@@ -69,6 +83,7 @@ export async function POST(
           totalPrice,
           advanceAmount,
           remainingAmount,
+          estimatedDurationDays,
           status: "PENDING",
         })
         .returning();
