@@ -43,6 +43,13 @@
       "when": 1789492684658,
       "tag": "0005_curly_omega_flight",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789537728689,
+      "tag": "0006_sparkling_mathemanic",
+      "breakpoints": true
     }
   ]
 }

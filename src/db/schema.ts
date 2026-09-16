@@ -171,6 +171,12 @@ export const projects = pgTable("projects", {
   developmentDeadline: timestamp("development_deadline", {
     withTimezone: true,
   }),
+  advanceReminderSentAt: timestamp("advance_reminder_sent_at", {
+    withTimezone: true,
+  }),
+  finalAdvanceReminderSentAt: timestamp("final_advance_reminder_sent_at", {
+    withTimezone: true,
+  }),
   submittedAt: timestamp("submitted_at", { withTimezone: true }),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -231,25 +237,31 @@ export const scopeVersions = pgTable(
 );
 
 // 7. payments
-export const payments = pgTable("payments", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  type: paymentTypeEnum("type").notNull(),
-  expectedAmount: integer("expected_amount").notNull(),
-  submittedAmount: integer("submitted_amount"),
-  transactionReference: text("transaction_reference"),
-  status: paymentStatusEnum("status").default("AWAITING").notNull(),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }),
-  verifiedAt: timestamp("verified_at", { withTimezone: true }),
-  verifiedBy: uuid("verified_by").references(() => users.id, {
-    onDelete: "restrict",
-  }),
-  rejectionReason: text("rejection_reason"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const payments = pgTable(
+  "payments",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    type: paymentTypeEnum("type").notNull(),
+    expectedAmount: integer("expected_amount").notNull(),
+    submittedAmount: integer("submitted_amount"),
+    transactionReference: text("transaction_reference"),
+    status: paymentStatusEnum("status").default("AWAITING").notNull(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    verifiedBy: uuid("verified_by").references(() => users.id, {
+      onDelete: "restrict",
+    }),
+    rejectionReason: text("rejection_reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    unique("payments_project_id_type_unique").on(table.projectId, table.type),
+  ]
+);
 
 // 8. payment_proofs
 export const paymentProofs = pgTable("payment_proofs", {

@@ -28,7 +28,14 @@ export type AuthAction =
   | "QUOTATION_ACCEPT"
   | "QUOTATION_REJECT"
   | "CHANGE_REQUEST_SUBMIT"
-  | "CHANGE_REQUEST_RESPOND";
+  | "CHANGE_REQUEST_RESPOND"
+  // Payment Proof & Verification actions (Phase 6)
+  | "PAYMENT_VIEW_INFO"
+  | "PAYMENT_SUBMIT_PROOF"
+  | "PAYMENT_VIEW"
+  | "ADMIN_PAYMENT_LIST"
+  | "ADMIN_PAYMENT_VERIFY"
+  | "ADMIN_PAYMENT_REJECT";
 
 export interface ProjectResourceContext {
   clientId?: string;
@@ -227,6 +234,37 @@ export function can(
       }
       if (resource && resource.clientId && resource.clientId !== auth.user.id) {
         return { allowed: false, reason: "Cannot respond to change request for a project you do not own." };
+      }
+      return { allowed: true };
+
+    // Phase 6: Payment Actions
+    case "PAYMENT_VIEW_INFO":
+    case "PAYMENT_VIEW":
+      if (isAdmin) {
+        return { allowed: true };
+      }
+      if (isClient && resource && resource.clientId === auth.user.id) {
+        return { allowed: true };
+      }
+      return { allowed: false, reason: "Access denied. You do not have permission to view this payment." };
+
+    case "PAYMENT_SUBMIT_PROOF":
+      if (!isClient) {
+        return { allowed: false, reason: "Client role required to submit payment proofs." };
+      }
+      if (!auth.user.emailVerified) {
+        return { allowed: false, reason: "Email verification required to submit payment proofs." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot submit payment proof for a project you do not own." };
+      }
+      return { allowed: true };
+
+    case "ADMIN_PAYMENT_LIST":
+    case "ADMIN_PAYMENT_VERIFY":
+    case "ADMIN_PAYMENT_REJECT":
+      if (!isAdmin) {
+        return { allowed: false, reason: "Administrator role required." };
       }
       return { allowed: true };
 
