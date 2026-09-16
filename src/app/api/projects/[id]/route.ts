@@ -5,6 +5,7 @@ import { projects, projectRequirements } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { can } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
+import { reconcilePaymentReminders } from "@/lib/projects/payment-reminders";
 
 export async function GET(
   _req: Request,
@@ -38,6 +39,11 @@ export async function GET(
     if (project.status === "AVAILABLE" && effectiveStatus === "EXPIRED_NO_BUILDER") {
       await reconcileProjectStatusInDb(project.id, now);
       project.status = "EXPIRED_NO_BUILDER";
+    }
+
+    // 3.5 Reconcile On-Demand Payment Reminders (Spec Section 18)
+    if (project.status === "AWAITING_ADVANCE" && project.clientId === auth.user.id) {
+      await reconcilePaymentReminders(project, now);
     }
 
     // 4. Fetch Associated Requirements
