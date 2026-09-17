@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 interface DeliverableData {
   id?: string;
   githubUrl?: string;
-  repoType?: "public" | "private";
+  repoType?: string;
   branch?: string;
   commitRef?: string;
   description?: string;

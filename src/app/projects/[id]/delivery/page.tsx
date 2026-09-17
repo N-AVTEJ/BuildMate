@@ -4,7 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, deliverables, payments } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/guards";
-import { PortalHeader } from "@/components/layout/portal-header";
+import { PortalHeader } from "@/components/navigation/portal-header";
 import { DeliveryAcceptButton } from "@/components/projects/delivery-accept-button";
 
 interface DeliveryPageProps {
@@ -73,8 +73,8 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
     <div className="min-h-screen bg-gray-50 pb-16">
       <PortalHeader
         user={auth.user}
-        activeRole={isAdmin ? "ADMIN" : "CLIENT"}
-        availableRoles={auth.roles}
+        roles={auth.roles}
+        currentPortalTitle={isAdmin ? "Admin Portal" : "Client Portal"}
       />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">

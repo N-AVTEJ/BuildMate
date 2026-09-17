@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/guards";
-import { PortalHeader } from "@/components/layout/portal-header";
+import { PortalHeader } from "@/components/navigation/portal-header";
 
 interface DisputeNewPageProps {
   params: Promise<{ id: string }>;
@@ -47,8 +47,8 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
     <div className="min-h-screen bg-gray-50 pb-16">
       <PortalHeader
         user={auth.user}
-        activeRole={isAdmin ? "ADMIN" : "CLIENT"}
-        availableRoles={auth.roles}
+        roles={auth.roles}
+        currentPortalTitle={isAdmin ? "Admin Portal" : "Client Portal"}
       />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">

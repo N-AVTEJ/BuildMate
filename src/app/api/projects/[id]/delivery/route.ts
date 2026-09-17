@@ -111,7 +111,20 @@ export async function GET(
       );
     }
 
-    // Condition 6: The project status is DELIVERY_UNLOCKED or COMPLETED
+    // Condition 6: The project is not DISPUTE_OPEN
+    if (project.status === "DISPUTE_OPEN") {
+      return NextResponse.json(
+        {
+          error:
+            "Delivery locked due to an active dispute on this project. An administrator must resolve the dispute before delivery can proceed.",
+          locked: true,
+          inDispute: true,
+        },
+        { status: 403 }
+      );
+    }
+
+    // Condition 7: The project status is DELIVERY_UNLOCKED or COMPLETED
     if (
       project.status !== "DELIVERY_UNLOCKED" &&
       project.status !== "COMPLETED"
@@ -120,19 +133,6 @@ export async function GET(
         {
           error: `Delivery locked. Project is not in an unlocked delivery status (current: ${project.status}).`,
           locked: true,
-        },
-        { status: 403 }
-      );
-    }
-
-    // Condition 7: The project is not DISPUTE_OPEN
-    if (project.status === "DISPUTE_OPEN") {
-      return NextResponse.json(
-        {
-          error:
-            "Delivery locked due to an active dispute on this project. An administrator must resolve the dispute before delivery can proceed.",
-          locked: true,
-          inDispute: true,
         },
         { status: 403 }
       );
