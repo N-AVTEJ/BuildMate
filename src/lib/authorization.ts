@@ -38,7 +38,11 @@ export type AuthAction =
   | "ADMIN_PAYMENT_REJECT"
   // Deadline Engine & Progress actions (Phase 7)
   | "PROJECT_UPDATE_PROGRESS"
-  | "ADMIN_RESOLVE_OVERDUE";
+  | "ADMIN_RESOLVE_OVERDUE"
+  // Submission & Delivery Security actions (Phase 8)
+  | "PROJECT_SUBMIT_DELIVERABLE"
+  | "PROJECT_VIEW_DELIVERY"
+  | "PROJECT_REVIEW_DELIVERY";
 
 export interface ProjectResourceContext {
   clientId?: string;
@@ -273,14 +277,36 @@ export function can(
       return { allowed: true };
 
     case "PROJECT_UPDATE_PROGRESS":
+    case "PROJECT_SUBMIT_DELIVERABLE":
       if (!isBuilder) {
-        return { allowed: false, reason: "Builder role required to post progress updates." };
+        return { allowed: false, reason: "Builder role required." };
       }
       if (!auth.user.emailVerified) {
-        return { allowed: false, reason: "Email verification required to post progress updates." };
+        return { allowed: false, reason: "Email verification required." };
       }
       if (resource && resource.builderId && resource.builderId !== auth.user.id) {
-        return { allowed: false, reason: "Cannot post progress updates for a project you are not assigned to." };
+        return { allowed: false, reason: "Cannot perform action on a project you are not assigned to." };
+      }
+      return { allowed: true };
+
+    case "PROJECT_VIEW_DELIVERY":
+      if (isAdmin) {
+        return { allowed: true };
+      }
+      if (!isClient) {
+        return { allowed: false, reason: "Client or administrator role required to access project delivery." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot access delivery for a project you do not own." };
+      }
+      return { allowed: true };
+
+    case "PROJECT_REVIEW_DELIVERY":
+      if (!isClient) {
+        return { allowed: false, reason: "Client role required to review and complete project." };
+      }
+      if (resource && resource.clientId && resource.clientId !== auth.user.id) {
+        return { allowed: false, reason: "Cannot review a project you do not own." };
       }
       return { allowed: true };
 
