@@ -265,6 +265,52 @@ export default async function ProjectDetailPage({
             </div>
           </div>
         )}
+
+        {/* Phase 8: Final Payment Form */}
+        {project.status === "FINAL_PAYMENT_PENDING" && (
+          <PaymentProofUploadForm
+            projectId={project.id}
+            projectCode={project.projectCode}
+            expectedAmount={project.remainingAmount || 0}
+            paymentType="FINAL"
+            rejectionReason={existingPayment?.status === "REJECTED" && existingPayment.type === "FINAL" ? existingPayment.rejectionReason : null}
+          />
+        )}
+
+        {project.status === "FINAL_PAYMENT_PROOF_SUBMITTED" && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6 flex items-start gap-4">
+            <span className="text-2xl">⏳</span>
+            <div>
+              <h3 className="text-base font-bold text-blue-900">Final Payment Submitted — Under Review</h3>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Your final payment proof of ₹{project.remainingAmount || 0} has been submitted. Delivery will unlock automatically once verified by an administrator.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 8: Delivery Unlocked / Completed Banner */}
+        {(project.status === "DELIVERY_UNLOCKED" || project.status === "CLIENT_REVIEW" || project.status === "COMPLETED") && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <span className="text-2xl">📦</span>
+              <div>
+                <h3 className="text-base font-bold text-green-950">
+                  {project.status === "COMPLETED" ? "Project Completed" : "Project Deliverables Ready!"}
+                </h3>
+                <p className="text-xs text-green-800 mt-0.5">
+                  Final payment is verified and source code delivery is unlocked.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/projects/${project.id}/delivery`}
+              className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition text-center whitespace-nowrap"
+            >
+              Access Deliverables →
+            </Link>
+          </div>
+        )}
       </div>
     </main>
   );

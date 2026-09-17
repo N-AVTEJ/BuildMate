@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { projects, projectRequirements } from "@/db/schema";
+import { projects, projectRequirements, deliverables } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { can } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
@@ -10,6 +10,7 @@ import { PortalHeader } from "@/components/navigation/portal-header";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { BuilderProjectActions } from "@/components/builder/builder-project-actions";
 import { QuotationForm } from "@/components/builder/quotation-form";
+import { DeliverableSubmissionForm } from "@/components/builder/deliverable-submission-form";
 
 export default async function BuilderProjectDetailPage({
   params,
@@ -99,6 +100,15 @@ export default async function BuilderProjectDetailPage({
     .where(eq(projectRequirements.projectId, project.id));
 
   const isAssignedToCurrentBuilder = project.builderId === auth.user.id;
+
+  // 7. Fetch Existing Deliverables if Assigned
+  const [existingDeliverable] = isAssignedToCurrentBuilder
+    ? await db
+        .select()
+        .from(deliverables)
+        .where(eq(deliverables.projectId, project.id))
+        .limit(1)
+    : [null];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -315,6 +325,24 @@ export default async function BuilderProjectDetailPage({
             </div>
           </div>
         )}
+
+        {/* Deliverables Submission Form for Assigned Builder */}
+        {isAssignedToCurrentBuilder &&
+          (project.status === "IN_PROGRESS" ||
+            project.status === "OVERDUE" ||
+            project.status === "FINAL_PAYMENT_PENDING" ||
+            project.status === "FINAL_PAYMENT_PROOF_SUBMITTED" ||
+            project.status === "DELIVERY_UNLOCKED" ||
+            project.status === "CLIENT_REVIEW" ||
+            project.status === "COMPLETED") && (
+            <div className="mt-6">
+              <DeliverableSubmissionForm
+                projectId={project.id}
+                projectStatus={project.status}
+                initialDeliverable={existingDeliverable}
+              />
+            </div>
+          )}
       </main>
     </div>
   );
