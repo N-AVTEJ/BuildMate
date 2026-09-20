@@ -107,6 +107,24 @@ export default async function ProjectDetailPage({
           </span>
         </div>
 
+        {project.status === "DISPUTE_OPEN" && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-red-800">
+              <span className="text-xl">⚠️</span>
+              <div>
+                <p className="text-sm font-bold">This project is currently in DISPUTE_OPEN status.</p>
+                <p className="text-xs text-red-600">Active development and delivery are locked while BuildMate administrators mediate.</p>
+              </div>
+            </div>
+            <Link
+              href={`/projects/${project.id}/dispute/new`}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition shrink-0"
+            >
+              View Dispute
+            </Link>
+          </div>
+        )}
+
         {/* Project Header Card */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-gray-100 pb-6 mb-6">
@@ -117,9 +135,17 @@ export default async function ProjectDetailPage({
               <h1 className="text-2xl font-bold text-gray-900 mt-1">{project.title}</h1>
               <p className="text-sm text-gray-500 mt-1">{project.subject}</p>
             </div>
-            {project.status === "AVAILABLE" && project.acceptanceDeadline && (
-              <AcceptanceCountdown deadlineIso={project.acceptanceDeadline.toISOString()} />
-            )}
+            <div className="flex items-center gap-3">
+              {project.status === "AVAILABLE" && project.acceptanceDeadline && (
+                <AcceptanceCountdown deadlineIso={project.acceptanceDeadline.toISOString()} />
+              )}
+              <Link
+                href={`/projects/${project.id}/messages`}
+                className="px-3.5 py-1.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition"
+              >
+                💬 Messages
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

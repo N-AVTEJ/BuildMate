@@ -87,13 +87,22 @@ export default async function AdminDashboardPage() {
               Global overview of platform activity, project lifecycles, and verification queues.
             </p>
           </div>
-          <Link
-            href="/admin/payments"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
-          >
-            <span>💳 Payment Verification Queue</span>
-            <span>→</span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/disputes"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
+            >
+              <span>⚖️ Dispute Mediation Queue</span>
+              <span>→</span>
+            </Link>
+            <Link
+              href="/admin/payments"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
+            >
+              <span>💳 Payment Verification Queue</span>
+              <span>→</span>
+            </Link>
+          </div>
         </div>
 
         {/* Quick Metrics Cards */}

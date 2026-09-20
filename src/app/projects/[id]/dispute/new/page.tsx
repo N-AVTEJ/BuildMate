@@ -1,10 +1,16 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { projects } from "@/db/schema";
+import { projects, disputes } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/guards";
 import { PortalHeader } from "@/components/navigation/portal-header";
+import { DisputeForm } from "@/components/projects/dispute-form";
+import {
+  CLIENT_DISPUTE_STATUS_ALLOWLIST,
+  BUILDER_DISPUTE_STATUS_ALLOWLIST,
+} from "@/lib/projects/dispute-validation";
+import { ProjectStatus } from "@/lib/project-status";
 
 interface DisputeNewPageProps {
   params: Promise<{ id: string }>;
@@ -35,64 +41,118 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
     notFound();
   }
 
-  // Must be client or admin
+  // Must be client or builder (or admin)
   const isClient = project.clientId === auth.user.id;
+  const isBuilder = project.builderId === auth.user.id;
   const isAdmin = auth.roles.includes("ADMIN");
 
-  if (!isClient && !isAdmin) {
+  if (!isClient && !isBuilder && !isAdmin) {
     notFound();
   }
+
+  // Determine active role for dispute context
+  const role = isClient ? ("CLIENT" as const) : ("BUILDER" as const);
+
+  // Check if an OPEN dispute currently exists
+  const [activeDispute] = await db
+    .select({
+      id: disputes.id,
+      reason: disputes.reason,
+      description: disputes.description,
+      raisedBy: disputes.raisedBy,
+      createdAt: disputes.createdAt,
+    })
+    .from(disputes)
+    .where(
+      and(
+        eq(disputes.projectId, project.id),
+        eq(disputes.status, "OPEN")
+      )
+    )
+    .limit(1);
+
+  // Check if project status is allowed in the role's allowlist (if no active dispute)
+  const allowlist =
+    role === "CLIENT"
+      ? CLIENT_DISPUTE_STATUS_ALLOWLIST
+      : BUILDER_DISPUTE_STATUS_ALLOWLIST;
+
+  const isStatusAllowed = allowlist.includes(project.status as ProjectStatus);
+
+  const currentPortalTitle = isAdmin
+    ? "Admin Portal"
+    : isBuilder
+    ? "Builder Portal"
+    : "Client Portal";
+
+  const backLink = isBuilder ? `/builder/projects/${project.id}` : `/projects/${project.id}`;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
-        currentPortalTitle={isAdmin ? "Admin Portal" : "Client Portal"}
+        currentPortalTitle={currentPortalTitle}
       />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/projects" className="hover:text-blue-600">
+          <Link href={isBuilder ? "/builder/projects" : "/projects"} className="hover:text-blue-600">
             Projects
           </Link>
           <span>/</span>
-          <Link href={`/projects/${project.id}`} className="hover:text-blue-600">
+          <Link href={backLink} className="hover:text-blue-600 font-mono">
             {project.projectCode}
           </Link>
           <span>/</span>
           <span className="text-gray-900 font-medium">Dispute</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-          <div className="flex items-center gap-3 mb-4 text-amber-600">
-            <span className="text-2xl">⚠️</span>
-            <h1 className="text-xl font-bold text-gray-900">
-              Raise an Issue / Open Dispute
-            </h1>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+              {project.projectCode}
+            </span>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+              Status: {project.status}
+            </span>
           </div>
-          <p className="text-sm text-gray-600 mb-6">
-            If the delivered code does not meet your accepted project scope, or if critical features are missing, opening a formal dispute alerts BuildMate administration for mediation.
+          <h1 className="text-2xl font-bold text-gray-900">
+            Project Dispute Mediation
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            BuildMate mediation portal for resolving scope disagreements, missing deliverables, or unresponsive communication.
           </p>
+        </div>
 
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 mb-6">
-            <p className="font-semibold mb-1">
-              Project: {project.title} ({project.projectCode})
+        {/* If no active dispute and status is not in allowlist, show explanation */}
+        {!activeDispute && !isStatusAllowed ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm text-center">
+            <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+              ℹ️
+            </div>
+            <h2 className="text-base font-bold text-gray-900 mb-2">
+              Dispute Filing Unavailable
+            </h2>
+            <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+              Disputes can only be opened during active development, delivery review, or settlement phases. This project is currently in{" "}
+              <span className="font-semibold text-gray-900 font-mono">{project.status}</span>.
             </p>
-            <p className="text-xs">
-              Phase 9 will introduce dedicated dispute resolution workflows and mediation tooling.
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-3">
             <Link
-              href={`/projects/${project.id}/delivery`}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold hover:bg-gray-50 transition text-gray-700"
+              href={backLink}
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition"
             >
-              Back to Delivery
+              Return to Project Overview
             </Link>
           </div>
-        </div>
+        ) : (
+          <DisputeForm
+            projectId={project.id}
+            role={role}
+            activeDispute={activeDispute || null}
+            currentUserId={auth.user.id}
+          />
+        )}
       </main>
     </div>
   );
