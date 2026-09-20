@@ -224,7 +224,6 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     // Insert deliverable containing sensitive repo and deployment URLs
     await db.insert(deliverables).values({
       projectId: proj.id,
-      builderId: builderUser.id,
       githubUrl: "https://github.com/secret-org/super-secret-repo",
       repoType: "PUBLIC",
       branch: "main",

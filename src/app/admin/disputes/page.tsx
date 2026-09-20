@@ -12,7 +12,7 @@ import {
   paymentProofs,
   messages,
 } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/guards";
+import { getOptionalAuth } from "@/lib/auth/guards";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import {
   DisputeAdjudicationCard,
@@ -20,8 +20,13 @@ import {
 } from "@/components/admin/dispute-adjudication-card";
 import { getDownloadUrl } from "@/lib/storage";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDisputesPage() {
-  const auth = await requireAuth();
+  const auth = await getOptionalAuth();
+  if (!auth) {
+    redirect("/login");
+  }
 
   if (!auth.roles.includes("ADMIN")) {
     redirect("/dashboard");

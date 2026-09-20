@@ -186,7 +186,6 @@ async function runPhase10Tests() {
 
       await db.insert(deliverables).values({
         projectId: proj.id,
-        builderId: builderUser.id,
         githubUrl: "https://github.com/secret-org/deliverable-code",
         repoType: "PUBLIC",
         branch: "main",
@@ -609,7 +608,11 @@ async function runPhase10Tests() {
   }
 }
 
-runPhase10Tests().catch((err) => {
-  console.error("Phase 10 Test Failure:", err);
-  process.exit(1);
-});
+runPhase10Tests()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error("Phase 10 Test Failure:", err);
+    process.exit(1);
+  });

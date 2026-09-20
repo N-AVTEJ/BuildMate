@@ -1,19 +1,25 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { eq, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, messages, users } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/guards";
+import { getOptionalAuth } from "@/lib/auth/guards";
 import { isProjectParticipant } from "@/lib/authorization";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { ProjectChat, MessageItem } from "@/components/projects/project-chat";
+
+export const dynamic = "force-dynamic";
 
 interface ProjectMessagesPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ProjectMessagesPage({ params }: ProjectMessagesPageProps) {
-  const auth = await requireAuth();
+  const auth = await getOptionalAuth();
+  if (!auth) {
+    redirect("/login");
+  }
+
   const { id: projectId } = await params;
 
   if (!projectId) {

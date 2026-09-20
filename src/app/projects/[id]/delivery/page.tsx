@@ -3,16 +3,22 @@ import Link from "next/link";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, deliverables, payments } from "@/db/schema";
-import { requireAuth } from "@/lib/auth/guards";
+import { getOptionalAuth } from "@/lib/auth/guards";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { DeliveryAcceptButton } from "@/components/projects/delivery-accept-button";
+
+export const dynamic = "force-dynamic";
 
 interface DeliveryPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ProjectDeliveryPage({ params }: DeliveryPageProps) {
-  const auth = await requireAuth();
+  const auth = await getOptionalAuth();
+  if (!auth) {
+    redirect("/login");
+  }
+
   const { id: projectId } = await params;
 
   if (!projectId) {
