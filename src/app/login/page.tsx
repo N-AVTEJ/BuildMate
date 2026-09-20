@@ -35,6 +35,8 @@ export default function LoginPage() {
 
       if (!res.ok) {
         throw new Error(data.error || "Login failed.");
+      }
+
       const roles: string[] = data.user?.roles || [];
       if (roles.includes("ADMIN")) {
         router.push("/admin");
