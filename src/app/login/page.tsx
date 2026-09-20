@@ -35,9 +35,15 @@ export default function LoginPage() {
 
       if (!res.ok) {
         throw new Error(data.error || "Login failed.");
+      const roles: string[] = data.user?.roles || [];
+      if (roles.includes("ADMIN")) {
+        router.push("/admin");
+      } else if (roles.includes("BUILDER")) {
+        router.push("/builder");
+      } else {
+        router.push("/projects");
       }
-
-      router.push("/projects");
+      router.refresh();
     } catch (err: any) {
       setError(err.message || "An error occurred during login.");
     } finally {
