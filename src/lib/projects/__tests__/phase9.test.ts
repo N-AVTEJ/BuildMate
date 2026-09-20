@@ -8,6 +8,7 @@ import {
   FORBIDDEN_DISPUTE_STATUSES,
   ADMIN_RESOLUTION_ACTIONS,
   ADMIN_RESOLUTION_MAP,
+  AdminResolutionAction,
   sanitizeMessageBody,
   validateDisputeSubmission,
   validateAdminResolution,
@@ -577,6 +578,7 @@ function evaluatePhase8DeliveryGate(project: { status: ProjectStatus }) {
 const gatedDispute = evaluatePhase8DeliveryGate({ status: "DISPUTE_OPEN" });
 assert.strictEqual(gatedDispute.allowed, false);
 assert.strictEqual(gatedDispute.status, 403);
+assert.ok(gatedDispute.body);
 assert.strictEqual(gatedDispute.body.inDispute, true);
 assert.strictEqual(gatedDispute.body.locked, true);
 
