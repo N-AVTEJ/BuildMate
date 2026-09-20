@@ -41,10 +41,8 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      // 2. Client ownership check
-      if (project.clientId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      // 2. Client ownership check via centralized authorization
+      authorize(auth, "CHANGE_REQUEST_RESPOND", { clientId: project.clientId });
 
       // 3. Status eligibility check
       if (!CR_ELIGIBLE_STATUSES.includes(project.status as any)) {
@@ -95,13 +93,6 @@ export async function POST(
 
     if (result.type === "NOT_FOUND" || result.type === "CR_NOT_FOUND") {
       return NextResponse.json({ error: "Project or Change Request not found." }, { status: 404 });
-    }
-
-    if (result.type === "FORBIDDEN") {
-      return NextResponse.json(
-        { error: "Forbidden. You are not the client owner of this project." },
-        { status: 403 }
-      );
     }
 
     if (result.type === "CONFLICT") {

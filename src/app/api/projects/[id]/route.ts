@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectRequirements } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { can } from "@/lib/authorization";
+import { authorize } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 import { reconcilePaymentReminders } from "@/lib/projects/payment-reminders";
 
@@ -27,11 +27,15 @@ export async function GET(
       .limit(1);
 
     // 2. IDOR Defense & Central Authorization
-    // Central authorization allows OWNER, ASSIGNED BUILDER, AVAILABLE BUILDER, or ADMIN.
-    // Return identical 404 if project does not exist OR user is unauthorized (preventing existence probing).
-    if (!project || !can(auth, "PROJECT_VIEW_OWN", { clientId: project.clientId, builderId: project.builderId, status: project.status }).allowed) {
+    if (!project) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
+
+    authorize(auth, "PROJECT_VIEW_OWN", {
+      clientId: project.clientId,
+      builderId: project.builderId,
+      status: project.status,
+    });
 
     // 3. Reconcile Effective Status if Expired/Overdue
     const now = new Date();

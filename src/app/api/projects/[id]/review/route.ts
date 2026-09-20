@@ -48,10 +48,8 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      // 2. Ownership verification
-      if (project.clientId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      // 2. Centralized authorization check
+      authorize(auth, "PROJECT_REVIEW_DELIVERY", { clientId: project.clientId });
 
       // 3. Status checks
       if (project.status === "COMPLETED") {

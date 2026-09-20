@@ -33,10 +33,8 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      // 2. Ownership check
-      if (project.clientId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      // 2. Ownership check via centralized authorization
+      authorize(auth, "QUOTATION_REJECT", { clientId: project.clientId });
 
       // 3. Status precondition check
       if (project.status !== "QUOTATION_SENT") {
@@ -100,13 +98,6 @@ export async function POST(
 
     if (result.type === "NOT_FOUND") {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
-    }
-
-    if (result.type === "FORBIDDEN") {
-      return NextResponse.json(
-        { error: "Forbidden. You are not the client owner of this project." },
-        { status: 403 }
-      );
     }
 
     if (result.type === "CONFLICT") {

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, projects, paymentProofs } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { can } from "@/lib/authorization";
+import { authorize } from "@/lib/authorization";
 import { getDownloadUrl } from "@/lib/storage";
 
 export async function GET(
@@ -43,12 +43,10 @@ export async function GET(
       .limit(1);
 
     // IDOR Protection: Scoped strictly through project relationship
-    if (
-      !project ||
-      !can(auth, "PAYMENT_VIEW", { clientId: project.clientId }).allowed
-    ) {
+    if (!project) {
       return NextResponse.json({ error: "Payment not found." }, { status: 404 });
     }
+    authorize(auth, "PAYMENT_VIEW", { clientId: project.clientId });
 
     // 3. Fetch payment proofs and generate fresh short-lived signed download URLs
     const proofsList = await db

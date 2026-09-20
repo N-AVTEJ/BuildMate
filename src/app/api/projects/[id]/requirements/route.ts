@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectRequirements } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { can } from "@/lib/authorization";
+import { authorize } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 import { validateUploadFile } from "@/lib/storage/validation";
 import { storageProvider } from "@/lib/storage";
@@ -30,9 +30,10 @@ export async function POST(
       .where(eq(projects.id, id))
       .limit(1);
 
-    if (!project || !can(auth, "PROJECT_UPLOAD_REQUIREMENT", { clientId: project.clientId }).allowed) {
+    if (!project) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
+    authorize(auth, "PROJECT_UPLOAD_REQUIREMENT", { clientId: project.clientId });
 
     // 3. Strict Upload Status & Expiry Check
     const now = new Date();

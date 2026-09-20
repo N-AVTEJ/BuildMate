@@ -3,7 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, payments } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { can } from "@/lib/authorization";
+import { authorize } from "@/lib/authorization";
 
 export async function GET(
   _req: Request,
@@ -33,13 +33,11 @@ export async function GET(
       .where(eq(projects.id, projectId))
       .limit(1);
 
-    // 2. IDOR & Authorization Defense (Return 404 to avoid existence probing)
-    if (
-      !project ||
-      !can(auth, "PAYMENT_VIEW_INFO", { clientId: project.clientId }).allowed
-    ) {
+    // 2. IDOR & Authorization Defense
+    if (!project) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
+    authorize(auth, "PAYMENT_VIEW_INFO", { clientId: project.clientId });
 
     // 3. Derive payment type from project status
     let paymentType: "ADVANCE" | "FINAL";

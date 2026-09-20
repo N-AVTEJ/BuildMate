@@ -8,7 +8,7 @@ import {
   notifications,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { authorize } from "@/lib/authorization";
+import { authorize, isProjectParticipant } from "@/lib/authorization";
 import { computeEffectiveStatus } from "@/lib/project-status";
 
 export async function POST(
@@ -54,10 +54,8 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      // 2. Ownership verification
-      if (project.builderId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      // 2. Ownership verification via centralized authorization
+      authorize(auth, "PROJECT_UPDATE_PROGRESS", { builderId: project.builderId });
 
       // 3. Central status engine evaluation
       const effective = computeEffectiveStatus(project, now);
@@ -138,13 +136,6 @@ export async function POST(
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    if (result.type === "FORBIDDEN") {
-      return NextResponse.json(
-        { error: "Forbidden. You are not the assigned builder for this project." },
-        { status: 403 }
-      );
-    }
-
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
@@ -196,11 +187,7 @@ export async function GET(
     }
 
     // Must be client, assigned builder, or admin
-    const isAdmin = auth.roles.includes("ADMIN");
-    const isOwner = project.clientId === auth.user.id;
-    const isAssignedBuilder = project.builderId === auth.user.id;
-
-    if (!isAdmin && !isOwner && !isAssignedBuilder) {
+    if (!isProjectParticipant(auth.user, auth.roles, project)) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 

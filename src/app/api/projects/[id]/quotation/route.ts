@@ -64,9 +64,7 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      if (project.builderId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      authorize(auth, "QUOTATION_SUBMIT", { builderId: project.builderId });
 
       if (project.status !== "ACCEPTED_PENDING_QUOTE") {
         return {
@@ -118,13 +116,6 @@ export async function POST(
 
     if (result.type === "NOT_FOUND") {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
-    }
-
-    if (result.type === "FORBIDDEN") {
-      return NextResponse.json(
-        { error: "Forbidden. You are not the assigned builder for this project." },
-        { status: 403 }
-      );
     }
 
     if (result.type === "CONFLICT") {

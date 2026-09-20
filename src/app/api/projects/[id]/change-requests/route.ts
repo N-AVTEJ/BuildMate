@@ -3,7 +3,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, changeRequests, notifications } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { authorize } from "@/lib/authorization";
+import { authorize, isProjectParticipant } from "@/lib/authorization";
 
 const CR_ELIGIBLE_STATUSES = [
   "AWAITING_ADVANCE",
@@ -72,10 +72,8 @@ export async function POST(
         return { type: "NOT_FOUND" as const };
       }
 
-      // 2. Builder assignment check
-      if (project.builderId !== auth.user.id) {
-        return { type: "FORBIDDEN" as const };
-      }
+      // 2. Builder assignment check via centralized authorization
+      authorize(auth, "CHANGE_REQUEST_SUBMIT", { builderId: project.builderId });
 
       // 3. Status eligibility check
       if (!CR_ELIGIBLE_STATUSES.includes(project.status as any)) {
@@ -133,13 +131,6 @@ export async function POST(
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    if (result.type === "FORBIDDEN") {
-      return NextResponse.json(
-        { error: "Forbidden. You are not the assigned builder for this project." },
-        { status: 403 }
-      );
-    }
-
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
@@ -186,11 +177,7 @@ export async function GET(
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
 
-    const isOwner = project.clientId === auth.user.id;
-    const isAssignedBuilder = project.builderId === auth.user.id;
-    const isAdmin = auth.roles.includes("ADMIN");
-
-    if (!isOwner && !isAssignedBuilder && !isAdmin) {
+    if (!isProjectParticipant(auth.user, auth.roles, project)) {
       return NextResponse.json(
         { error: "Forbidden. You do not have permission to view change requests for this project." },
         { status: 403 }

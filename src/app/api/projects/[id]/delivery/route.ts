@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, deliverables, payments } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { authorize } from "@/lib/authorization";
 
 /**
  * THE DELIVERY-UNLOCK ENDPOINT
@@ -58,16 +59,7 @@ export async function GET(
     }
 
     // Condition 2: The requester is the project client or ADMIN
-    // (Do not reveal project existence or state to unauthorized callers)
-    const isClient = project.clientId === auth.user.id;
-    const isAdmin = auth.roles.includes("ADMIN");
-
-    if (!isClient && !isAdmin) {
-      return NextResponse.json(
-        { error: "Forbidden. You do not have permission to access project delivery." },
-        { status: 403 }
-      );
-    }
+    authorize(auth, "PROJECT_VIEW_DELIVERY", { clientId: project.clientId });
 
     // Condition 3: The project has a deliverable row
     const [deliverable] = await db
