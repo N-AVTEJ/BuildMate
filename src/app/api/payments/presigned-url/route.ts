@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { authorize } from "@/lib/authorization";
 import {
   isValidProofExtension,
   isValidProofMimeType,
@@ -13,13 +14,7 @@ import {
 export async function POST(req: Request) {
   try {
     const auth = await requireAuth();
-
-    if (!auth.roles.includes("CLIENT")) {
-      return NextResponse.json(
-        { error: "Client role required to request payment proof upload URL." },
-        { status: 403 }
-      );
-    }
+    authorize(auth, "PAYMENT_SUBMIT_PROOF");
 
     let body: any;
     try {
@@ -60,10 +55,10 @@ export async function POST(req: Request) {
       .where(eq(projects.id, projectId))
       .limit(1);
 
-    // IDOR protection: return 404 for nonexistent or unauthorized projects
-    if (!project || project.clientId !== auth.user.id) {
+    if (!project) {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
     }
+    authorize(auth, "PAYMENT_SUBMIT_PROOF", { clientId: project.clientId });
 
     // 2. Derive payment type from project status
     let paymentType: "ADVANCE" | "FINAL";
