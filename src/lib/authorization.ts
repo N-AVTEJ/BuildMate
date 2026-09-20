@@ -42,12 +42,40 @@ export type AuthAction =
   // Submission & Delivery Security actions (Phase 8)
   | "PROJECT_SUBMIT_DELIVERABLE"
   | "PROJECT_VIEW_DELIVERY"
-  | "PROJECT_REVIEW_DELIVERY";
+  | "PROJECT_REVIEW_DELIVERY"
+  // Messages & Disputes actions (Phase 9)
+  | "PROJECT_MESSAGES_VIEW"
+  | "PROJECT_MESSAGES_SEND"
+  | "PROJECT_RAISE_DISPUTE"
+  | "DISPUTE_CANCEL"
+  | "ADMIN_VIEW_DISPUTES"
+  | "ADMIN_RESOLVE_DISPUTE";
 
 export interface ProjectResourceContext {
   clientId?: string;
   builderId?: string | null;
   status?: string;
+}
+
+/**
+ * Checks whether the given user is a valid participant of the project.
+ * Returns true if:
+ * 1. User has the ADMIN role.
+ * 2. User is the project's client (project.clientId === user.id).
+ * 3. User is the assigned builder (project.builderId === user.id).
+ * Returns false otherwise.
+ */
+export function isProjectParticipant(
+  user: { id: string } | null,
+  roles: string[] = [],
+  project?: { clientId?: string; builderId?: string | null } | null
+): boolean {
+  if (!user) return false;
+  if (roles.includes("ADMIN")) return true;
+  if (!project) return false;
+  if (project.clientId && project.clientId === user.id) return true;
+  if (project.builderId && project.builderId === user.id) return true;
+  return false;
 }
 
 /**
@@ -307,6 +335,43 @@ export function can(
       }
       if (resource && resource.clientId && resource.clientId !== auth.user.id) {
         return { allowed: false, reason: "Cannot review a project you do not own." };
+      }
+      return { allowed: true };
+
+    // Phase 9: Messages & Disputes
+    case "PROJECT_MESSAGES_VIEW":
+    case "PROJECT_MESSAGES_SEND":
+      if (!isProjectParticipant(auth.user, auth.roles, resource)) {
+        return {
+          allowed: false,
+          reason: "Forbidden. You are not a participant (client, builder, or admin) on this project.",
+        };
+      }
+      return { allowed: true };
+
+    case "PROJECT_RAISE_DISPUTE":
+      if (isAdmin) {
+        return { allowed: true };
+      }
+      if (
+        resource &&
+        (resource.clientId === auth.user.id || resource.builderId === auth.user.id)
+      ) {
+        return { allowed: true };
+      }
+      return {
+        allowed: false,
+        reason: "Forbidden. Only the assigned client or builder can open a dispute.",
+      };
+
+    case "DISPUTE_CANCEL":
+      // Authenticated participant or admin can request cancel (exact raiser ownership is verified on dispute record)
+      return { allowed: true };
+
+    case "ADMIN_VIEW_DISPUTES":
+    case "ADMIN_RESOLVE_DISPUTE":
+      if (!isAdmin) {
+        return { allowed: false, reason: "Administrator role required." };
       }
       return { allowed: true };
 

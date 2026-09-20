@@ -59,6 +59,7 @@ export const projectStatusEnum = pgEnum("project_status", [
   "OVERDUE",
   "DISPUTE_OPEN",
   "CANCELLED_BEFORE_DEV",
+  "CANCELLED",
 ]);
 
 export const quotationStatusEnum = pgEnum("quotation_status", [
@@ -321,6 +322,7 @@ export const projectStatusHistory = pgTable("project_status_history", {
   changedBy: uuid("changed_by")
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
+  reason: text("reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -363,10 +365,12 @@ export const disputes = pgTable("disputes", {
   reason: disputeReasonEnum("reason").notNull(),
   description: text("description").notNull(),
   status: disputeStatusEnum("status").default("OPEN").notNull(),
+  preDisputeStatus: projectStatusEnum("pre_dispute_status"),
   resolvedBy: uuid("resolved_by").references(() => users.id, {
     onDelete: "restrict",
   }),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  resolutionNote: text("resolution_note"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

@@ -57,6 +57,13 @@
       "when": 1789550893483,
       "tag": "0007_wandering_the_captain",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789891877919,
+      "tag": "0008_majestic_ultimo",
+      "breakpoints": true
     }
   ]
 }
