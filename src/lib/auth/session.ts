@@ -1,8 +1,11 @@
 import crypto from "crypto";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { cookies } from "next/headers";
 import { eq, and, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users, userRoles, roleEnum } from "@/db/schema";
+
+export const testRequestContext = new AsyncLocalStorage<{ cookie?: string; token?: string }>();
 
 export const SESSION_COOKIE_NAME = "buildmate_session";
 export const SESSION_EXPIRY_DAYS = 7;
@@ -158,7 +161,20 @@ export async function clearSessionCookie(): Promise<void> {
  * Helper to retrieve the current session token from request cookies.
  */
 export async function getSessionTokenFromCookies(): Promise<string | null> {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get(SESSION_COOKIE_NAME);
-  return cookie?.value || null;
+  const testContext = testRequestContext.getStore();
+  if (testContext?.token) {
+    return testContext.token;
+  }
+  if (testContext?.cookie) {
+    const match = testContext.cookie.match(new RegExp(`${SESSION_COOKIE_NAME}=([^;]+)`));
+    if (match) return match[1];
+  }
+
+  try {
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get(SESSION_COOKIE_NAME);
+    return cookie?.value || null;
+  } catch {
+    return null;
+  }
 }
