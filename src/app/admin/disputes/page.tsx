@@ -29,8 +29,28 @@ export default async function AdminDisputesPage() {
     redirect("/login");
   }
 
-  if (!auth.roles.includes("ADMIN")) {
-    redirect("/dashboard");
+  // Central authorization check: ADMIN role
+  const isAuthorized = can(auth, "ADMIN_VIEW_DISPUTES").allowed;
+  if (!isAuthorized) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+            !
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-sm text-gray-600 mb-6">
+            Administrator privileges are required to access this portal.
+          </p>
+          <Link
+            href="/"
+            className="inline-block px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
+          >
+            Return Home
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   // 1. Fetch all disputes with project and user details
