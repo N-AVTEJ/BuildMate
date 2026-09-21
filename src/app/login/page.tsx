@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -14,8 +13,12 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Autofill Passcode state
+  const [showAutofillPrompt, setShowAutofillPrompt] = useState(false);
+  const [autofillPasscode, setAutofillPasscode] = useState("");
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+
+  const executeLogin = async (emailToUse: string, passwordToUse: string) => {
     setError(null);
     setIsSubmitting(true);
 
@@ -26,8 +29,8 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
+          email: emailToUse,
+          password: passwordToUse,
         }),
       });
 
@@ -53,22 +56,97 @@ export default function LoginPage() {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await executeLogin(formData.email, formData.password);
+  };
+
+  const handleAutofillSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAutofillError(null);
+
+    if (autofillPasscode.trim() !== "1234") {
+      setAutofillError("Incorrect passcode. Please enter 1234.");
+      return;
+    }
+
+    const builderEmail = "madipadiganavtej@gmail.com";
+    const builderPass = "Navtej2006";
+
+    setFormData({
+      email: builderEmail,
+      password: builderPass,
+    });
+    setShowAutofillPrompt(false);
+    setAutofillPasscode("");
+
+    await executeLogin(builderEmail, builderPass);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
           Sign in to BuildMate
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{" "}
-          <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-            create a new account
-          </Link>
+        <p className="mt-2 text-center text-sm text-gray-500">
+          Enter your credentials to access your portal
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
+          {/* Quick Autofill Trigger */}
+          <div className="mb-6 p-3 bg-blue-50/80 border border-blue-200 rounded-lg flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-blue-900 flex items-center gap-1">
+                <span>⚡</span> Builder Quick Login
+              </div>
+              <div className="text-[11px] text-blue-700">Autofill Madipadiga Navtej credentials</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAutofillPrompt(!showAutofillPrompt);
+                setAutofillError(null);
+                setAutofillPasscode("");
+              }}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-sm transition"
+            >
+              {showAutofillPrompt ? "Cancel" : "Autofill"}
+            </button>
+          </div>
+
+          {/* Passcode Prompt for Autofill */}
+          {showAutofillPrompt && (
+            <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-gray-50 border border-gray-300 rounded-lg space-y-3">
+              <label htmlFor="passcode" className="block text-xs font-bold text-gray-800">
+                Enter Passcode (1234) to Autofill &amp; Sign In:
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="passcode"
+                  type="password"
+                  autoFocus
+                  placeholder="Enter 1234"
+                  value={autofillPasscode}
+                  onChange={(e) => setAutofillPasscode(e.target.value)}
+                  className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow-sm transition disabled:opacity-50"
+                >
+                  {isSubmitting ? "Logging in..." : "Unlock & Login"}
+                </button>
+              </div>
+              {autofillError && (
+                <p className="text-xs text-red-600 font-medium">{autofillError}</p>
+              )}
+            </form>
+          )}
+
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded text-sm">
               {error}
