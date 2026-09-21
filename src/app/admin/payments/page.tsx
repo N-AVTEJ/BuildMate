@@ -4,6 +4,7 @@ import { inArray, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, projects, users, paymentProofs } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
+import { can } from "@/lib/authorization";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { getDownloadUrl, isR2Configured, StorageConfigurationError } from "@/lib/storage";
 import { PaymentActions } from "@/components/admin/payment-actions";

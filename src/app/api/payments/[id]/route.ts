@@ -55,13 +55,21 @@ export async function GET(
       .where(eq(paymentProofs.paymentId, payment.id));
 
     const proofsWithSignedUrls = await Promise.all(
-      proofsList.map(async (proof) => ({
-        id: proof.id,
-        fileType: proof.fileType,
-        fileSize: proof.fileSize,
-        uploadedAt: proof.uploadedAt,
-        downloadUrl: await getDownloadUrl(proof.fileUrl, 60),
-      }))
+      proofsList.map(async (proof) => {
+        let downloadUrl: string | null = null;
+        try {
+          downloadUrl = await getDownloadUrl(proof.fileUrl, 60);
+        } catch {
+          downloadUrl = null;
+        }
+        return {
+          id: proof.id,
+          fileType: proof.fileType,
+          fileSize: proof.fileSize,
+          uploadedAt: proof.uploadedAt,
+          downloadUrl,
+        };
+      })
     );
 
     return NextResponse.json({
