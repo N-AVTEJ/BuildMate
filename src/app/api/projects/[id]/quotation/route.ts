@@ -21,7 +21,12 @@ export async function POST(
 
     const body = await req.json().catch(() => ({}));
     const rawTotalPrice = body?.totalPrice;
-    const rawDuration = body?.estimatedDurationDays;
+    const rawDuration =
+      body?.estimatedDurationDays === undefined || body?.estimatedDurationDays === null
+        ? 14
+        : typeof body.estimatedDurationDays === "string"
+        ? parseInt(body.estimatedDurationDays, 10)
+        : body.estimatedDurationDays;
 
     if (
       typeof rawTotalPrice !== "number" ||
@@ -41,7 +46,7 @@ export async function POST(
       rawDuration > 365
     ) {
       return NextResponse.json(
-        { error: "estimatedDurationDays is required and must be an integer between 1 and 365." },
+        { error: "estimatedDurationDays must be an integer between 1 and 365." },
         { status: 400 }
       );
     }

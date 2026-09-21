@@ -6,12 +6,16 @@ import { useRouter } from "next/navigation";
 export function QuotationForm({ projectId }: { projectId: string }) {
   const router = useRouter();
   const [totalPriceStr, setTotalPriceStr] = useState("");
+  const [durationDaysStr, setDurationDaysStr] = useState("14");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const numericTotal = parseInt(totalPriceStr, 10);
   const isValidNumber = !isNaN(numericTotal) && numericTotal > 0;
+
+  const numericDuration = parseInt(durationDaysStr, 10);
+  const isValidDuration = !isNaN(numericDuration) && numericDuration >= 1 && numericDuration <= 365;
 
   // Canonical V1 preview calculation:
   // advanceAmount = min(totalPrice, max(300, floor(totalPrice * 0.30)))
@@ -28,6 +32,10 @@ export function QuotationForm({ projectId }: { projectId: string }) {
       setError("Please enter a valid positive whole number for total price.");
       return;
     }
+    if (!isValidDuration) {
+      setError("Please enter an estimated duration between 1 and 365 days.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -36,7 +44,10 @@ export function QuotationForm({ projectId }: { projectId: string }) {
       const res = await fetch(`/api/projects/${projectId}/quotation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ totalPrice: numericTotal }),
+        body: JSON.stringify({
+          totalPrice: numericTotal,
+          estimatedDurationDays: numericDuration,
+        }),
       });
 
       const data = await res.json();
@@ -101,6 +112,26 @@ export function QuotationForm({ projectId }: { projectId: string }) {
           <p className="text-xs text-gray-400 mt-1">Whole numbers only.</p>
         </div>
 
+        <div>
+          <label htmlFor="estimatedDurationDays" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+            Estimated Duration (Days) *
+          </label>
+          <input
+            type="number"
+            id="estimatedDurationDays"
+            name="estimatedDurationDays"
+            min="1"
+            max="365"
+            step="1"
+            required
+            value={durationDaysStr}
+            onChange={(e) => setDurationDaysStr(e.target.value)}
+            placeholder="e.g. 14"
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          />
+          <p className="text-xs text-gray-400 mt-1">Expected project timeline (1 - 365 days).</p>
+        </div>
+
         {isValidNumber && previewAdvance !== null && previewRemaining !== null && (
           <div className="bg-blue-50/70 border border-blue-100 rounded-lg p-3.5 text-xs text-blue-900 space-y-1">
             <div className="font-semibold text-blue-950 flex items-center gap-1.5">
@@ -122,7 +153,7 @@ export function QuotationForm({ projectId }: { projectId: string }) {
 
         <button
           type="submit"
-          disabled={loading || !isValidNumber}
+          disabled={loading || !isValidNumber || !isValidDuration}
           className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg transition shadow-sm"
         >
           {loading ? "Submitting Quotation..." : "Submit Quotation to Client"}
