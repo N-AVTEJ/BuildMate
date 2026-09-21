@@ -4,9 +4,8 @@ import { inArray, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, projects, users, paymentProofs } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
-import { can } from "@/lib/authorization";
 import { PortalHeader } from "@/components/navigation/portal-header";
-import { getDownloadUrl } from "@/lib/storage";
+import { getDownloadUrl, isR2Configured, StorageConfigurationError } from "@/lib/storage";
 import { PaymentActions } from "@/components/admin/payment-actions";
 
 export default async function AdminPaymentsPage() {
@@ -99,13 +98,26 @@ export default async function AdminPaymentsPage() {
     : [];
 
   // Group proofs by paymentId and generate fresh short-lived signed download URLs
-  const proofsByPayment = new Map<string, Array<{ id: string; url: string; uploadedAt: Date }>>();
+  const proofsByPayment = new Map<
+    string,
+    Array<{ id: string; url: string | null; error?: string | null; uploadedAt: Date }>
+  >();
   for (const proof of proofsList) {
-    const signedUrl = await getDownloadUrl(proof.fileUrl, 60);
+    let signedUrl: string | null = null;
+    let proofError: string | null = null;
+    try {
+      signedUrl = await getDownloadUrl(proof.fileUrl, 60);
+    } catch (err: unknown) {
+      proofError =
+        err instanceof StorageConfigurationError
+          ? "Preview unavailable: Cloudflare R2 storage is not configured."
+          : "Preview unavailable.";
+    }
     const existing = proofsByPayment.get(proof.paymentId) || [];
     existing.push({
       id: proof.id,
       url: signedUrl,
+      error: proofError,
       uploadedAt: proof.uploadedAt,
     });
     proofsByPayment.set(proof.paymentId, existing);
@@ -140,7 +152,13 @@ export default async function AdminPaymentsPage() {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/disputes"
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+            >
+              Dispute Queue
+            </Link>
             <div className="px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm text-xs font-semibold">
               <span className="text-gray-500">Pending Review: </span>
               <span className="text-gray-900 font-bold">{pendingPayments.length}</span>
@@ -236,18 +254,28 @@ export default async function AdminPaymentsPage() {
                             </span>
                           ) : (
                             <div className="flex flex-col gap-1">
-                              {proofs.map((proofItem, idx) => (
-                                <a
-                                  key={proofItem.id}
-                                  href={proofItem.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 underline"
-                                >
-                                  <span>View Proof {proofs.length > 1 ? `#${idx + 1}` : ""}</span>
-                                  <span className="text-[10px] text-gray-400">↗ (60s TTL)</span>
-                                </a>
-                              ))}
+                              {proofs.map((proofItem, idx) =>
+                                proofItem.url ? (
+                                  <a
+                                    key={proofItem.id}
+                                    href={proofItem.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 underline"
+                                  >
+                                    <span>View Proof {proofs.length > 1 ? `#${idx + 1}` : ""}</span>
+                                    <span className="text-[10px] text-gray-400">↗ (60s TTL)</span>
+                                  </a>
+                                ) : (
+                                  <span
+                                    key={proofItem.id}
+                                    className="inline-flex items-center gap-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-medium"
+                                    title={proofItem.error || undefined}
+                                  >
+                                    ⚠️ Preview Unavailable (R2 Unconfigured)
+                                  </span>
+                                )
+                              )}
                             </div>
                           )}
                         </td>

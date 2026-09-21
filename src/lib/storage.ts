@@ -227,7 +227,10 @@ export async function getUploadUrl(
 
   if (!isR2Configured(config)) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("Cannot generate upload URL: R2 storage is not configured in production.");
+      throw new StorageConfigurationError(
+        "Payment proof storage is currently unavailable. Cloudflare R2 storage is not configured in production environment.",
+        503
+      );
     }
     // Local dev/test fallback: HMAC signed local upload URL
     const hmac = crypto
@@ -260,7 +263,10 @@ export async function getDownloadUrl(
 
   if (!isR2Configured(config)) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("Cannot generate download URL: R2 storage is not configured in production.");
+      throw new StorageConfigurationError(
+        "Payment proof download is currently unavailable. Cloudflare R2 storage is not configured in production environment.",
+        503
+      );
     }
     // Local dev/test fallback
     const hmac = crypto
@@ -290,7 +296,10 @@ export async function verifyStorageObjectExists(
 
   if (!isR2Configured(config)) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("Cannot verify object: R2 storage is not configured in production.");
+      throw new StorageConfigurationError(
+        "Storage object verification is currently unavailable. Cloudflare R2 storage is not configured in production environment.",
+        503
+      );
     }
     // Check local mock registry or disk
     if (localMockStorage.has(key)) {

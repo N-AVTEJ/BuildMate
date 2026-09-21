@@ -9,6 +9,7 @@ import {
   isValidProofMimeType,
   generatePaymentProofKey,
   getUploadUrl,
+  StorageConfigurationError,
 } from "@/lib/storage";
 
 export async function POST(req: Request) {
@@ -92,6 +93,9 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    if (error instanceof StorageConfigurationError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     console.error("[Payments/PresignedUrl] Unexpected error:", error);
