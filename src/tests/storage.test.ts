@@ -16,7 +16,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
 
   describe("1. Production + Missing R2 Configuration", () => {
     beforeEach(() => {
-      process.env.NODE_ENV = "production";
+      (process.env as any).NODE_ENV = "production";
       delete process.env.R2_ACCOUNT_ID;
       delete process.env.R2_ACCESS_KEY_ID;
       delete process.env.R2_SECRET_ACCESS_KEY;
@@ -72,7 +72,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
 
   describe("2. Production + Valid R2 Configuration", () => {
     beforeEach(() => {
-      process.env.NODE_ENV = "production";
+      (process.env as any).NODE_ENV = "production";
       process.env.R2_ACCOUNT_ID = "mock-account-12345";
       process.env.R2_ACCESS_KEY_ID = "mock-access-key-67890";
       process.env.R2_SECRET_ACCESS_KEY = "mock-secret-access-key-abcdef";
@@ -113,7 +113,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
 
   describe("3. Development Environment Behavior", () => {
     beforeEach(() => {
-      process.env.NODE_ENV = "development";
+      (process.env as any).NODE_ENV = "development";
       delete process.env.R2_ACCOUNT_ID;
       delete process.env.R2_ACCESS_KEY_ID;
       delete process.env.R2_SECRET_ACCESS_KEY;
