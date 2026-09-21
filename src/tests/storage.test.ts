@@ -172,6 +172,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
           title: "Storage Route Test Project",
           subject: "Test",
           description: "Test description",
+          techStack: "TypeScript",
           budgetMin: 10000,
           budgetMax: 20000,
           totalPrice: 20000,
