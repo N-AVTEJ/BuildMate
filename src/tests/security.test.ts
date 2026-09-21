@@ -713,11 +713,13 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     // Anonymous blocked on authenticated actions
     expect(can(anonymous, "PROJECT_CREATE").allowed).toBe(false);
     expect(can(anonymous, "ADMIN_VIEW_DASHBOARD").allowed).toBe(false);
+    expect(can(anonymous, "ADMIN_VIEW_DISPUTES").allowed).toBe(false);
 
     // Client permissions
     expect(can(clientAuth, "PROJECT_CREATE").allowed).toBe(true);
     expect(can(clientAuth, "PROJECT_LIST_OWN").allowed).toBe(true);
     expect(can(clientAuth, "ADMIN_VIEW_DASHBOARD").allowed).toBe(false);
+    expect(can(clientAuth, "ADMIN_VIEW_DISPUTES").allowed).toBe(false);
     expect(can(clientAuth, "PROJECT_ACCEPT").allowed).toBe(false);
 
     // Builder permissions
@@ -725,12 +727,14 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     expect(can(builderAuth, "PROJECT_ACCEPT").allowed).toBe(true);
     expect(can(builderAuth, "PROJECT_CREATE").allowed).toBe(false);
     expect(can(builderAuth, "ADMIN_VIEW_DASHBOARD").allowed).toBe(false);
+    expect(can(builderAuth, "ADMIN_VIEW_DISPUTES").allowed).toBe(false);
 
     // Admin permissions
     expect(can(adminAuth, "ADMIN_VIEW_DASHBOARD").allowed).toBe(true);
     expect(can(adminAuth, "ADMIN_VIEW_ALL_PROJECTS").allowed).toBe(true);
     expect(can(adminAuth, "ADMIN_PAYMENT_VERIFY").allowed).toBe(true);
     expect(can(adminAuth, "ADMIN_RESOLVE_DISPUTE").allowed).toBe(true);
+    expect(can(adminAuth, "ADMIN_VIEW_DISPUTES").allowed).toBe(true);
     expect(can(adminAuth, "PROJECT_VIEW_OWN", { clientId: "c1" }).allowed).toBe(true);
   });
 });
