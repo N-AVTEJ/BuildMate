@@ -17,11 +17,13 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [devVerificationUrl, setDevVerificationUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
+    setDevVerificationUrl(null);
 
     if (!formData.agreedToTerms) {
       setError("You must agree to the Terms of Service and Privacy Policy to register.");
@@ -56,6 +58,9 @@ export default function RegisterPage() {
       }
 
       setSuccessMessage(data.message || "Registration successful! Please check your email for a verification link.");
+      if (data.devVerificationUrl) {
+        setDevVerificationUrl(data.devVerificationUrl);
+      }
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
     } finally {
@@ -86,8 +91,21 @@ export default function RegisterPage() {
           )}
 
           {successMessage && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 p-3 rounded text-sm">
-              {successMessage}
+            <div className="mb-4 bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg text-sm">
+              <p className="font-medium">{successMessage}</p>
+              {devVerificationUrl && (
+                <div className="mt-3 pt-3 border-t border-green-200">
+                  <p className="text-xs text-amber-800 font-semibold mb-1.5">
+                    ⚙️ Development Mode (Resend API key is placeholder):
+                  </p>
+                  <a
+                    href={devVerificationUrl}
+                    className="inline-block px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white rounded font-medium text-xs transition"
+                  >
+                    Click here to verify email now →
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
