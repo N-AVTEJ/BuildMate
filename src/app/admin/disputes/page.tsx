@@ -13,6 +13,7 @@ import {
   messages,
 } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
+import { can } from "@/lib/authorization";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import {
   DisputeAdjudicationCard,
