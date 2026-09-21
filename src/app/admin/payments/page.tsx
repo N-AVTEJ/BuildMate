@@ -173,6 +173,19 @@ export default async function AdminPaymentsPage() {
           </div>
         </div>
 
+        {/* R2 Storage Warning Banner */}
+        {process.env.NODE_ENV === "production" && !isR2Configured() && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+            <span className="text-amber-600 text-lg font-bold">⚠️</span>
+            <div>
+              <h3 className="text-sm font-bold text-amber-900">Cloudflare R2 Storage Not Configured</h3>
+              <p className="text-xs text-amber-700 mt-0.5">
+                Payment proof image previews are currently unavailable because production storage credentials (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME) are not configured. You can still verify payments using transaction references or configure R2 credentials to view screenshots.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Payments Table */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           {pendingPayments.length === 0 ? (
