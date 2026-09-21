@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, projectRequirements } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
@@ -62,14 +62,14 @@ export default async function BuilderDiscoveryPage() {
 
     if (effective.status === "AVAILABLE") {
       const [reqs] = await db
-        .select({ count: projects.id })
+        .select({ count: count() })
         .from(projectRequirements)
         .where(eq(projectRequirements.projectId, proj.id));
 
       availableProjects.push({
         ...proj,
         status: "AVAILABLE",
-        requirementCount: reqs ? 1 : 0,
+        requirementCount: reqs ? Number(reqs.count) : 0,
       });
     }
   }
