@@ -51,7 +51,19 @@ function getR2Config(): StorageConfig {
   };
 }
 
-function isR2Configured(config: StorageConfig): boolean {
+export class StorageConfigurationError extends Error {
+  status: number;
+  constructor(
+    message = "Payment proof storage is currently unavailable. Cloudflare R2 storage is not configured in this environment.",
+    status = 503
+  ) {
+    super(message);
+    this.name = "StorageConfigurationError";
+    this.status = status;
+  }
+}
+
+export function isR2Configured(config: StorageConfig = getR2Config()): boolean {
   return !!(
     config.accountId &&
     config.accessKeyId &&
@@ -71,9 +83,9 @@ function getS3Client(): S3Client {
 
   if (!isR2Configured(config)) {
     if (isProduction) {
-      throw new Error(
-        "Cloudflare R2 is not properly configured in production environment. " +
-          "Ensure R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET_NAME are set."
+      throw new StorageConfigurationError(
+        "Payment proof storage is currently unavailable. Cloudflare R2 storage is not configured in production environment.",
+        503
       );
     }
   }
