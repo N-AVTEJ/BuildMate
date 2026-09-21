@@ -23,8 +23,14 @@ export async function sendVerificationEmail(
   const verificationUrl = `${appUrl}/api/auth/verify-email?token=${encodeURIComponent(rawToken)}`;
 
   if (!resend) {
-    // In dev / test when Resend key is a placeholder, log safe notice without leaking token
-    console.info(`[Auth/Email] Verification link generated for ${toEmail} (Email delivery skipped: Resend API key placeholder)`);
+    if (process.env.NODE_ENV === "development") {
+      console.info("\n=======================================================");
+      console.info(`[Auth/Email] LOCAL DEV VERIFICATION LINK FOR ${toEmail}:`);
+      console.info(verificationUrl);
+      console.info("=======================================================\n");
+    } else {
+      console.info(`[Auth/Email] Verification link generated for ${toEmail} (Email delivery skipped: Resend API key placeholder)`);
+    }
     return { success: true };
   }
 

@@ -136,8 +136,22 @@ export async function POST(req: Request) {
     // The user can recover via /api/auth/resend-verification.
     await sendVerificationEmail(normalizedEmail, rawToken);
 
-    // Never return password, hash, or token in response
-    return NextResponse.json(GENERIC_REGISTER_RESPONSE, { status: 201 });
+    // In local development when Resend API key is a placeholder, surface verification link
+    const isDevPlaceholder =
+      process.env.NODE_ENV === "development" &&
+      (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("placeholder"));
+
+    const devVerificationUrl = isDevPlaceholder
+      ? `${process.env.APP_URL || "http://localhost:3000"}/api/auth/verify-email?token=${encodeURIComponent(rawToken)}`
+      : undefined;
+
+    return NextResponse.json(
+      {
+        ...GENERIC_REGISTER_RESPONSE,
+        ...(devVerificationUrl ? { devVerificationUrl } : {}),
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("[Auth/Register] Unexpected error:", error);
     return NextResponse.json(
