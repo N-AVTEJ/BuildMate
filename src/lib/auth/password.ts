@@ -6,40 +6,38 @@ const DUMMY_ARGON2_HASH =
   "$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQxMjM0NTY3OA$9v8q81VqTfW1F3c5tF5v+X+zF9r3tF5v+X+zF9r3tF4";
 
 /**
- * Validates password complexity:
- * - Minimum 8 characters
- * - At least one uppercase letter
- * - At least one lowercase letter
- * - At least one number or special character
+ * Validates password requirement:
+ * - Non-empty and minimum 8 characters
+ * OR
+ * - Passphrase with at least 4 whitespace-separated words
  */
 export function validatePasswordComplexity(password: string): {
   valid: boolean;
   message?: string;
 } {
-  if (!password || password.length < 8) {
+  if (!password || typeof password !== "string") {
     return {
       valid: false,
-      message: "Password must be at least 8 characters long.",
+      message: "Password is required.",
     };
   }
-  if (!/[A-Z]/.test(password)) {
+
+  const trimmed = password.trim();
+  const words = trimmed.split(/\s+/).filter(Boolean);
+
+  // Check if it satisfies the 4-word passphrase requirement
+  if (words.length >= 4) {
+    return { valid: true };
+  }
+
+  // Otherwise enforce minimum 8 characters
+  if (trimmed.length < 8) {
     return {
       valid: false,
-      message: "Password must contain at least one uppercase letter.",
+      message: "Password must be at least 8 characters long (or a 4-word passphrase).",
     };
   }
-  if (!/[a-z]/.test(password)) {
-    return {
-      valid: false,
-      message: "Password must contain at least one lowercase letter.",
-    };
-  }
-  if (!/[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
-    return {
-      valid: false,
-      message: "Password must contain at least one number or special character.",
-    };
-  }
+
   return { valid: true };
 }
 
