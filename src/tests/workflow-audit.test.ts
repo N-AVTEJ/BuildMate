@@ -1,5 +1,17 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { db } from "@/db";
+
+vi.mock("next/headers", () => {
+  const cookieMap = new Map<string, any>();
+  return {
+    cookies: vi.fn(async () => ({
+      get: vi.fn((name: string) => cookieMap.get(name)),
+      set: vi.fn((name: string, val: any, opts: any) => cookieMap.set(name, { value: val, ...opts })),
+      delete: vi.fn((name: string) => cookieMap.delete(name)),
+    })),
+    headers: vi.fn(async () => new Headers()),
+  };
+});
 import {
   users,
   userRoles,

@@ -1,3 +1,4 @@
+// @ts-ignore
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 import { db } from "../src/db";
