@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     agreedToTerms: false,
@@ -18,7 +19,6 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
-  const [devVerificationUrl, setDevVerificationUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +45,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
         }),
@@ -58,9 +59,6 @@ export default function RegisterPage() {
 
       setRegisteredEmail(formData.email);
       setIsRegistered(true);
-      if (data.devVerificationUrl) {
-        setDevVerificationUrl(data.devVerificationUrl);
-      }
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
     } finally {
@@ -68,52 +66,29 @@ export default function RegisterPage() {
     }
   };
 
-  // Dedicated "Check your email" screen
+  // Clean Account Created Success Screen (V1 Policy)
   if (isRegistered) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-10 px-6 shadow sm:rounded-xl sm:px-10 border border-gray-200 text-center">
-            <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl">
-              ✉️
+            <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl">
+              ✓
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
-              Check your email to verify your account
+              Account Created Successfully!
             </h2>
             <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-              We&apos;ve sent a secure verification link to{" "}
-              <span className="font-semibold text-gray-900">{registeredEmail}</span>.
-              Please click the link in that email to activate your client account.
+              Your client account for{" "}
+              <span className="font-semibold text-gray-900">{registeredEmail}</span> has been created.
+              You can now sign in to post academic and software projects, review builder quotations, and manage milestones.
             </p>
 
-            <div className="bg-blue-50/60 border border-blue-100 rounded-lg p-3.5 text-xs text-blue-800 text-left mb-6 space-y-1">
-              <p className="font-semibold text-blue-900">Next Steps:</p>
-              <ul className="list-disc list-inside space-y-0.5 text-blue-700">
-                <li>Check your inbox (and spam/junk folder if needed).</li>
-                <li>The verification link is valid for 24 hours.</li>
-                <li>Once verified, you can immediately sign in to your dashboard.</li>
-              </ul>
-            </div>
-
-            {devVerificationUrl && (
-              <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-left">
-                <p className="text-xs text-amber-800 font-semibold mb-1">
-                  ⚙️ Development Mode Helper:
-                </p>
-                <a
-                  href={devVerificationUrl}
-                  className="inline-block px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded font-medium text-xs transition"
-                >
-                  Verify Email Now (Dev Only) →
-                </a>
-              </div>
-            )}
-
             <Link
-              href="/login"
+              href={`/login?registered=true&email=${encodeURIComponent(registeredEmail)}`}
               className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition"
             >
-              Proceed to Sign In
+              Sign In to BuildMate →
             </Link>
           </div>
         </div>
@@ -175,6 +150,22 @@ export default function RegisterPage() {
                 placeholder="jane@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+                Phone Number *
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                placeholder="+91 98765 43210"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
               />
             </div>
