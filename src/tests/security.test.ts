@@ -400,6 +400,7 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     const payload = {
       name: "Privilege Escalation Attacker",
       email: maliciousEmail,
+      phone: "+91 9876543210",
       password: "StrongPassword123!",
       confirmPassword: "StrongPassword123!",
       role: "ADMIN",

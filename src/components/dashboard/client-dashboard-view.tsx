@@ -617,7 +617,51 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
         </div>
       )}
 
-      {/* TAB 5: NOTIFICATIONS */}
+      {/* TAB 5: MESSAGES */}
+      {activeTab === "messages" && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Project Messages &amp; Discussions</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Communicate directly with your assigned builder on active projects</p>
+          </div>
+
+          {projects.filter((p) => p.builder).length === 0 ? (
+            <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+              <span className="text-3xl block mb-2">💬</span>
+              <h4 className="text-sm font-semibold text-gray-900">No Active Builder Discussions</h4>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
+                Once a verified builder accepts your project, a dedicated, participant-only communication channel will open here and on the project page.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {projects
+                .filter((p) => p.builder)
+                .map((p) => (
+                  <div key={p.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-gray-500">{p.projectCode}</span>
+                        <h4 className="text-sm font-bold text-gray-900">{p.title}</h4>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Assigned Builder: <span className="font-semibold text-gray-800">{p.builder?.name || p.builder?.email}</span>
+                      </p>
+                    </div>
+                    <Link
+                      href={`/projects/${p.id}#messages`}
+                      className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 inline-flex items-center gap-1.5 shrink-0"
+                    >
+                      <span>💬</span> Open Discussion →
+                    </Link>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 6: NOTIFICATIONS */}
       {activeTab === "notifications" && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
           <div>
@@ -647,7 +691,7 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
         </div>
       )}
 
-      {/* TAB 6: PROFILE */}
+      {/* TAB 7: PROFILE */}
       {activeTab === "profile" && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 max-w-2xl">
           <div>
@@ -663,6 +707,10 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
             <div className="flex justify-between py-2">
               <span className="text-gray-500">Email Address</span>
               <span className="font-semibold text-gray-900">{user.email}</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="text-gray-500">Phone Number</span>
+              <span className="font-semibold text-gray-900">{user.phone || "Not set"}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-500">Account Role</span>

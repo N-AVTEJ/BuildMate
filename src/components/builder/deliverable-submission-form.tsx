@@ -101,23 +101,40 @@ export function DeliverableSubmissionForm({
       <div className="flex items-center justify-between mb-4 border-b pb-3">
         <div>
           <h3 className="text-lg font-bold text-gray-900">
-            Project Deliverables & Submission
+            Submit Project
           </h3>
           <p className="text-sm text-gray-500">
-            Submit your source repository, commit reference, and deliverables for client review.
+            Submit your source repository URL and delivery documentation for client review.
           </p>
         </div>
         {isLocked && (
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-            Deliverables Locked (Paid)
+            Deliverables Locked (Paid &amp; Delivered)
           </span>
         )}
         {isPendingFinalPayment && !isLocked && (
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
-            Final Payment Pending (Editable)
-          </span>
+          <div className="text-right">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 mr-2">
+              Project Submitted ✓
+            </span>
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+              Final Payment Pending
+            </span>
+          </div>
         )}
       </div>
+
+      {/* Before submitting notice */}
+      {!isLocked && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">
+            Before submitting:
+          </h4>
+          <p className="text-xs text-blue-800">
+            Make sure your repository contains the complete project and required documentation.
+          </p>
+        </div>
+      )}
 
       {isLocked ? (
         <div className="space-y-4">
@@ -309,7 +326,7 @@ export function DeliverableSubmissionForm({
                 ? "Submitting..."
                 : isPendingFinalPayment
                 ? "Update Deliverables"
-                : "Submit for Delivery"}
+                : "Submit Project"}
             </button>
           </div>
         </form>

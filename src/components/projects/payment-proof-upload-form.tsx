@@ -150,7 +150,9 @@ export function PaymentProofUploadForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Left: QR Code and Instructions */}
         <div className="flex flex-col items-center p-6 bg-gray-50 rounded-xl border border-gray-100 text-center">
-          <div className="p-3 bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">Payment Instruction</span>
+          <h3 className="text-base font-bold text-gray-900 mb-3">Scan to Pay</h3>
+          <div className="p-3 bg-white rounded-xl shadow-sm border border-gray-200 mb-3">
             <img
               src="/images/payment-qr.svg"
               alt="BuildMate Payment QR"
@@ -159,6 +161,9 @@ export function PaymentProofUploadForm({
               className="rounded"
             />
           </div>
+          <p className="text-xs text-gray-600 mb-4 font-medium">
+            After completing payment, upload your payment proof.
+          </p>
 
           <div className="w-full space-y-2">
             <div className="flex justify-between items-center text-xs py-1 border-b border-gray-200">

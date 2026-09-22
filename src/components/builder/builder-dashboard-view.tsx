@@ -41,10 +41,95 @@ interface BuilderDashboardViewProps {
     id: string;
     email: string;
     name?: string | null;
+    phone?: string | null;
   };
   availableProjects: BuilderProjectCardItem[];
   myProjects: BuilderProjectCardItem[];
   notifications: BuilderNotificationItem[];
+}
+
+export function getBuilderNextAction(status: string, projectId: string) {
+  switch (status) {
+    case "ACCEPTED_PENDING_QUOTE":
+      return {
+        label: "Submit Quotation",
+        actionText: "Submit Quotation →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
+        icon: "📝",
+        description: "Submit development duration and price quotation to client",
+      };
+    case "QUOTATION_SENT":
+    case "AWAITING_ADVANCE":
+    case "ADVANCE_PROOF_SUBMITTED":
+    case "ADVANCE_VERIFICATION":
+      return {
+        label: "Waiting for Client Advance",
+        actionText: "View Project →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-purple-100 text-purple-900 border-purple-300",
+        icon: "⏳",
+        description: "Waiting for client advance payment deposit and verification",
+      };
+    case "ADVANCE_VERIFIED":
+    case "IN_PROGRESS":
+      return {
+        label: "Continue Development",
+        actionText: "Workspace & Submit →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-blue-100 text-blue-900 border-blue-300",
+        icon: "⚡",
+        description: "Develop codebase according to scope and submit deliverable",
+      };
+    case "OVERDUE":
+      return {
+        label: "Update Progress",
+        actionText: "Post Update / Submit →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-red-100 text-red-900 border-red-300",
+        icon: "⚠️",
+        description: "Project overdue — update development progress or submit completed project",
+      };
+    case "SUBMITTED_FOR_DELIVERY":
+    case "FINAL_PAYMENT_PENDING":
+    case "FINAL_PAYMENT_PROOF_SUBMITTED":
+    case "FINAL_PAYMENT_VERIFICATION":
+      return {
+        label: "Waiting for Client Final Payment",
+        actionText: "View Delivery State →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
+        icon: "💳",
+        description: "Deliverables submitted. Awaiting client final payment verification.",
+      };
+    case "DELIVERY_UNLOCKED":
+      return {
+        label: "Delivery Unlocked",
+        actionText: "View Delivered →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-300",
+        icon: "🎉",
+        description: "Final payment verified! GitHub repository unlocked for client.",
+      };
+    case "COMPLETED":
+      return {
+        label: "Completed",
+        actionText: "View Project →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-gray-100 text-gray-800 border-gray-300",
+        icon: "✓",
+        description: "Project completed and archived",
+      };
+    default:
+      return {
+        label: "Manage Project",
+        actionText: "Open →",
+        href: `/builder/projects/${projectId}`,
+        badgeClass: "bg-gray-100 text-gray-700 border-gray-200",
+        icon: "📁",
+        description: "Open project workspace",
+      };
+  }
 }
 
 export function BuilderDashboardView({
@@ -54,7 +139,18 @@ export function BuilderDashboardView({
   notifications,
 }: BuilderDashboardViewProps) {
   const [activeTab, setActiveTab] = useState<
-    "overview" | "available" | "my-projects" | "deadlines" | "payments" | "notifications" | "profile" | "guidelines"
+    | "overview"
+    | "available"
+    | "my-projects"
+    | "quotations"
+    | "deadlines"
+    | "progress"
+    | "deliveries"
+    | "payments"
+    | "messages"
+    | "notifications"
+    | "profile"
+    | "guidelines"
   >("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -133,10 +229,14 @@ export function BuilderDashboardView({
       <div className="flex border-b border-gray-200 overflow-x-auto gap-1">
         {[
           { id: "overview", label: "📊 Overview" },
-          { id: "available", label: `⚡ Available Projects (${countAvailable})` },
+          { id: "available", label: `⚡ Available (${countAvailable})` },
           { id: "my-projects", label: `💼 My Projects (${myProjects.length})` },
-          { id: "deadlines", label: "⏳ Deadlines Tracker" },
-          { id: "payments", label: "💳 Payment & QR Guide" },
+          { id: "quotations", label: `📝 Quotations (${countAwaitingQuote})` },
+          { id: "deadlines", label: "⏳ Deadlines" },
+          { id: "progress", label: `📈 Progress (${countInDev + countOverdue})` },
+          { id: "deliveries", label: `📦 Deliveries (${countAwaitingDelivery + countCompleted})` },
+          { id: "payments", label: "💳 Payments" },
+          { id: "messages", label: "💬 Messages" },
           { id: "notifications", label: `🔔 Notifications (${notifications.filter((n) => !n.read).length})` },
           { id: "profile", label: "👤 Profile" },
           { id: "guidelines", label: "📖 Guidelines" },
@@ -406,79 +506,325 @@ export function BuilderDashboardView({
                 No acquired projects match your filter.
               </div>
             ) : (
-              filteredMyProjects.map((p) => (
-                <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-gray-100 pb-3">
-                    <div>
+              filteredMyProjects.map((p) => {
+                const nextAction = getBuilderNextAction(p.status, p.id);
+                return (
+                  <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-gray-100 pb-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                              p.status === "ACCEPTED_PENDING_QUOTE"
+                                ? "bg-amber-100 text-amber-800"
+                                : p.status === "IN_PROGRESS"
+                                ? "bg-blue-100 text-blue-800"
+                                : p.status === "OVERDUE"
+                                ? "bg-red-100 text-red-800"
+                                : p.status === "COMPLETED"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {p.status}
+                          </span>
+                        </div>
+                        <h4 className="text-base font-bold text-gray-900 mt-1">
+                          <Link href={`/builder/projects/${p.id}`} className="hover:text-blue-600 transition">
+                            {p.title}
+                          </Link>
+                        </h4>
+                      </div>
+
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                            p.status === "ACCEPTED_PENDING_QUOTE"
-                              ? "bg-amber-100 text-amber-800"
-                              : p.status === "IN_PROGRESS"
-                              ? "bg-blue-100 text-blue-800"
-                              : p.status === "OVERDUE"
-                              ? "bg-red-100 text-red-800"
-                              : p.status === "COMPLETED"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
+                        <Link
+                          href={`/builder/projects/${p.id}`}
+                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
                         >
-                          {p.status}
+                          Manage Project →
+                        </Link>
+                        <Link
+                          href={`/projects/${p.id}#messages`}
+                          className="px-3 py-1.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition"
+                        >
+                          💬 Messages
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Next Action Box */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100 rounded-lg">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-lg">{nextAction.icon}</span>
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">What to do next:</span>
+                          <p className="text-xs font-bold text-gray-900">
+                            {nextAction.label} — <span className="text-gray-600 font-normal">{nextAction.description}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        href={nextAction.href}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shrink-0 shadow-sm inline-flex items-center gap-1"
+                      >
+                        {nextAction.actionText}
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-gray-50/70 p-3 rounded-lg">
+                      <div>
+                        <span className="text-gray-500 block">Requested Completion</span>
+                        <span className="font-semibold text-blue-700">{p.requestedCompletionDate || "—"}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block">Official Dev Deadline</span>
+                        <span className="font-semibold text-gray-900">
+                          {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending quote & advance"}
                         </span>
                       </div>
-                      <h4 className="text-base font-bold text-gray-900 mt-1">
-                        <Link href={`/builder/projects/${p.id}`} className="hover:text-blue-600 transition">
-                          {p.title}
-                        </Link>
-                      </h4>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/builder/projects/${p.id}`}
-                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
-                      >
-                        Manage Project →
-                      </Link>
-                      <Link
-                        href={`/projects/${p.id}/messages`}
-                        className="px-3 py-1.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition"
-                      >
-                        💬 Messages
-                      </Link>
+                      <div>
+                        <span className="text-gray-500 block">Agreed Price</span>
+                        <span className="font-semibold text-gray-900">
+                          {p.totalPrice ? `₹${p.totalPrice.toLocaleString()}` : "Pending quote"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block">Last Progress Update</span>
+                        <span className="font-semibold text-gray-900">
+                          {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleDateString() : "No updates yet"}
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-gray-50/70 p-3 rounded-lg">
-                    <div>
-                      <span className="text-gray-500 block">Requested Completion</span>
-                      <span className="font-semibold text-blue-700">{p.requestedCompletionDate || "—"}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 block">Official Dev Deadline</span>
-                      <span className="font-semibold text-gray-900">
-                        {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending quote & advance"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 block">Agreed Price</span>
-                      <span className="font-semibold text-gray-900">
-                        {p.totalPrice ? `₹${p.totalPrice.toLocaleString()}` : "Pending quote"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500 block">Last Progress Update</span>
-                      <span className="font-semibold text-gray-900">
-                        {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleDateString() : "No updates yet"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
+        </div>
+      )}
+
+      {/* TAB: QUOTATIONS */}
+      {activeTab === "quotations" && (
+        <div className="space-y-4">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <h3 className="text-base font-bold text-gray-900">Quotations Pending &amp; Review</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Submit estimates or view client status for active quotations.
+            </p>
+          </div>
+
+          {myProjects.filter((p) => ["ACCEPTED_PENDING_QUOTE", "QUOTATION_SENT"].includes(p.status)).length === 0 ? (
+            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+              No quotations currently awaiting builder submission or client review.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {myProjects
+                .filter((p) => ["ACCEPTED_PENDING_QUOTE", "QUOTATION_SENT"].includes(p.status))
+                .map((p) => {
+                  const nextAction = getBuilderNextAction(p.status, p.id);
+                  return (
+                    <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
+                          <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${nextAction.badgeClass}`}>
+                          {nextAction.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">{nextAction.description}</p>
+                      <div className="flex justify-end pt-2">
+                        <Link
+                          href={nextAction.href}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                        >
+                          {nextAction.actionText}
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: PROGRESS */}
+      {activeTab === "progress" && (
+        <div className="space-y-4">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <h3 className="text-base font-bold text-gray-900">Active Development &amp; Progress Updates</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Projects currently in development. Post regular progress updates and prepare final deliverables.
+            </p>
+          </div>
+
+          {myProjects.filter((p) => ["ADVANCE_VERIFIED", "IN_PROGRESS", "OVERDUE"].includes(p.status)).length === 0 ? (
+            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+              No projects currently in active development. Accept projects and await verified advance to start development.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {myProjects
+                .filter((p) => ["ADVANCE_VERIFIED", "IN_PROGRESS", "OVERDUE"].includes(p.status))
+                .map((p) => (
+                  <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
+                        <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                      </div>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          p.status === "OVERDUE" ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {p.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs bg-gray-50 p-3 rounded-lg">
+                      <div>
+                        <span className="text-gray-500 block">Official Dev Deadline</span>
+                        <span className="font-bold text-gray-900">
+                          {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block">Last Progress Update</span>
+                        <span className="font-semibold text-gray-900">
+                          {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleDateString() : "None"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 block">Agreed Price</span>
+                        <span className="font-bold text-emerald-700">₹{p.totalPrice?.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-end pt-2">
+                      <Link
+                        href={`/builder/projects/${p.id}`}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                      >
+                        Open Workspace &amp; Submit Deliverable →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: DELIVERIES */}
+      {activeTab === "deliveries" && (
+        <div className="space-y-4">
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <h3 className="text-base font-bold text-gray-900">Project Deliverables &amp; Completed Submissions</h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Deliverables submitted for client final payment, review, or completed release.
+            </p>
+          </div>
+
+          {myProjects.filter((p) =>
+            [
+              "SUBMITTED_FOR_DELIVERY",
+              "FINAL_PAYMENT_PENDING",
+              "FINAL_PAYMENT_PROOF_SUBMITTED",
+              "FINAL_PAYMENT_VERIFICATION",
+              "DELIVERY_UNLOCKED",
+              "CLIENT_REVIEW",
+              "COMPLETED",
+            ].includes(p.status)
+          ).length === 0 ? (
+            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+              No projects have submitted deliverables yet. Complete development to submit your repositories.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {myProjects
+                .filter((p) =>
+                  [
+                    "SUBMITTED_FOR_DELIVERY",
+                    "FINAL_PAYMENT_PENDING",
+                    "FINAL_PAYMENT_PROOF_SUBMITTED",
+                    "FINAL_PAYMENT_VERIFICATION",
+                    "DELIVERY_UNLOCKED",
+                    "CLIENT_REVIEW",
+                    "COMPLETED",
+                  ].includes(p.status)
+                )
+                .map((p) => {
+                  const nextAction = getBuilderNextAction(p.status, p.id);
+                  return (
+                    <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
+                          <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${nextAction.badgeClass}`}>
+                          {nextAction.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600">{nextAction.description}</p>
+                      <div className="flex justify-end pt-2">
+                        <Link
+                          href={`/builder/projects/${p.id}`}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                        >
+                          View Deliverable Details →
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: MESSAGES */}
+      {activeTab === "messages" && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+          <div>
+            <h3 className="text-base font-bold text-gray-900">Client Communication &amp; Messages</h3>
+            <p className="text-xs text-gray-500 mt-0.5">Direct project discussions with your assigned clients</p>
+          </div>
+
+          {myProjects.length === 0 ? (
+            <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+              <span className="text-3xl block mb-2">💬</span>
+              <h4 className="text-sm font-semibold text-gray-900">No Active Client Conversations</h4>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
+                Acquire an available project to open direct communication with the project client.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {myProjects.map((p) => (
+                <div key={p.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-gray-500">{p.projectCode}</span>
+                      <h4 className="text-sm font-bold text-gray-900">{p.title}</h4>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Status: <span className="font-semibold text-gray-800">{p.status}</span>
+                    </p>
+                  </div>
+                  <Link
+                    href={`/projects/${p.id}#messages`}
+                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 inline-flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>💬</span> Open Discussion →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -670,6 +1016,10 @@ export function BuilderDashboardView({
             <div className="flex justify-between py-2">
               <span className="text-gray-500">Email Address</span>
               <span className="font-semibold text-gray-900">{user.email}</span>
+            </div>
+            <div className="flex justify-between py-2">
+              <span className="text-gray-500">Phone Number</span>
+              <span className="font-semibold text-gray-900">{user.phone || "Not set"}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-500">Account Role</span>

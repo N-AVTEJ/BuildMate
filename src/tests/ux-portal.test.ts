@@ -277,6 +277,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
         body: JSON.stringify({
           name: "Attacker",
           email: attackerEmail,
+          phone: "+91 9876543210",
           password: "SecurePassword123!",
           confirmPassword: "SecurePassword123!",
           role: "BUILDER", // Malicious attempt to self-escalate to BUILDER
