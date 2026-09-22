@@ -33,10 +33,10 @@ export function RoleSwitcher({ roles }: RoleSwitcherProps) {
   const views: Array<{ name: string; href: string; activePrefix: string; role: UserRole }> = [];
 
   if (isClient) {
-    views.push({ name: "Client Portal", href: "/projects", activePrefix: "/projects", role: "CLIENT" });
+    views.push({ name: "Client Portal", href: "/dashboard", activePrefix: "/dashboard", role: "CLIENT" });
   }
   if (isBuilder) {
-    views.push({ name: "Builder Discovery", href: "/builder", activePrefix: "/builder", role: "BUILDER" });
+    views.push({ name: "Builder Portal", href: "/builder", activePrefix: "/builder", role: "BUILDER" });
   }
   if (isAdmin) {
     views.push({ name: "Admin Dashboard", href: "/admin", activePrefix: "/admin", role: "ADMIN" });

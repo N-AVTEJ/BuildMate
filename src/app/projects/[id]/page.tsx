@@ -148,11 +148,11 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="p-3 bg-gray-50 rounded-lg">
               <span className="text-xs text-gray-500 block">Budget Range</span>
               <span className="text-base font-semibold text-gray-900">
-                ${project.budgetMin.toLocaleString()} - ${project.budgetMax.toLocaleString()}
+                ₹{project.budgetMin.toLocaleString()} - ₹{project.budgetMax.toLocaleString()}
               </span>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg">
@@ -160,9 +160,19 @@ export default async function ProjectDetailPage({
               <span className="text-base font-semibold text-gray-900">{project.techStack}</span>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg">
-              <span className="text-xs text-gray-500 block">Submitted At</span>
+              <span className="text-xs text-gray-500 block">Requested Completion Date</span>
+              <span className="text-base font-semibold text-blue-700">
+                {project.requestedCompletionDate
+                  ? new Date(project.requestedCompletionDate + "T00:00:00Z").toLocaleDateString(undefined, { timeZone: "UTC", year: "numeric", month: "short", day: "numeric" })
+                  : "Not specified"}
+              </span>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <span className="text-xs text-gray-500 block">Official Development Deadline</span>
               <span className="text-base font-semibold text-gray-900">
-                {new Date(project.submittedAt || project.createdAt).toLocaleDateString()}
+                {project.developmentDeadline
+                  ? new Date(project.developmentDeadline).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+                  : "Pending verification"}
               </span>
             </div>
           </div>

@@ -69,17 +69,30 @@ export default async function ProjectsPage() {
       <main className="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
+            <div className="flex items-center gap-3 mb-1">
+              <Link href="/dashboard" className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
+                ← Back to Dashboard
+              </Link>
+            </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Projects</h1>
             <p className="text-sm text-gray-500 mt-1">
               Manage your submitted projects and monitor builder discovery status.
             </p>
           </div>
-          <Link
-            href="/projects/new"
-            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition"
-          >
-            + New Project
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition"
+            >
+              📊 Client Dashboard
+            </Link>
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-blue-700 transition"
+            >
+              + New Project
+            </Link>
+          </div>
         </div>
 
         {reconciled.length === 0 ? (
@@ -109,6 +122,9 @@ export default async function ProjectsPage() {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Requested Completion
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Budget Range
@@ -143,8 +159,11 @@ export default async function ProjectsPage() {
                           {project.status}
                         </span>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-700 font-medium">
+                        {project.requestedCompletionDate || "—"}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        ${project.budgetMin.toLocaleString()} - ${project.budgetMax.toLocaleString()}
+                        ₹{project.budgetMin.toLocaleString()} - ₹{project.budgetMax.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(project.submittedAt || project.createdAt).toLocaleDateString()}

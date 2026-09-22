@@ -456,6 +456,7 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
       techStack: "Rust, Next.js",
       budgetMin: 30000,
       budgetMax: 70000,
+      requestedCompletionDate: "2030-01-01",
       integrityAck: true,
       // Spoofed body properties claiming client current time is in the future
       current_time: spoofedFutureDate.toISOString(),
@@ -668,6 +669,7 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
         techStack: "Node",
         budgetMin: 1000,
         budgetMax: 2000,
+        requestedCompletionDate: "2030-01-01",
         integrityAck: true,
       }),
     });

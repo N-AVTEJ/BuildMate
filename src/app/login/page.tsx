@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +14,8 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Autofill Passcode state
+  // Autofill Passcode state (strictly local development only)
+  const isDevelopment = process.env.NODE_ENV === "development";
   const [showAutofillPrompt, setShowAutofillPrompt] = useState(false);
   const [autofillPasscode, setAutofillPasscode] = useState("");
   const [autofillError, setAutofillError] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function LoginPage() {
       } else if (roles.includes("BUILDER")) {
         router.push("/builder");
       } else {
-        router.push("/projects");
+        router.push("/dashboard");
       }
       router.refresh();
     } catch (err: any) {
@@ -95,30 +97,32 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
-          {/* Quick Autofill Trigger */}
-          <div className="mb-6 p-3 bg-blue-50/80 border border-blue-200 rounded-lg flex items-center justify-between">
-            <div>
-              <div className="text-xs font-bold text-blue-900 flex items-center gap-1">
-                <span>⚡</span> Builder Quick Login
+        <div className="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 border border-gray-200">
+          {/* Quick Autofill Trigger (Strictly Local Development Only) */}
+          {isDevelopment && (
+            <div className="mb-6 p-3 bg-blue-50/80 border border-blue-200 rounded-lg flex items-center justify-between">
+              <div>
+                <div className="text-xs font-bold text-blue-900 flex items-center gap-1">
+                  <span>⚡</span> Builder Quick Login (Dev Only)
+                </div>
+                <div className="text-[11px] text-blue-700">Autofill verified builder credentials</div>
               </div>
-              <div className="text-[11px] text-blue-700">Autofill Madipadiga Navtej credentials</div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAutofillPrompt(!showAutofillPrompt);
+                  setAutofillError(null);
+                  setAutofillPasscode("");
+                }}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-sm transition"
+              >
+                {showAutofillPrompt ? "Cancel" : "Autofill"}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setShowAutofillPrompt(!showAutofillPrompt);
-                setAutofillError(null);
-                setAutofillPasscode("");
-              }}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-sm transition"
-            >
-              {showAutofillPrompt ? "Cancel" : "Autofill"}
-            </button>
-          </div>
+          )}
 
-          {/* Passcode Prompt for Autofill */}
-          {showAutofillPrompt && (
+          {/* Passcode Prompt for Autofill (Development Only) */}
+          {isDevelopment && showAutofillPrompt && (
             <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-gray-50 border border-gray-300 rounded-lg space-y-3">
               <label htmlFor="passcode" className="block text-xs font-bold text-gray-800">
                 Enter Passcode (1234) to Autofill &amp; Sign In:
@@ -148,7 +152,7 @@ export default function LoginPage() {
           )}
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded text-sm">
+            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm font-medium">
               {error}
             </div>
           )}
@@ -194,6 +198,15 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
+            <p className="text-sm text-gray-600">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500">
+                Create a client account
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

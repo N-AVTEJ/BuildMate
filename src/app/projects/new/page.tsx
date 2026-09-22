@@ -13,15 +13,30 @@ export default function NewProjectPage() {
     techStack: "",
     budgetMin: "",
     budgetMax: "",
+    requestedCompletionDate: "",
     integrityAck: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDateStr = tomorrow.toISOString().split("T")[0];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!formData.requestedCompletionDate) {
+      setError("Requested completion date is required.");
+      return;
+    }
+
+    if (formData.requestedCompletionDate < minDateStr) {
+      setError("Requested completion date must be in the future.");
+      return;
+    }
 
     if (!formData.integrityAck) {
       setError("You must acknowledge the project integrity statement to submit.");
@@ -43,6 +58,7 @@ export default function NewProjectPage() {
           techStack: formData.techStack,
           budgetMin: parseInt(formData.budgetMin, 10),
           budgetMax: parseInt(formData.budgetMax, 10),
+          requestedCompletionDate: formData.requestedCompletionDate,
           integrityAck: formData.integrityAck,
         }),
       });
@@ -162,6 +178,25 @@ export default function NewProjectPage() {
                 placeholder="50000"
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="requestedCompletionDate" className="block text-sm font-medium text-gray-700">
+              Requested Completion Date *
+            </label>
+            <p className="text-xs text-gray-500 mb-1">
+              Tell builders when you would ideally like the project completed.
+            </p>
+            <input
+              id="requestedCompletionDate"
+              name="requestedCompletionDate"
+              type="date"
+              required
+              min={minDateStr}
+              value={formData.requestedCompletionDate}
+              onChange={(e) => setFormData({ ...formData, requestedCompletionDate: e.target.value })}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            />
           </div>
 
           <div>

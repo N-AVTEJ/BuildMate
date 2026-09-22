@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request payload." }, { status: 400 });
     }
 
-    const { title, subject, description, techStack, budgetMin, budgetMax, integrityAck } = body;
+    const { title, subject, description, techStack, budgetMin, budgetMax, integrityAck, requestedCompletionDate } = body;
 
     if (!title || typeof title !== "string" || title.trim().length === 0 || title.length > 200) {
       return NextResponse.json(
@@ -60,6 +60,37 @@ export async function POST(req: Request) {
       );
     }
 
+    if (!requestedCompletionDate || typeof requestedCompletionDate !== "string") {
+      return NextResponse.json(
+        { error: "Requested completion date is required." },
+        { status: 400 }
+      );
+    }
+
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(requestedCompletionDate)) {
+      return NextResponse.json(
+        { error: "Requested completion date must be a valid calendar date in YYYY-MM-DD format." },
+        { status: 400 }
+      );
+    }
+
+    const parsedDate = new Date(`${requestedCompletionDate}T00:00:00Z`);
+    if (isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { error: "Requested completion date must be a valid calendar date." },
+        { status: 400 }
+      );
+    }
+
+    const todayStr = new Date().toISOString().split("T")[0];
+    if (requestedCompletionDate <= todayStr) {
+      return NextResponse.json(
+        { error: "Requested completion date must be in the future." },
+        { status: 400 }
+      );
+    }
+
     if (integrityAck !== true) {
       return NextResponse.json(
         { error: "You must acknowledge the project integrity statement to submit." },
@@ -94,6 +125,7 @@ export async function POST(req: Request) {
           integrityAck: true,
           integrityAckAt: now,
           acceptanceDeadline,
+          requestedCompletionDate,
           submittedAt: now,
         })
         .returning();
