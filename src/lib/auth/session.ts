@@ -16,6 +16,7 @@ export type SafeUser = {
   id: string;
   name: string;
   email: string;
+  phone?: string | null;
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -86,6 +87,7 @@ export async function validateSession(rawToken: string): Promise<SessionValidati
       id: users.id,
       name: users.name,
       email: users.email,
+      phone: users.phone,
       emailVerified: users.emailVerified,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,

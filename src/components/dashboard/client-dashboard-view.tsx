@@ -51,13 +51,14 @@ interface ClientDashboardViewProps {
     id: string;
     email: string;
     name?: string | null;
+    phone?: string | null;
   };
   projects: ClientProjectItem[];
   notifications: ClientNotificationItem[];
 }
 
 export function ClientDashboardView({ user, projects, notifications }: ClientDashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "projects" | "deadlines" | "payments" | "notifications" | "profile">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "projects" | "deadlines" | "payments" | "messages" | "notifications" | "profile">("overview");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -129,24 +130,39 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
       <div className="flex border-b border-gray-200 overflow-x-auto gap-1">
         {[
           { id: "overview", label: "📊 Overview" },
-          { id: "projects", label: `📁 Projects (${totalProjects})` },
+          { id: "projects", label: `📁 My Projects (${totalProjects})` },
+          { id: "create", label: "➕ Create Project", href: "/projects/new" },
           { id: "deadlines", label: "⏳ Deadlines" },
-          { id: "payments", label: "💳 Payments & Escrow" },
+          { id: "payments", label: "💳 Payments" },
+          { id: "messages", label: "💬 Messages" },
           { id: "notifications", label: `🔔 Notifications (${notifications.filter((n) => !n.read).length})` },
           { id: "profile", label: "👤 Profile" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition ${
-              activeTab === tab.id
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        ].map((tab) => {
+          if (tab.href) {
+            return (
+              <Link
+                key={tab.id}
+                href={tab.href}
+                className="px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-blue-600 hover:text-blue-700 hover:border-blue-300 whitespace-nowrap transition"
+              >
+                {tab.label}
+              </Link>
+            );
+          }
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition ${
+                activeTab === tab.id
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* TAB 1: OVERVIEW */}
