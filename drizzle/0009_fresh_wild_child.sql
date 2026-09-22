@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "requested_completion_date" date;

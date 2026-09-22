@@ -64,6 +64,13 @@
       "when": 1789891877919,
       "tag": "0008_majestic_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790064400644,
+      "tag": "0009_fresh_wild_child",
+      "breakpoints": true
     }
   ]
 }

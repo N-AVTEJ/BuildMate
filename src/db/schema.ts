@@ -6,6 +6,7 @@ import {
   boolean,
   integer,
   timestamp,
+  date,
   jsonb,
   pgEnum,
   unique,
@@ -172,6 +173,7 @@ export const projects = pgTable("projects", {
   developmentDeadline: timestamp("development_deadline", {
     withTimezone: true,
   }),
+  requestedCompletionDate: date("requested_completion_date", { mode: "string" }),
   advanceReminderSentAt: timestamp("advance_reminder_sent_at", {
     withTimezone: true,
   }),
