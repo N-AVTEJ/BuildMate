@@ -203,22 +203,22 @@ export function BuilderDashboardView({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 border border-slate-800">
+      <div className="bg-[#ffe17c] border-2 border-black p-6 sm:p-8 neo-shadow-lg flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-2">
-            Verified Builder Dashboard
+          <span className="inline-flex items-center px-3 py-1 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm mb-3">
+            ⚡ Verified Builder Portal
           </span>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Builder Portal — {user.name || user.email}
+          <h1 className="text-2xl sm:text-3xl font-cabinet font-black tracking-tight text-[#171e19]">
+            Builder Command Center — {user.name || user.email}
           </h1>
-          <p className="text-slate-300 text-sm mt-1 max-w-xl">
+          <p className="text-gray-800 font-medium text-sm mt-1 max-w-xl">
             Acquire newly submitted software projects, submit formal quotations, track development deadlines, and manage deliveries.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setActiveTab("available")}
-            className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white font-semibold text-sm rounded-xl shadow hover:bg-blue-500 transition"
+            className="neo-btn inline-flex items-center px-5 py-3 bg-[#171e19] text-[#ffe17c] font-black text-sm uppercase tracking-wider border-2 border-black neo-shadow"
           >
             ⚡ Browse Available Projects ({countAvailable})
           </button>
@@ -226,7 +226,7 @@ export function BuilderDashboardView({
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-gray-200 overflow-x-auto gap-1">
+      <div className="flex border-b-2 border-black overflow-x-auto gap-2 pb-2">
         {[
           { id: "overview", label: "📊 Overview" },
           { id: "available", label: `⚡ Available (${countAvailable})` },
@@ -244,10 +244,10 @@ export function BuilderDashboardView({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 whitespace-nowrap transition ${
+            className={`px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 whitespace-nowrap transition ${
               activeTab === tab.id
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
+                ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
+                : "bg-white text-[#171e19] border-black hover:bg-[#ffe17c]"
             }`}
           >
             {tab.label}
@@ -260,33 +260,33 @@ export function BuilderDashboardView({
         <div className="space-y-6">
           {/* Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-blue-600 block font-medium">Available</span>
-              <span className="text-2xl font-bold text-gray-900 mt-1 block">{countAvailable}</span>
+            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Available</span>
+              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAvailable}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-amber-600 block font-medium">Needs Quote</span>
-              <span className="text-2xl font-bold text-amber-700 mt-1 block">{countAwaitingQuote}</span>
+            <div className="bg-[#ffe17c] p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Needs Quote</span>
+              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingQuote}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-purple-600 block font-medium">Awaiting Advance</span>
-              <span className="text-2xl font-bold text-purple-700 mt-1 block">{countAwaitingAdvance}</span>
+            <div className="bg-[#b7c6c2] p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Awaiting Advance</span>
+              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingAdvance}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-indigo-600 block font-medium">In Development</span>
-              <span className="text-2xl font-bold text-indigo-700 mt-1 block">{countInDev}</span>
+            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">In Dev</span>
+              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countInDev}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-red-600 block font-medium">Overdue</span>
-              <span className="text-2xl font-bold text-red-700 mt-1 block">{countOverdue}</span>
+            <div className="bg-rose-100 p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-rose-900 block">Overdue</span>
+              <span className="text-3xl font-cabinet font-black text-rose-700 mt-1 block">{countOverdue}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-teal-600 block font-medium">Review/Delivery</span>
-              <span className="text-2xl font-bold text-teal-700 mt-1 block">{countAwaitingDelivery}</span>
+            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Review/Delivery</span>
+              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingDelivery}</span>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-              <span className="text-xs text-emerald-600 block font-medium">Completed</span>
-              <span className="text-2xl font-bold text-emerald-700 mt-1 block">{countCompleted}</span>
+            <div className="bg-emerald-100 p-4 border-2 border-black neo-shadow-sm">
+              <span className="text-[10px] uppercase tracking-wider font-black text-emerald-900 block">Completed</span>
+              <span className="text-3xl font-cabinet font-black text-emerald-800 mt-1 block">{countCompleted}</span>
             </div>
           </div>
 
