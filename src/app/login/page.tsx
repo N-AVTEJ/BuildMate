@@ -86,129 +86,166 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-          Sign in to BuildMate
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-500">
-          Enter your credentials to access your portal
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 border border-gray-200">
-          {/* Quick Autofill Trigger (Strictly Local Development Only) */}
-          {isDevelopment && (
-            <div className="mb-6 p-3 bg-blue-50/80 border border-blue-200 rounded-lg flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-blue-900 flex items-center gap-1">
-                  <span>⚡</span> Builder Quick Login (Dev Only)
-                </div>
-                <div className="text-[11px] text-blue-700">Autofill verified builder credentials</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAutofillPrompt(!showAutofillPrompt);
-                  setAutofillError(null);
-                  setAutofillPasscode("");
-                }}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded shadow-sm transition"
-              >
-                {showAutofillPrompt ? "Cancel" : "Autofill"}
-              </button>
+    <div className="min-h-screen bg-[#ffe17c] neo-dots flex flex-col justify-between font-body text-[#171e19] selection:bg-black selection:text-white">
+      {/* Top Header */}
+      <header className="bg-[#ffe17c] border-b-2 border-black h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-black border-2 border-black flex items-center justify-center neo-shadow-sm group-hover:rotate-6 transition-transform">
+              <span className="text-[#ffe17c] font-black text-xl">⚡</span>
             </div>
-          )}
+            <span className="font-heading font-black text-2xl tracking-tighter text-black">
+              Build<span className="underline decoration-black decoration-wavy decoration-2">Mate</span>
+            </span>
+          </Link>
+          <div className="flex items-center gap-4 text-sm font-bold">
+            <Link
+              href="/"
+              className="text-black hover:underline transition"
+            >
+              ← Return Home
+            </Link>
+          </div>
+        </div>
+      </header>
 
-          {/* Passcode Prompt for Autofill (Development Only) */}
-          {isDevelopment && showAutofillPrompt && (
-            <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-gray-50 border border-gray-300 rounded-lg space-y-3">
-              <label htmlFor="passcode" className="block text-xs font-bold text-gray-800">
-                Enter Passcode (1234) to Autofill &amp; Sign In:
-              </label>
-              <div className="flex gap-2">
+      {/* Main Login Card */}
+      <main className="flex-1 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white border-2 border-black mb-4 neo-shadow-sm">
+              Authorized Portal Access
+            </span>
+            <h1 className="font-heading font-black text-4xl text-black tracking-tighter">
+              Sign In to BuildMate
+            </h1>
+            <p className="mt-2 text-sm text-black/80 font-medium">
+              Enter your credentials to access your client or builder workspace.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black neo-shadow-lg">
+            {/* Quick Autofill Trigger (Strictly Local Development Only) */}
+            {isDevelopment && (
+              <div className="mb-6 p-3.5 bg-[#b7c6c2]/40 border-2 border-black rounded-xl flex items-center justify-between neo-shadow-sm">
+                <div>
+                  <div className="text-xs font-black font-heading text-black flex items-center gap-1 uppercase tracking-wider">
+                    <span>⚡</span> Builder Quick Login
+                  </div>
+                  <div className="text-[11px] text-black/70 font-medium">Autofill verified builder test account</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAutofillPrompt(!showAutofillPrompt);
+                    setAutofillError(null);
+                    setAutofillPasscode("");
+                  }}
+                  className="neo-btn px-3 py-1 bg-black text-white text-xs font-black font-heading uppercase tracking-wider rounded-lg"
+                >
+                  {showAutofillPrompt ? "Cancel" : "Autofill"}
+                </button>
+              </div>
+            )}
+
+            {/* Passcode Prompt for Autofill (Development Only) */}
+            {isDevelopment && showAutofillPrompt && (
+              <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-[#ffe17c]/30 border-2 border-black rounded-xl space-y-3 neo-shadow-sm">
+                <label htmlFor="passcode" className="block text-xs font-black text-black uppercase tracking-wider">
+                  Enter Passcode (1234) to Unlock &amp; Sign In:
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="passcode"
+                    type="password"
+                    autoFocus
+                    placeholder="Enter 1234"
+                    value={autofillPasscode}
+                    onChange={(e) => setAutofillPasscode(e.target.value)}
+                    className="flex-1 rounded-lg border-2 border-black px-3 py-2 text-sm font-medium focus:bg-[#ffe17c]/20 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="neo-btn px-4 py-2 bg-black text-white text-xs font-black font-heading uppercase rounded-lg disabled:opacity-50"
+                  >
+                    {isSubmitting ? "..." : "Unlock"}
+                  </button>
+                </div>
+                {autofillError && (
+                  <p className="text-xs text-red-600 font-bold">{autofillError}</p>
+                )}
+              </form>
+            )}
+
+            {error && (
+              <div className="mb-6 bg-red-100 border-2 border-black text-red-900 p-3.5 rounded-xl text-sm font-bold flex items-start gap-2.5 neo-shadow-sm">
+                <span className="font-black text-red-800">✕</span>
+                <div>{error}</div>
+              </div>
+            )}
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Email Address
+                </label>
                 <input
-                  id="passcode"
-                  type="password"
-                  autoFocus
-                  placeholder="Enter 1234"
-                  value={autofillPasscode}
-                  onChange={(e) => setAutofillPasscode(e.target.value)}
-                  className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="••••••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded shadow-sm transition disabled:opacity-50"
+                  className="neo-btn-lg w-full py-4 bg-black text-white font-heading font-black text-base uppercase tracking-wider rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Logging in..." : "Unlock & Login"}
+                  {isSubmitting ? "Signing In..." : "Sign In →"}
                 </button>
               </div>
-              {autofillError && (
-                <p className="text-xs text-red-600 font-medium">{autofillError}</p>
-              )}
             </form>
-          )}
 
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm font-medium">
-              {error}
+            <div className="mt-8 pt-6 border-t-2 border-black/10 text-center space-y-2">
+              <p className="text-xs font-bold text-black/70">
+                Don&apos;t have an account?{" "}
+                <Link href="/register" className="font-black text-black underline">
+                  Register as Client
+                </Link>
+              </p>
+              <p className="text-xs font-bold text-black/70">
+                Want to build?{" "}
+                <Link href="/builder/apply" className="font-black text-black underline">
+                  Apply for Builder Access (Invite-Only)
+                </Link>
+              </p>
             </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition"
-              >
-                {isSubmitting ? "Signing in..." : "Sign In"}
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-6 pt-4 border-t border-gray-200 text-center">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500">
-                Create a client account
-              </Link>
-            </p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

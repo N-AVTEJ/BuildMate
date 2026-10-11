@@ -66,27 +66,25 @@ export default function RegisterPage() {
     }
   };
 
-  // Clean Account Created Success Screen (V1 Policy)
+  // Clean Account Created Success Screen (Neo-Brutalist)
   if (isRegistered) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#ffe17c] neo-dots flex flex-col justify-center py-16 px-4 sm:px-6 lg:px-8 font-body text-[#171e19]">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-10 px-6 shadow sm:rounded-xl sm:px-10 border border-gray-200 text-center">
-            <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl">
+          <div className="bg-white p-8 sm:p-12 border-2 border-black rounded-3xl neo-shadow-lg text-center">
+            <div className="w-20 h-20 bg-[#ffe17c] border-2 border-black rounded-full flex items-center justify-center mx-auto mb-6 text-4xl neo-shadow">
               ✓
             </div>
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
-              Account Created Successfully!
+            <h2 className="font-heading font-black text-3xl text-black tracking-tight mb-3">
+              Account Created!
             </h2>
-            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-              Your client account for{" "}
-              <span className="font-semibold text-gray-900">{registeredEmail}</span> has been created.
-              You can now sign in to post academic and software projects, review builder quotations, and manage milestones.
+            <p className="text-sm text-black/80 font-medium mb-8 leading-relaxed">
+              Your client account for <span className="font-black text-black">{registeredEmail}</span> is ready. You can now sign in to post software projects, review builder quotations, and manage milestone escrow.
             </p>
 
             <Link
               href={`/login?registered=true&email=${encodeURIComponent(registeredEmail)}`}
-              className="w-full inline-flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition"
+              className="neo-btn-lg w-full py-4 bg-black text-white font-heading font-black text-sm uppercase tracking-wider rounded-xl block text-center"
             >
               Sign In to BuildMate →
             </Link>
@@ -97,157 +95,181 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-          Create your BuildMate Client Account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Register as a client to submit projects, receive verified builder quotations, and manage milestone delivery.
-        </p>
-        <p className="mt-2 text-center text-xs text-gray-500">
-          Already have an account?{" "}
-          <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-500">
-            Sign in
+    <div className="min-h-screen bg-[#ffe17c] neo-dots flex flex-col justify-between font-body text-[#171e19] selection:bg-black selection:text-white">
+      {/* Top Header */}
+      <header className="bg-[#ffe17c] border-b-2 border-black h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-black border-2 border-black flex items-center justify-center neo-shadow-sm group-hover:rotate-6 transition-transform">
+              <span className="text-[#ffe17c] font-black text-xl">⚡</span>
+            </div>
+            <span className="font-heading font-black text-2xl tracking-tighter text-black">
+              Build<span className="underline decoration-black decoration-wavy decoration-2">Mate</span>
+            </span>
           </Link>
-        </p>
-      </div>
-
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-xl sm:px-10 border border-gray-200">
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm font-medium">
-              {error}
-            </div>
-          )}
-
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Full Name *
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                placeholder="Jane Doe"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Email Address *
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="jane@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Phone Number *
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                placeholder="+91 98765 43210"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Password *
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="At least 8 characters"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Confirm Password *
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                placeholder="Re-enter your password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-              />
-            </div>
-
-            {/* Terms and Privacy Agreement */}
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="agreedToTerms"
-                  name="agreedToTerms"
-                  type="checkbox"
-                  required
-                  checked={formData.agreedToTerms}
-                  onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-              </div>
-              <div className="ml-3 text-xs text-gray-600">
-                <label htmlFor="agreedToTerms" className="cursor-pointer">
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-500 underline font-medium" target="_blank">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-500 underline font-medium" target="_blank">
-                    Privacy Policy
-                  </Link>{" "}
-                  *
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isSubmitting || !formData.agreedToTerms}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                {isSubmitting ? "Creating Client Account..." : "Create Client Account"}
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-            <p className="text-xs text-gray-400">
-              Are you a software builder? Builder accounts are onboarded via administrator invitation and vetting.
-            </p>
+          <div className="flex items-center gap-4 text-sm font-bold">
+            <Link
+              href="/login"
+              className="text-black hover:underline transition"
+            >
+              Sign In →
+            </Link>
           </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Registration Form */}
+      <main className="flex-1 flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white border-2 border-black mb-4 neo-shadow-sm">
+              Client Portal Registration
+            </span>
+            <h1 className="font-heading font-black text-3xl sm:text-4xl text-black tracking-tighter">
+              Create Client Account
+            </h1>
+            <p className="mt-2 text-sm text-black/80 font-medium">
+              Post projects, receive itemized quotes, and safeguard deposits in escrow.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black neo-shadow-lg">
+            {error && (
+              <div className="mb-6 bg-red-100 border-2 border-black text-red-900 p-3.5 rounded-xl text-sm font-bold flex items-start gap-2.5 neo-shadow-sm">
+                <span className="font-black text-red-800">✕</span>
+                <div>{error}</div>
+              </div>
+            )}
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Full Name <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  placeholder="Jane Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Email Address <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="jane@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Phone Number <span className="text-black/50 lowercase font-normal">(optional)</span>
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="+91 9876543210"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Password <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="Min 8 chars, 1 uppercase, 1 symbol"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
+                  Confirm Password <span className="text-red-600">*</span>
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  placeholder="Repeat your password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="flex items-start gap-2.5 text-xs text-black/80 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.agreedToTerms}
+                    onChange={(e) => setFormData({ ...formData, agreedToTerms: e.target.checked })}
+                    className="mt-0.5 w-4 h-4 rounded border-2 border-black text-black focus:ring-0 cursor-pointer"
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <Link href="/terms" className="underline font-bold text-black" target="_blank">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="underline font-bold text-black" target="_blank">
+                      Privacy Policy
+                    </Link>
+                  </span>
+                </label>
+              </div>
+
+              <div className="pt-3">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="neo-btn-lg w-full py-4 bg-black text-white font-heading font-black text-base uppercase tracking-wider rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Creating Account..." : "Create Client Account →"}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-8 pt-6 border-t-2 border-black/10 text-center space-y-2">
+              <p className="text-xs font-bold text-black/70">
+                Already have an account?{" "}
+                <Link href="/login" className="font-black text-black underline">
+                  Sign In
+                </Link>
+              </p>
+              <p className="text-xs font-bold text-black/70">
+                Are you an engineer?{" "}
+                <Link href="/builder/apply" className="font-black text-black underline">
+                  Apply for Builder Access
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
