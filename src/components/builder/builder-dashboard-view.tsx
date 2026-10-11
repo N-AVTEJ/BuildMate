@@ -653,15 +653,15 @@ export function BuilderDashboardView({
       {/* TAB: PROGRESS */}
       {activeTab === "progress" && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900">Active Development &amp; Progress Updates</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+          <div className="bg-white p-6 border-2 border-black neo-shadow">
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Active Development &amp; Progress Updates</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">
               Projects currently in development. Post regular progress updates and prepare final deliverables.
             </p>
           </div>
 
           {myProjects.filter((p) => ["ADVANCE_VERIFIED", "IN_PROGRESS", "OVERDUE"].includes(p.status)).length === 0 ? (
-            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+            <div className="bg-white p-10 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
               No projects currently in active development. Accept projects and await verified advance to start development.
             </div>
           ) : (
@@ -669,42 +669,42 @@ export function BuilderDashboardView({
               {myProjects
                 .filter((p) => ["ADVANCE_VERIFIED", "IN_PROGRESS", "OVERDUE"].includes(p.status))
                 .map((p) => (
-                  <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                  <div key={p.id} className="bg-white p-5 border-2 border-black neo-shadow space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                        <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                        <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                        <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                       </div>
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          p.status === "OVERDUE" ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800"
+                        className={`px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm ${
+                          p.status === "OVERDUE" ? "bg-rose-200 text-rose-950" : "bg-white text-[#171e19]"
                         }`}
                       >
                         {p.status}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs bg-gray-50 p-3 rounded-lg">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs bg-[#fffdf0] border-2 border-black p-3">
                       <div>
-                        <span className="text-gray-500 block">Official Dev Deadline</span>
-                        <span className="font-bold text-gray-900">
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Official Dev Deadline</span>
+                        <span className="font-black text-[#171e19]">
                           {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block">Last Progress Update</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Last Progress Update</span>
+                        <span className="font-black text-[#171e19]">
                           {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleDateString() : "None"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block">Agreed Price</span>
-                        <span className="font-bold text-emerald-700">₹{p.totalPrice?.toLocaleString()}</span>
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Agreed Price</span>
+                        <span className="font-black text-emerald-800">₹{p.totalPrice?.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="flex justify-end pt-2">
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                       >
                         Open Workspace &amp; Submit Deliverable →
                       </Link>
@@ -719,9 +719,9 @@ export function BuilderDashboardView({
       {/* TAB: DELIVERIES */}
       {activeTab === "deliveries" && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900">Project Deliverables &amp; Completed Submissions</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+          <div className="bg-white p-6 border-2 border-black neo-shadow">
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Project Deliverables &amp; Completed Submissions</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">
               Deliverables submitted for client final payment, review, or completed release.
             </p>
           </div>
@@ -737,7 +737,7 @@ export function BuilderDashboardView({
               "COMPLETED",
             ].includes(p.status)
           ).length === 0 ? (
-            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+            <div className="bg-white p-10 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
               No projects have submitted deliverables yet. Complete development to submit your repositories.
             </div>
           ) : (
@@ -757,21 +757,21 @@ export function BuilderDashboardView({
                 .map((p) => {
                   const nextAction = getBuilderNextAction(p.status, p.id);
                   return (
-                    <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                    <div key={p.id} className="bg-white p-5 border-2 border-black neo-shadow space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                          <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                          <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                          <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                         </div>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${nextAction.badgeClass}`}>
+                        <span className={`px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm ${nextAction.badgeClass}`}>
                           {nextAction.label}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600">{nextAction.description}</p>
+                      <p className="text-xs font-medium text-gray-700">{nextAction.description}</p>
                       <div className="flex justify-end pt-2">
                         <Link
                           href={`/builder/projects/${p.id}`}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                          className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                         >
                           View Deliverable Details →
                         </Link>
@@ -786,36 +786,36 @@ export function BuilderDashboardView({
 
       {/* TAB: MESSAGES */}
       {activeTab === "messages" && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+        <div className="bg-white border-2 border-black neo-shadow p-6 space-y-4">
           <div>
-            <h3 className="text-base font-bold text-gray-900">Client Communication &amp; Messages</h3>
-            <p className="text-xs text-gray-500 mt-0.5">Direct project discussions with your assigned clients</p>
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Client Communication &amp; Messages</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">Direct project discussions with your assigned clients</p>
           </div>
 
           {myProjects.length === 0 ? (
-            <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
-              <span className="text-3xl block mb-2">💬</span>
-              <h4 className="text-sm font-semibold text-gray-900">No Active Client Conversations</h4>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto mt-1">
+            <div className="p-8 text-center bg-[#fffdf0] border-2 border-dashed border-black">
+              <span className="text-4xl block mb-2">💬</span>
+              <h4 className="text-base font-cabinet font-black text-[#171e19] uppercase">No Active Client Conversations</h4>
+              <p className="text-xs font-bold text-gray-600 max-w-sm mx-auto mt-1">
                 Acquire an available project to open direct communication with the project client.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y-2 divide-black">
               {myProjects.map((p) => (
                 <div key={p.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-gray-500">{p.projectCode}</span>
-                      <h4 className="text-sm font-bold text-gray-900">{p.title}</h4>
+                      <span className="font-mono text-xs font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                      <h4 className="text-base font-cabinet font-black text-[#171e19]">{p.title}</h4>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Status: <span className="font-semibold text-gray-800">{p.status}</span>
+                    <p className="text-xs font-bold text-gray-700 mt-1">
+                      Status: <span className="font-black text-black">{p.status}</span>
                     </p>
                   </div>
                   <Link
                     href={`/projects/${p.id}#messages`}
-                    className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 inline-flex items-center gap-1.5 shrink-0"
+                    className="neo-btn px-4 py-2 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 shrink-0"
                   >
                     <span>💬</span> Open Discussion →
                   </Link>
@@ -829,9 +829,9 @@ export function BuilderDashboardView({
       {/* TAB 4: DEADLINES TRACKER */}
       {activeTab === "deadlines" && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900">Builder Deadlines & Delivery Tracker</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+          <div className="bg-white p-6 border-2 border-black neo-shadow">
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Deadlines &amp; Delivery Tracker</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">
               Live tracking powered by BuildMate deadline engine. Displays client requested completion dates, official system deadlines, and overdue states.
             </p>
           </div>
@@ -842,38 +842,38 @@ export function BuilderDashboardView({
               const isOverdue = p.status === "OVERDUE" || (deadlineInfo && deadlineInfo.isPast);
 
               return (
-                <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                <div key={p.id} className="bg-white p-5 border-2 border-black neo-shadow space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                      <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                      <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                      <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                     </div>
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        isOverdue ? "bg-red-100 text-red-800 border border-red-200" : "bg-blue-100 text-blue-800"
+                      className={`px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm ${
+                        isOverdue ? "bg-rose-200 text-rose-950" : "bg-white text-[#171e19]"
                       }`}
                     >
                       {isOverdue ? "OVERDUE" : p.status}
                     </span>
                   </div>
 
-                  <div className="divide-y divide-gray-100 text-xs py-1 space-y-2 border-t border-b border-gray-100">
+                  <div className="divide-y-2 divide-black text-xs py-1 space-y-2 border-t-2 border-b-2 border-black bg-[#fffdf0] p-3">
                     <div className="flex justify-between pt-1">
-                      <span className="text-gray-500">Client Requested Completion:</span>
-                      <span className="font-semibold text-blue-700">{p.requestedCompletionDate || "Flexible"}</span>
+                      <span className="text-gray-700 font-bold">Client Requested Completion:</span>
+                      <span className="font-black text-black">{p.requestedCompletionDate || "Flexible"}</span>
                     </div>
 
                     <div className="flex justify-between pt-1">
-                      <span className="text-gray-500">Official Development Deadline:</span>
-                      <span className="font-bold text-gray-900">
+                      <span className="text-gray-700 font-bold">Official Development Deadline:</span>
+                      <span className="font-black text-[#171e19]">
                         {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending advance"}
                       </span>
                     </div>
 
                     {deadlineInfo && (
                       <div className="flex justify-between pt-1">
-                        <span className="text-gray-500">Time Remaining:</span>
-                        <span className={`font-bold ${deadlineInfo.isPast ? "text-red-600" : "text-emerald-700"}`}>
+                        <span className="text-gray-700 font-bold">Time Remaining:</span>
+                        <span className={`font-black ${deadlineInfo.isPast ? "text-rose-700" : "text-emerald-800"}`}>
                           {deadlineInfo.isPast
                             ? `${Math.abs(deadlineInfo.diffDays)} days overdue`
                             : `${deadlineInfo.diffDays} day(s) remaining`}
@@ -882,8 +882,8 @@ export function BuilderDashboardView({
                     )}
 
                     <div className="flex justify-between pt-1">
-                      <span className="text-gray-500">Last Progress Update:</span>
-                      <span className="font-medium text-gray-700">
+                      <span className="text-gray-700 font-bold">Last Progress Update:</span>
+                      <span className="font-black text-[#171e19]">
                         {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleString() : "None submitted"}
                       </span>
                     </div>
@@ -892,7 +892,7 @@ export function BuilderDashboardView({
                   <div className="flex justify-end pt-1">
                     <Link
                       href={`/builder/projects/${p.id}`}
-                      className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                      className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                     >
                       Manage Deadlines &amp; Deliverables →
                     </Link>
@@ -902,7 +902,7 @@ export function BuilderDashboardView({
             })}
 
             {myProjects.length === 0 && (
-              <div className="col-span-2 bg-white p-8 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+              <div className="col-span-2 bg-white p-8 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
                 You currently have no active project commitments to track. Browse available projects to acquire one.
               </div>
             )}
@@ -913,33 +913,33 @@ export function BuilderDashboardView({
       {/* TAB 5: PAYMENTS & QR GUIDE */}
       {activeTab === "payments" && (
         <div className="space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900">Builder Payment & Escrow Instructions</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+          <div className="bg-white p-6 border-2 border-black neo-shadow">
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Payment &amp; Escrow Instructions</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">
               Reference guide for platform escrow deposits, client advance schedules, and proof verification.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Escrow Rules */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Platform Escrow Breakdown</h4>
-              <div className="space-y-3 text-xs text-gray-600">
-                <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-100">
-                  <p className="font-bold text-blue-950 mb-1">1. 30% Required Advance Deposit</p>
-                  <p className="text-blue-800">
+            <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4">
+              <h4 className="text-sm font-cabinet font-black text-[#171e19] uppercase tracking-wider">Platform Escrow Breakdown</h4>
+              <div className="space-y-3 text-xs text-gray-800">
+                <div className="p-3.5 bg-[#ffe17c] border-2 border-black neo-shadow-sm">
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">1. 30% Required Advance Deposit</p>
+                  <p className="font-medium text-gray-900">
                     Subject to a ₹300 minimum and total price cap. Client pays this deposit into platform escrow to start development.
                   </p>
                 </div>
-                <div className="p-3 bg-purple-50/70 rounded-lg border border-purple-100">
-                  <p className="font-bold text-purple-950 mb-1">2. 70% Milestone Release</p>
-                  <p className="text-purple-800">
+                <div className="p-3.5 bg-[#b7c6c2] border-2 border-black neo-shadow-sm">
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">2. 70% Milestone Release</p>
+                  <p className="font-medium text-gray-900">
                     Remaining balance is unlocked once the deliverable passes the 7-condition delivery security gate and client review.
                   </p>
                 </div>
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="font-bold text-gray-900 mb-1">3. Server-Authoritative Verification</p>
-                  <p className="text-gray-600">
+                <div className="p-3.5 bg-white border-2 border-black neo-shadow-sm">
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">3. Server-Authoritative Verification</p>
+                  <p className="font-medium text-gray-800">
                     Neither builder nor client can alter payment statuses. Verification is strictly performed by platform administrators reviewing transaction proofs.
                   </p>
                 </div>
@@ -947,27 +947,29 @@ export function BuilderDashboardView({
             </div>
 
             {/* Official Payment QR Display */}
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 text-center">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600">Official Payment Channel</span>
-              <h4 className="text-base font-bold text-gray-900">Payment QR</h4>
-              <p className="text-xs text-gray-500">Scan to make the required payment</p>
+            <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4 text-center">
+              <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">
+                Official Payment Channel
+              </span>
+              <h4 className="text-xl font-cabinet font-black text-[#171e19]">Platform UPI Escrow</h4>
+              <p className="text-xs font-bold text-gray-600">Scan to make the required milestone deposit</p>
 
-              <div className="flex justify-center p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <div className="flex justify-center p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
                 <Image
                   src="/images/payment-qr.svg"
                   alt="BuildMate Payment QR"
                   width={180}
                   height={180}
-                  className="rounded-lg shadow-sm"
+                  className="border-2 border-black"
                   priority
                 />
               </div>
 
-              <div className="text-xs text-gray-600 space-y-1 text-left bg-blue-50/60 p-3.5 rounded-lg border border-blue-100">
-                <p className="font-bold text-blue-950">Instructions for Clients / Builders:</p>
-                <p className="text-blue-900">1. Scan to make the required payment.</p>
-                <p className="text-blue-900">2. After payment, upload the payment proof.</p>
-                <p className="text-[11px] text-blue-700 pt-1 italic">
+              <div className="text-xs text-gray-800 space-y-1 text-left bg-[#ffe17c]/30 p-3.5 border-2 border-black">
+                <p className="font-black text-[#171e19] uppercase tracking-wide">Instructions for Clients / Builders:</p>
+                <p className="font-bold text-[#171e19]">1. Scan to make the required deposit.</p>
+                <p className="font-bold text-[#171e19]">2. After payment, upload the transaction receipt.</p>
+                <p className="text-[11px] font-bold text-gray-700 pt-1 italic">
                   * Note: The QR code is an instruction/display mechanism. Payment verification is strictly server and administrator controlled.
                 </p>
               </div>
@@ -978,18 +980,18 @@ export function BuilderDashboardView({
 
       {/* TAB 6: NOTIFICATIONS */}
       {activeTab === "notifications" && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
-          <h3 className="text-base font-bold text-gray-900">Builder Activity &amp; Notifications</h3>
+        <div className="bg-white border-2 border-black neo-shadow p-6 space-y-4">
+          <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Activity &amp; Notifications</h3>
           {notifications.length === 0 ? (
-            <p className="text-sm text-gray-500 italic py-6 text-center">No notifications yet.</p>
+            <p className="text-sm font-bold text-gray-600 italic py-6 text-center">No notifications yet.</p>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y-2 divide-black">
               {notifications.map((n) => (
-                <div key={n.id} className="py-3 flex items-start gap-3">
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.read ? "bg-gray-300" : "bg-blue-600"}`} />
+                <div key={n.id} className="py-3.5 flex items-start gap-3">
+                  <span className={`w-3 h-3 border border-black mt-1.5 shrink-0 ${n.read ? "bg-gray-300" : "bg-[#ffe17c]"}`} />
                   <div className="flex-1">
-                    <p className={`text-sm ${n.read ? "text-gray-700" : "font-semibold text-gray-900"}`}>{n.message}</p>
-                    <span className="text-xs text-gray-400">{new Date(n.createdAt).toLocaleString()}</span>
+                    <p className={`text-sm ${n.read ? "text-gray-700 font-medium" : "font-black text-[#171e19]"}`}>{n.message}</p>
+                    <span className="text-xs font-bold text-gray-500">{new Date(n.createdAt).toLocaleString()}</span>
                   </div>
                 </div>
               ))}
@@ -1000,34 +1002,34 @@ export function BuilderDashboardView({
 
       {/* TAB 7: PROFILE */}
       {activeTab === "profile" && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 max-w-2xl">
+        <div className="bg-white border-2 border-black neo-shadow p-6 space-y-6 max-w-2xl">
           <div>
-            <h3 className="text-base font-bold text-gray-900">Builder Profile</h3>
-            <p className="text-xs text-gray-500">Your vetted developer credentials and standing</p>
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Profile</h3>
+            <p className="text-xs font-bold text-gray-600">Your vetted developer credentials and standing</p>
           </div>
 
-          <div className="space-y-4 divide-y divide-gray-100 text-sm">
+          <div className="space-y-4 divide-y-2 divide-black text-sm">
             <div className="flex justify-between py-2">
-              <span className="text-gray-500">Full Name</span>
-              <span className="font-semibold text-gray-900">{user.name || "Navtej"}</span>
+              <span className="text-gray-700 font-bold">Full Name</span>
+              <span className="font-black text-[#171e19]">{user.name || "Navtej"}</span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-gray-500">Email Address</span>
-              <span className="font-semibold text-gray-900">{user.email}</span>
+              <span className="text-gray-700 font-bold">Email Address</span>
+              <span className="font-black text-[#171e19]">{user.email}</span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-gray-500">Phone Number</span>
-              <span className="font-semibold text-gray-900">{user.phone || "Not set"}</span>
+              <span className="text-gray-700 font-bold">Phone Number</span>
+              <span className="font-black text-[#171e19]">{user.phone || "Not set"}</span>
             </div>
-            <div className="flex justify-between py-2">
-              <span className="text-gray-500">Account Role</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">
+            <div className="flex justify-between py-2 items-center">
+              <span className="text-gray-700 font-bold">Account Role</span>
+              <span className="inline-flex items-center px-3 py-1 text-xs font-black uppercase tracking-wider bg-[#ffe17c] text-[#171e19] border-2 border-black neo-shadow-sm">
                 BUILDER (Vetted)
               </span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-gray-500">Security</span>
-              <span className="font-medium text-gray-700">Argon2id Hash Protected</span>
+              <span className="text-gray-700 font-bold">Security</span>
+              <span className="font-bold text-[#171e19]">Argon2id Hash Protected</span>
             </div>
           </div>
         </div>
@@ -1035,24 +1037,24 @@ export function BuilderDashboardView({
 
       {/* TAB 8: GUIDELINES */}
       {activeTab === "guidelines" && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 max-w-3xl">
-          <h3 className="text-base font-bold text-gray-900">Platform Development Guidelines &amp; SLAs</h3>
-          <div className="space-y-3 text-xs text-gray-700 leading-relaxed">
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-gray-900 mb-1">1. 48-Hour Acceptance Window</h4>
-              <p>When a project is in AVAILABLE status, builders have 48 hours from client submission to review requirements and accept.</p>
+        <div className="bg-white border-2 border-black neo-shadow p-6 space-y-4 max-w-3xl">
+          <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Platform Development Guidelines &amp; SLAs</h3>
+          <div className="space-y-3 text-xs text-gray-800 leading-relaxed">
+            <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
+              <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">1. 48-Hour Acceptance Window</h4>
+              <p className="font-medium">When a project is in AVAILABLE status, builders have 48 hours from client submission to review requirements and accept.</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-gray-900 mb-1">2. Accurate Quotations</h4>
-              <p>State fair timelines between 1 and 365 days. The 30% advance deposit is calculated automatically by the server.</p>
+            <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
+              <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">2. Accurate Quotations</h4>
+              <p className="font-medium">State fair timelines between 1 and 365 days. The 30% advance deposit is calculated automatically by the server.</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-gray-900 mb-1">3. Bi-Weekly Progress Updates</h4>
-              <p>Maintain consistent communication by submitting progress updates. Inactive projects risk entering OVERDUE status.</p>
+            <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
+              <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">3. Bi-Weekly Progress Updates</h4>
+              <p className="font-medium">Maintain consistent communication by submitting progress updates. Inactive projects risk entering OVERDUE status.</p>
             </div>
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <h4 className="font-bold text-gray-900 mb-1">4. 7-Condition Delivery Gate</h4>
-              <p>Deliverables must pass cryptographic checksums, valid repo URLs, setup instructions, and clean audit states before client review unlock.</p>
+            <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
+              <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">4. 7-Condition Delivery Gate</h4>
+              <p className="font-medium">Deliverables must pass cryptographic checksums, valid repo URLs, setup instructions, and clean audit states before client review unlock.</p>
             </div>
           </div>
         </div>
