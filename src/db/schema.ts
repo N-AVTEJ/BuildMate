@@ -448,6 +448,15 @@ export const progressUpdates = pgTable("progress_updates", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+// 19. builder_inquiries (Phase 13: Lead capture for invite-only builder applications)
+export const builderInquiries = pgTable("builder_inquiries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  message: text("message"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 // ==========================================
 // DRIZZLE RELATIONS
 // ==========================================
