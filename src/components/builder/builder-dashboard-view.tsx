@@ -55,7 +55,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Submit Quotation",
         actionText: "Submit Quotation →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
+        badgeClass: "bg-[#ffe17c] text-[#171e19] border-2 border-black font-black",
         icon: "📝",
         description: "Submit development duration and price quotation to client",
       };
@@ -67,7 +67,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Waiting for Client Advance",
         actionText: "View Project →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-purple-100 text-purple-900 border-purple-300",
+        badgeClass: "bg-[#b7c6c2] text-[#171e19] border-2 border-black font-black",
         icon: "⏳",
         description: "Waiting for client advance payment deposit and verification",
       };
@@ -77,7 +77,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Continue Development",
         actionText: "Workspace & Submit →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-blue-100 text-blue-900 border-blue-300",
+        badgeClass: "bg-white text-[#171e19] border-2 border-black font-black",
         icon: "⚡",
         description: "Develop codebase according to scope and submit deliverable",
       };
@@ -86,7 +86,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Update Progress",
         actionText: "Post Update / Submit →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-red-100 text-red-900 border-red-300",
+        badgeClass: "bg-rose-200 text-rose-950 border-2 border-black font-black",
         icon: "⚠️",
         description: "Project overdue — update development progress or submit completed project",
       };
@@ -98,7 +98,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Waiting for Client Final Payment",
         actionText: "View Delivery State →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-amber-100 text-amber-900 border-amber-300",
+        badgeClass: "bg-[#ffe17c] text-[#171e19] border-2 border-black font-black",
         icon: "💳",
         description: "Deliverables submitted. Awaiting client final payment verification.",
       };
@@ -107,7 +107,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Delivery Unlocked",
         actionText: "View Delivered →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-emerald-100 text-emerald-900 border-emerald-300",
+        badgeClass: "bg-emerald-200 text-emerald-950 border-2 border-black font-black",
         icon: "🎉",
         description: "Final payment verified! GitHub repository unlocked for client.",
       };
@@ -116,7 +116,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Completed",
         actionText: "View Project →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-gray-100 text-gray-800 border-gray-300",
+        badgeClass: "bg-gray-200 text-[#171e19] border-2 border-black font-black",
         icon: "✓",
         description: "Project completed and archived",
       };
@@ -125,7 +125,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
         label: "Manage Project",
         actionText: "Open →",
         href: `/builder/projects/${projectId}`,
-        badgeClass: "bg-gray-100 text-gray-700 border-gray-200",
+        badgeClass: "bg-white text-[#171e19] border-2 border-black font-black",
         icon: "📁",
         description: "Open project workspace",
       };
