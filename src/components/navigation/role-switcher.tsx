@@ -43,17 +43,17 @@ export function RoleSwitcher({ roles }: RoleSwitcherProps) {
   }
 
   return (
-    <nav aria-label="Portal views" className="inline-flex rounded-lg bg-gray-100 p-1 border border-gray-200">
+    <nav aria-label="Portal views" className="inline-flex bg-white p-1 border-2 border-black neo-shadow-sm gap-1">
       {views.map((view) => {
         const isActive = pathname.startsWith(view.activePrefix);
         return (
           <Link
             key={view.role}
             href={view.href}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition ${
+            className={`px-3 py-1 text-xs font-black uppercase tracking-wider border-2 transition ${
               isActive
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                ? "bg-[#171e19] text-[#ffe17c] border-black"
+                : "bg-white text-[#171e19] border-transparent hover:bg-[#ffe17c] hover:border-black"
             }`}
           >
             {view.name}
