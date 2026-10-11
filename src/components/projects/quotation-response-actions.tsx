@@ -55,7 +55,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+        <div className="p-3.5 bg-rose-200 border-2 border-black rounded-xl text-xs font-bold text-black neo-shadow-sm">
           {error}
         </div>
       )}
@@ -64,15 +64,15 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
           type="button"
           onClick={handleAccept}
           disabled={loading !== null}
-          className="flex-1 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg transition shadow-sm"
+          className="neo-btn flex-1 px-6 py-3 bg-[#ffe17c] hover:bg-emerald-300 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading === "accept" ? "Accepting Quotation..." : "Accept Quotation & Lock Scope"}
+          {loading === "accept" ? "Accepting Quotation..." : "Accept Quotation & Lock Scope ✓"}
         </button>
         <button
           type="button"
           onClick={handleReject}
           disabled={loading !== null}
-          className="px-6 py-2.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed font-medium text-sm rounded-lg transition"
+          className="neo-btn px-6 py-3 bg-white hover:bg-rose-200 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading === "reject" ? "Rejecting..." : "Reject Quotation"}
         </button>

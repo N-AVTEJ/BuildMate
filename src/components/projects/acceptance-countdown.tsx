@@ -54,23 +54,23 @@ export function AcceptanceCountdown({ deadlineIso }: AcceptanceCountdownProps) {
   }, [deadlineIso, router]);
 
   if (!timeLeft) {
-    return <div className="text-sm text-gray-500">Calculating deadline...</div>;
+    return <div className="text-xs font-heading font-black text-black/60">Calculating deadline...</div>;
   }
 
   if (timeLeft.isExpired) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-        <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-200 text-black border-2 border-black neo-shadow-sm">
+        <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
         Acceptance window closed (Expired)
       </div>
     );
   }
 
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-      <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-      <span>Builder discovery closes in:</span>
-      <span className="font-mono font-bold text-blue-900">
+    <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
+      <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
+      <span>Discovery closes in:</span>
+      <span className="font-mono font-black text-black">
         {String(timeLeft.hours).padStart(2, "0")}h :{" "}
         {String(timeLeft.minutes).padStart(2, "0")}m :{" "}
         {String(timeLeft.seconds).padStart(2, "0")}s
@@ -132,29 +132,29 @@ export function DeadlineCountdown({
   }, [deadlineIso, router]);
 
   if (!timeLeft) {
-    return <div className="text-sm text-gray-500">Calculating deadline...</div>;
+    return <div className="text-xs font-heading font-black text-black/60">Calculating deadline...</div>;
   }
 
   if (timeLeft.isExpired) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-        <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-200 text-black border-2 border-black neo-shadow-sm">
+        <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
         {expiredLabel}
       </div>
     );
   }
 
   const colorStyles = {
-    blue: "bg-blue-50 text-blue-800 border-blue-200 text-blue-900",
-    amber: "bg-amber-50 text-amber-800 border-amber-200 text-amber-900",
-    rose: "bg-rose-50 text-rose-800 border-rose-200 text-rose-900",
+    blue: "bg-[#b7c6c2] text-black",
+    amber: "bg-[#ffe17c] text-black",
+    rose: "bg-rose-200 text-black",
   }[variant];
 
   return (
-    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${colorStyles}`}>
-      <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+    <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm ${colorStyles}`}>
+      <span className="w-2.5 h-2.5 rounded-full bg-black animate-pulse" />
       <span>{label}</span>
-      <span className="font-mono font-bold">
+      <span className="font-mono font-black text-black">
         {timeLeft.days > 0 ? `${timeLeft.days}d ` : ""}
         {String(timeLeft.hours).padStart(2, "0")}h :{" "}
         {String(timeLeft.minutes).padStart(2, "0")}m :{" "}
@@ -163,4 +163,3 @@ export function DeadlineCountdown({
     </div>
   );
 }
-

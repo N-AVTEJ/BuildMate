@@ -54,20 +54,20 @@ export function RequirementUploadForm({ projectId }: RequirementUploadFormProps)
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mt-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Project Requirements</h3>
-      <p className="text-sm text-gray-500 mb-4">
+    <div className="bg-[#fffdf0] p-6 rounded-2xl border-2 border-black neo-shadow-sm mt-4 font-body text-[#171e19]">
+      <h3 className="text-base font-heading font-black text-black mb-1">Upload Project Requirements</h3>
+      <p className="text-xs text-black/70 font-semibold mb-4">
         Attach specifications, wireframes, or reference documents. Allowed formats: PNG, JPEG, PDF, ZIP, DOCX, PPTX (max 5 MB).
       </p>
 
       {error && (
-        <div className="mb-4 p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-4 p-3 text-xs font-bold text-black bg-rose-200 border-2 border-black rounded-xl neo-shadow-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-4 p-3 text-xs font-bold text-black bg-emerald-200 border-2 border-black rounded-xl neo-shadow-sm">
           Requirement file uploaded successfully!
         </div>
       )}
@@ -77,12 +77,12 @@ export function RequirementUploadForm({ projectId }: RequirementUploadFormProps)
           type="file"
           accept=".png,.jpg,.jpeg,.pdf,.zip,.docx,.pptx"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          className="text-xs text-black/70 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-2 file:border-black file:text-xs file:font-heading file:font-black file:bg-[#ffe17c] file:text-black cursor-pointer"
         />
         <button
           type="submit"
           disabled={loading || !file}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="neo-btn px-5 py-2.5 bg-black hover:bg-[#ffe17c] hover:text-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           {loading ? "Uploading..." : "Upload Requirement"}
         </button>

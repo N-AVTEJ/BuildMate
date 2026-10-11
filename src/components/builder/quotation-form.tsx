@@ -111,36 +111,39 @@ export function QuotationForm({ projectId }: { projectId: string }) {
 
   if (success) {
     return (
-      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-sm font-medium">
+      <div className="bg-emerald-200 border-2 border-black text-black p-5 rounded-2xl text-sm font-bold neo-shadow-sm">
         ✅ Quotation submitted successfully! Refreshing project status...
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-      <div className="mb-4">
-        <h3 className="text-base font-bold text-gray-900">Prepare & Submit Quotation</h3>
-        <p className="text-xs text-gray-500 mt-0.5">
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border-2 border-black neo-shadow-md p-6 sm:p-8 font-body text-[#171e19]">
+      <div className="mb-6">
+        <span className="font-heading font-black text-xs uppercase tracking-wider px-2.5 py-1 bg-[#ffe17c] text-black border border-black rounded inline-block mb-2">
+          Quotation Proposal
+        </span>
+        <h3 className="text-xl sm:text-2xl font-heading font-black text-black tracking-tight">Prepare &amp; Submit Quotation</h3>
+        <p className="text-xs text-black/70 font-semibold mt-1">
           Enter your total quotation price and estimated timeline. The advance deposit and remaining schedule are verified and locked by platform escrow rules upon submission.
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
+        <div className="mb-6 p-3.5 bg-rose-200 border-2 border-black rounded-xl text-xs text-black font-bold neo-shadow-sm">
           {error}
         </div>
       )}
 
-      <div className="space-y-5">
+      <div className="space-y-6">
         {/* Total Price */}
         <div>
-          <label htmlFor="totalPrice" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-            Total Price (₹) *
+          <label htmlFor="totalPrice" className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+            Total Price (₹) <span className="text-rose-600">*</span>
           </label>
-          <div className="relative rounded-lg shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-gray-500 text-sm font-medium">₹</span>
+          <div className="relative rounded-xl">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+              <span className="text-black font-black text-sm">₹</span>
             </div>
             <input
               type="text"
@@ -156,24 +159,24 @@ export function QuotationForm({ projectId }: { projectId: string }) {
                 if (!touched.price) setTouched((prev) => ({ ...prev, price: true }));
               }}
               placeholder="e.g. 1500"
-              className={`block w-full rounded-lg border pl-8 pr-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-1 ${
+              className={`block w-full rounded-xl border-2 pl-9 pr-4 py-3 text-sm font-bold text-black focus:outline-none focus:bg-[#ffe17c]/20 ${
                 priceError
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50/20"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  ? "border-rose-600 bg-rose-50"
+                  : "border-black bg-white"
               }`}
             />
           </div>
           {priceError ? (
-            <p className="text-xs text-red-600 mt-1 font-medium">{priceError}</p>
+            <p className="text-xs text-rose-700 mt-1 font-bold">{priceError}</p>
           ) : (
-            <p className="text-xs text-gray-400 mt-1">Whole numbers only (e.g. 500, 1500).</p>
+            <p className="text-xs text-black/50 font-semibold mt-1">Whole numbers only (e.g. 500, 1500).</p>
           )}
         </div>
 
         {/* Estimated Development Duration */}
         <div>
-          <label htmlFor="estimatedDurationDays" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-            Estimated Development Duration (Days) *
+          <label htmlFor="estimatedDurationDays" className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+            Estimated Development Duration (Days) <span className="text-rose-600">*</span>
           </label>
           <input
             type="text"
@@ -189,36 +192,36 @@ export function QuotationForm({ projectId }: { projectId: string }) {
               if (!touched.duration) setTouched((prev) => ({ ...prev, duration: true }));
             }}
             placeholder="e.g. 14"
-            className={`block w-full rounded-lg border px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-1 ${
+            className={`block w-full rounded-xl border-2 px-4 py-3 text-sm font-bold text-black focus:outline-none focus:bg-[#ffe17c]/20 ${
               durationError
-                ? "border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50/20"
-                : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                ? "border-rose-600 bg-rose-50"
+                : "border-black bg-white"
             }`}
           />
           {durationError ? (
-            <p className="text-xs text-red-600 mt-1 font-medium">{durationError}</p>
+            <p className="text-xs text-rose-700 mt-1 font-bold">{durationError}</p>
           ) : (
-            <p className="text-xs text-gray-400 mt-1">Expected project timeline (integer between 1 and 365 days).</p>
+            <p className="text-xs text-black/50 font-semibold mt-1">Expected project timeline (integer between 1 and 365 days).</p>
           )}
         </div>
 
         {/* Payment Preview */}
         {numericTotal !== null && previewAdvance !== null && previewRemaining !== null && (
-          <div className="bg-blue-50/80 border border-blue-200 rounded-lg p-4 text-xs text-blue-900 space-y-2">
-            <div className="font-bold text-blue-950 flex items-center gap-1.5 text-sm">
+          <div className="bg-[#b7c6c2]/40 border-2 border-black rounded-2xl p-5 text-xs text-black space-y-3 neo-shadow-sm">
+            <div className="font-heading font-black text-black flex items-center gap-2 text-sm uppercase tracking-wider">
               <span>ℹ️</span> Estimated Payment Schedule Preview
             </div>
-            <div className="grid grid-cols-2 gap-2 pt-1 border-t border-blue-100">
-              <div className="text-blue-800">
-                <span className="block text-xs text-blue-600">Required Advance:</span>
-                <span className="text-base font-bold text-blue-950">₹{previewAdvance.toLocaleString()}</span>
+            <div className="grid grid-cols-2 gap-4 pt-2 border-t-2 border-black/10">
+              <div className="bg-white p-3.5 rounded-xl border-2 border-black">
+                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Required Advance:</span>
+                <span className="text-lg font-heading font-black text-emerald-800">₹{previewAdvance.toLocaleString()}</span>
               </div>
-              <div className="text-blue-800">
-                <span className="block text-xs text-blue-600">Remaining Balance:</span>
-                <span className="text-base font-bold text-blue-950">₹{previewRemaining.toLocaleString()}</span>
+              <div className="bg-white p-3.5 rounded-xl border-2 border-black">
+                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Remaining Balance:</span>
+                <span className="text-lg font-heading font-black text-black">₹{previewRemaining.toLocaleString()}</span>
               </div>
             </div>
-            <p className="text-[11px] text-blue-700/90 pt-1 italic">
+            <p className="text-[11px] text-black/70 font-semibold italic">
               Preview only. Exact figures are verified and locked by the server upon submission.
             </p>
           </div>
@@ -227,9 +230,9 @@ export function QuotationForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={loading || !isFormValid}
-          className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-lg transition shadow-sm"
+          className="neo-btn w-full sm:w-auto px-7 py-3.5 bg-black hover:bg-black/90 disabled:opacity-50 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl border-2 border-black transition"
         >
-          {loading ? "Submitting Quotation..." : "Submit Quotation to Client"}
+          {loading ? "Submitting Quotation..." : "Submit Quotation to Client →"}
         </button>
       </div>
     </form>

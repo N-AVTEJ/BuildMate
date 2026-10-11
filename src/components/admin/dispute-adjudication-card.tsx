@@ -104,46 +104,46 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+    <div className="bg-white rounded-2xl border-2 border-black neo-shadow-lg overflow-hidden mb-8 font-body text-[#171e19]">
       {/* Top Banner */}
-      <div className="p-6 border-b border-gray-200 bg-gray-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 border-b-2 border-black/10 bg-[#fffdf0] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-gray-200 text-gray-800">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded bg-black text-[#ffe17c] border border-black">
               {dispute.project.projectCode}
             </span>
             <span
-              className={`text-xs font-bold px-2.5 py-0.5 rounded-full border uppercase ${
+              className={`text-xs font-heading font-black px-3 py-0.5 rounded-full border-2 border-black uppercase neo-shadow-sm ${
                 dispute.status === "OPEN"
-                  ? "bg-red-100 text-red-800 border-red-200"
+                  ? "bg-rose-200 text-black"
                   : dispute.status === "RESOLVED"
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-gray-100 text-gray-700 border-gray-200"
+                  ? "bg-emerald-300 text-black"
+                  : "bg-white text-black"
               }`}
             >
               Dispute {dispute.status}
             </span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">
+            <span className="text-xs font-heading font-black px-2.5 py-0.5 rounded bg-[#ffe17c] text-black border border-black">
               Project: {dispute.project.status}
             </span>
           </div>
 
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-heading font-black text-black">
             {dispute.project.title}
           </h2>
 
-          <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+          <div className="text-xs text-black/70 font-semibold mt-1 flex flex-wrap gap-x-4 gap-y-1">
             <span>
-              <strong>Raiser:</strong> {dispute.raiserName} ({dispute.raiserRole})
+              <strong className="text-black">Raiser:</strong> {dispute.raiserName} ({dispute.raiserRole})
             </span>
             <span>
-              <strong>Client:</strong> {dispute.project.clientName}
+              <strong className="text-black">Client:</strong> {dispute.project.clientName}
             </span>
             <span>
-              <strong>Builder:</strong> {dispute.project.builderName || "Unassigned"}
+              <strong className="text-black">Builder:</strong> {dispute.project.builderName || "Unassigned"}
             </span>
             <span>
-              <strong>Filed:</strong> {new Date(dispute.createdAt).toLocaleDateString()}
+              <strong className="text-black">Filed:</strong> {new Date(dispute.createdAt).toLocaleDateString()}
             </span>
           </div>
         </div>
@@ -153,7 +153,7 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
             href={`/projects/${dispute.projectId}/messages`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 border border-gray-300 hover:bg-white text-xs font-semibold rounded-lg text-gray-700 transition"
+            className="neo-btn px-4 py-2 border-2 border-black bg-white hover:bg-[#ffe17c] text-xs font-heading font-black uppercase tracking-wider rounded-xl text-black transition"
           >
             Open Live Thread ↗
           </a>
@@ -161,53 +161,53 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-gray-200 bg-white px-6 gap-6 text-xs font-semibold text-gray-500 overflow-x-auto">
+      <div className="flex border-b-2 border-black/10 bg-white px-6 gap-6 text-xs font-heading font-black uppercase tracking-wider overflow-x-auto">
         <button
           onClick={() => setActiveTab("summary")}
-          className={`py-3 border-b-2 transition ${
+          className={`py-3.5 border-b-2 transition ${
             activeTab === "summary"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent hover:text-gray-900"
+              ? "border-black text-black bg-[#ffe17c]/20 px-2 rounded-t"
+              : "border-transparent text-black/60 hover:text-black"
           }`}
         >
-          Dispute Reason & Notes
+          Dispute Reason &amp; Notes
         </button>
         <button
           onClick={() => setActiveTab("scope")}
-          className={`py-3 border-b-2 transition ${
+          className={`py-3.5 border-b-2 transition ${
             activeTab === "scope"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent hover:text-gray-900"
+              ? "border-black text-black bg-[#ffe17c]/20 px-2 rounded-t"
+              : "border-transparent text-black/60 hover:text-black"
           }`}
         >
           Scope Snapshot ({dispute.scopeSnapshot ? `v${dispute.scopeSnapshot.versionNumber}` : "None"})
         </button>
         <button
           onClick={() => setActiveTab("deliverables")}
-          className={`py-3 border-b-2 transition ${
+          className={`py-3.5 border-b-2 transition ${
             activeTab === "deliverables"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent hover:text-gray-900"
+              ? "border-black text-black bg-[#ffe17c]/20 px-2 rounded-t"
+              : "border-transparent text-black/60 hover:text-black"
           }`}
         >
           Deliverables ({dispute.deliverable ? "Submitted" : "None"})
         </button>
         <button
           onClick={() => setActiveTab("payments")}
-          className={`py-3 border-b-2 transition ${
+          className={`py-3.5 border-b-2 transition ${
             activeTab === "payments"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent hover:text-gray-900"
+              ? "border-black text-black bg-[#ffe17c]/20 px-2 rounded-t"
+              : "border-transparent text-black/60 hover:text-black"
           }`}
         >
-          Payments & Proofs ({dispute.payments.length})
+          Payments &amp; Proofs ({dispute.payments.length})
         </button>
         <button
           onClick={() => setActiveTab("messages")}
-          className={`py-3 border-b-2 transition ${
+          className={`py-3.5 border-b-2 transition ${
             activeTab === "messages"
-              ? "border-blue-600 text-blue-600 font-bold"
-              : "border-transparent hover:text-gray-900"
+              ? "border-black text-black bg-[#ffe17c]/20 px-2 rounded-t"
+              : "border-transparent text-black/60 hover:text-black"
           }`}
         >
           Messages Thread ({dispute.messages.length})
@@ -215,74 +215,60 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
       </div>
 
       {/* Tab Panels */}
-      <div className="p-6 bg-gray-50/25">
+      <div className="p-6 sm:p-8 bg-white">
         {/* Tab 1: Dispute Summary */}
         {activeTab === "summary" && (
           <div className="space-y-4">
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold uppercase text-gray-500 tracking-wider">
-                  Claimed Reason
+            <div className="bg-[#fffdf0] border-2 border-black rounded-xl p-5 neo-shadow-sm space-y-3">
+              <div>
+                <span className="text-[11px] font-heading font-black text-black/60 uppercase tracking-wider block">
+                  Category
                 </span>
-                <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900">
+                <span className="text-base font-heading font-black text-black">
                   {dispute.reason.replace(/_/g, " ")}
                 </span>
               </div>
-              <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                {dispute.description}
-              </div>
-            </div>
-
-            {dispute.preDisputeStatus && (
-              <div className="text-xs text-gray-500">
-                <strong>Pre-Dispute Status:</strong> <span className="font-mono">{dispute.preDisputeStatus}</span>
-              </div>
-            )}
-
-            {dispute.resolutionNote && (
-              <div className="bg-green-50/80 border border-green-200 rounded-lg p-4">
-                <span className="text-xs font-bold text-green-900 uppercase tracking-wider block mb-1">
-                  Resolution Ruling
+              <div>
+                <span className="text-[11px] font-heading font-black text-black/60 uppercase tracking-wider block">
+                  Raiser Explanation
                 </span>
-                <p className="text-sm text-green-800 whitespace-pre-wrap">
-                  {dispute.resolutionNote}
+                <p className="text-sm font-medium text-black whitespace-pre-wrap leading-relaxed mt-1">
+                  {dispute.description}
                 </p>
-                {dispute.resolvedAt && (
-                  <span className="text-[11px] text-green-600 block mt-2">
-                    Adjudicated on {new Date(dispute.resolvedAt).toLocaleString()}
-                  </span>
-                )}
               </div>
-            )}
+              {dispute.resolutionNote && (
+                <div className="pt-3 border-t-2 border-black/10">
+                  <span className="text-[11px] font-heading font-black text-emerald-800 uppercase tracking-wider block">
+                    Adjudicated Ruling
+                  </span>
+                  <p className="text-sm font-medium text-black whitespace-pre-wrap leading-relaxed mt-1">
+                    {dispute.resolutionNote}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {/* Tab 2: Scope Snapshot */}
         {activeTab === "scope" && (
           <div>
-            {dispute.scopeSnapshot ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b">
-                  <h4 className="font-bold text-gray-900 text-sm">
-                    {dispute.scopeSnapshot.title} (Scope Version {dispute.scopeSnapshot.versionNumber})
+            {!dispute.scopeSnapshot ? (
+              <p className="text-xs text-black/60 font-semibold italic">No locked scope version exists for this project.</p>
+            ) : (
+              <div className="bg-[#fffdf0] border-2 border-black rounded-xl p-5 neo-shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-heading font-black text-base text-black">
+                    {dispute.scopeSnapshot.title} (v{dispute.scopeSnapshot.versionNumber})
                   </h4>
-                  <span className="text-sm font-bold text-gray-900">
-                    Total: ₹{dispute.scopeSnapshot.totalPrice} (Advance: ₹{dispute.scopeSnapshot.advanceAmount}, Remaining: ₹{dispute.scopeSnapshot.remainingAmount})
+                  <span className="font-heading font-black text-xs px-2.5 py-1 bg-[#ffe17c] border border-black rounded">
+                    Total: ₹{dispute.scopeSnapshot.totalPrice.toLocaleString()}
                   </span>
                 </div>
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase block mb-1">Description</span>
-                  <p className="text-xs text-gray-700 whitespace-pre-wrap">{dispute.scopeSnapshot.description}</p>
-                </div>
-                {dispute.scopeSnapshot.deliverableRequirements && (
-                  <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase block mb-1">Deliverable Requirements</span>
-                    <p className="text-xs text-gray-700 whitespace-pre-wrap">{dispute.scopeSnapshot.deliverableRequirements}</p>
-                  </div>
-                )}
+                <p className="text-xs text-black/80 font-medium whitespace-pre-wrap leading-relaxed">
+                  {dispute.scopeSnapshot.description}
+                </p>
               </div>
-            ) : (
-              <p className="text-xs text-gray-500 italic">No scope snapshot found for this project.</p>
             )}
           </div>
         )}
@@ -290,107 +276,69 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
         {/* Tab 3: Deliverables */}
         {activeTab === "deliverables" && (
           <div>
-            {dispute.deliverable ? (
-              <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase block">GitHub Repository</span>
-                    <a
-                      href={dispute.deliverable.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-mono font-semibold text-blue-600 hover:underline break-all"
-                    >
-                      {dispute.deliverable.githubUrl}
-                    </a>
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase block">Branch & Commit</span>
-                    <span className="text-sm font-mono text-gray-800">
-                      {dispute.deliverable.branch} @ {dispute.deliverable.commitRef} ({dispute.deliverable.repoType})
-                    </span>
-                  </div>
-                </div>
-
+            {!dispute.deliverable ? (
+              <p className="text-xs text-black/60 font-semibold italic">No deliverables have been submitted yet.</p>
+            ) : (
+              <div className="bg-[#fffdf0] border-2 border-black rounded-xl p-5 neo-shadow-sm space-y-3">
                 <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase block mb-1">Implemented Features</span>
-                  <div className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded border">
-                    {dispute.deliverable.implementedFeatures}
-                  </div>
+                  <span className="text-[11px] font-heading font-black text-black/60 uppercase block">GitHub URL:</span>
+                  <a
+                    href={dispute.deliverable.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-sm text-black underline font-bold break-all"
+                  >
+                    {dispute.deliverable.githubUrl}
+                  </a>
                 </div>
-
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase block mb-1">Delivery Instructions</span>
-                  <div className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded border">
-                    {dispute.deliverable.description}
-                  </div>
+                <div className="grid grid-cols-2 gap-3 text-xs font-mono font-bold">
+                  <div>Branch: {dispute.deliverable.branch}</div>
+                  <div>Commit: {dispute.deliverable.commitRef}</div>
                 </div>
               </div>
-            ) : (
-              <p className="text-xs text-gray-500 italic">No deliverables have been submitted yet.</p>
             )}
           </div>
         )}
 
-        {/* Tab 4: Payments & Proofs (Short-TTL Presigned URLs) */}
+        {/* Tab 4: Payments */}
         {activeTab === "payments" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {dispute.payments.length === 0 ? (
-              <p className="text-xs text-gray-500 italic">No payment records found.</p>
+              <p className="text-xs text-black/60 font-semibold italic">No payment records exist for this project.</p>
             ) : (
               dispute.payments.map((p) => (
-                <div key={p.id} className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={p.id} className="p-3.5 bg-[#fffdf0] rounded-xl border-2 border-black flex items-center justify-between text-xs">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-sm text-gray-900">{p.type} Payment</span>
-                      <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-                        ₹{p.amount}
-                      </span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${p.status === "VERIFIED" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"}`}>
-                        {p.status}
-                      </span>
-                    </div>
-                    {p.utrNumber && (
-                      <span className="text-xs text-gray-500">UTR / Ref: <span className="font-mono">{p.utrNumber}</span></span>
-                    )}
+                    <span className="font-heading font-black uppercase text-black mr-2">{p.type}</span>
+                    <span className="font-mono font-black text-black">₹{p.amount.toLocaleString()}</span>
                   </div>
-
-                  {p.proofUrl ? (
-                    <a
-                      href={p.proofUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-lg transition"
-                    >
-                      View Presigned Proof Screenshot ↗
-                    </a>
-                  ) : (
-                    <span className="text-xs text-gray-400 italic">No proof file uploaded</span>
-                  )}
+                  <span className="font-heading font-black text-[11px] uppercase bg-white border border-black px-2 py-0.5 rounded">
+                    {p.status}
+                  </span>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Tab 5: Messages Thread */}
+        {/* Tab 5: Messages */}
         {activeTab === "messages" && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4 max-h-80 overflow-y-auto space-y-3">
+          <div className="space-y-3 max-h-96 overflow-y-auto">
             {dispute.messages.length === 0 ? (
-              <p className="text-xs text-gray-500 italic">No messages found in project thread.</p>
+              <p className="text-xs text-black/60 font-semibold italic">No messages found in project thread.</p>
             ) : (
               dispute.messages.map((m) => (
-                <div key={m.id} className="border-b border-gray-100 pb-2.5 last:border-0 last:pb-0">
+                <div key={m.id} className="border-b-2 border-black/10 pb-3 last:border-0 last:pb-0">
                   <div className="flex items-center gap-2 text-xs mb-1">
-                    <span className="font-bold text-gray-800">{m.senderName}</span>
-                    <span className="px-1.5 py-0.2 rounded text-[10px] bg-gray-100 text-gray-600 font-bold border uppercase">
+                    <span className="font-heading font-black text-black">{m.senderName}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#ffe17c] text-black font-black border border-black uppercase">
                       {m.senderRole}
                     </span>
-                    <span className="text-gray-400 text-[10px]">
+                    <span className="text-black/50 text-[10px] font-mono">
                       {new Date(m.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">{m.body}</p>
+                  <p className="text-xs text-black font-medium whitespace-pre-wrap leading-relaxed">{m.body}</p>
                 </div>
               ))
             )}
@@ -400,32 +348,32 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
 
       {/* Adjudication Action Form (Only for OPEN disputes) */}
       {isOpen && (
-        <form onSubmit={handleResolve} className="p-6 bg-gray-50 border-t border-gray-200 space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
+        <form onSubmit={handleResolve} className="p-6 sm:p-8 bg-[#fffdf0] border-t-2 border-black space-y-5">
+          <h3 className="text-base font-heading font-black text-black uppercase tracking-wider">
             Adjudicate Dispute
           </h3>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
+            <div className="p-3.5 bg-rose-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-xs rounded-lg">
+            <div className="p-3.5 bg-emerald-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
               {success}
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label
-              className={`p-3 border rounded-xl cursor-pointer transition text-xs flex flex-col justify-between ${
+              className={`p-4 border-2 border-black rounded-xl cursor-pointer transition text-xs flex flex-col justify-between neo-shadow-sm ${
                 action === "RETURN_TO_DEVELOPMENT"
-                  ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
+                  ? "bg-[#ffe17c]"
+                  : "bg-white hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <input
                   type="radio"
                   name={`action-${dispute.id}`}
@@ -433,21 +381,21 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
                   checked={action === "RETURN_TO_DEVELOPMENT"}
                   onChange={() => setAction("RETURN_TO_DEVELOPMENT")}
                 />
-                <span className="font-bold text-gray-900">Return to Development</span>
+                <span className="font-heading font-black text-black">Return to Dev</span>
               </div>
-              <span className="text-gray-500 text-[11px]">
-                Restores project to IN_PROGRESS. Builder must address feedback.
+              <span className="text-black/70 font-semibold text-[11px] leading-relaxed">
+                Restores project to IN_PROGRESS. Builder addresses feedback.
               </span>
             </label>
 
             <label
-              className={`p-3 border rounded-xl cursor-pointer transition text-xs flex flex-col justify-between ${
+              className={`p-4 border-2 border-black rounded-xl cursor-pointer transition text-xs flex flex-col justify-between neo-shadow-sm ${
                 action === "RETURN_TO_DELIVERY"
-                  ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
+                  ? "bg-[#ffe17c]"
+                  : "bg-white hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <input
                   type="radio"
                   name={`action-${dispute.id}`}
@@ -455,21 +403,21 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
                   checked={action === "RETURN_TO_DELIVERY"}
                   onChange={() => setAction("RETURN_TO_DELIVERY")}
                 />
-                <span className="font-bold text-gray-900">Return to Delivery</span>
+                <span className="font-heading font-black text-black">Return to Delivery</span>
               </div>
-              <span className="text-gray-500 text-[11px]">
-                Restores project to DELIVERY_UNLOCKED. Requires verified final payment.
+              <span className="text-black/70 font-semibold text-[11px] leading-relaxed">
+                Restores project to DELIVERY_UNLOCKED. Requires verified payment.
               </span>
             </label>
 
             <label
-              className={`p-3 border rounded-xl cursor-pointer transition text-xs flex flex-col justify-between ${
+              className={`p-4 border-2 border-black rounded-xl cursor-pointer transition text-xs flex flex-col justify-between neo-shadow-sm ${
                 action === "CANCEL_PROJECT"
-                  ? "border-red-600 bg-red-50/60 ring-2 ring-red-500/20"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
+                  ? "bg-rose-200"
+                  : "bg-white hover:bg-gray-50"
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1.5">
                 <input
                   type="radio"
                   name={`action-${dispute.id}`}
@@ -477,17 +425,17 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
                   checked={action === "CANCEL_PROJECT"}
                   onChange={() => setAction("CANCEL_PROJECT")}
                 />
-                <span className="font-bold text-red-700">Cancel Project</span>
+                <span className="font-heading font-black text-black">Cancel Project</span>
               </div>
-              <span className="text-gray-500 text-[11px]">
-                Terminates project into CANCELLED. Dispute resolution ends engagement.
+              <span className="text-black/70 font-semibold text-[11px] leading-relaxed">
+                Terminates project into CANCELLED. Ends engagement.
               </span>
             </label>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-              Resolution Note & Ruling <span className="text-red-500">*</span>
+            <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+              Resolution Note &amp; Ruling <span className="text-rose-600">*</span>
             </label>
             <textarea
               required
@@ -497,7 +445,7 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
               value={resolutionNote}
               onChange={(e) => setResolutionNote(e.target.value)}
               placeholder="Explain the administrative verdict and instructions for the client and builder..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-black rounded-xl text-xs font-medium focus:bg-[#ffe17c]/20 focus:outline-none leading-relaxed"
             />
           </div>
 
@@ -505,9 +453,9 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
             <button
               type="submit"
               disabled={loading || resolutionNote.length < 10}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition disabled:opacity-50"
+              className="neo-btn px-6 py-3 bg-black hover:bg-black/90 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 transition"
             >
-              {loading ? "Adjudicating..." : "Resolve & Commit Verdict"}
+              {loading ? "Adjudicating..." : "Resolve & Commit Verdict →"}
             </button>
           </div>
         </form>

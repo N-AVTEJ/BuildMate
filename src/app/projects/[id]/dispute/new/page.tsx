@@ -94,7 +94,7 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
   const backLink = isBuilder ? `/builder/projects/${project.id}` : `/projects/${project.id}`;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
@@ -102,53 +102,53 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
       />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href={isBuilder ? "/builder/projects" : "/projects"} className="hover:text-blue-600">
+        <div className="mb-6 flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60">
+          <Link href={isBuilder ? "/builder" : "/projects"} className="hover:text-black hover:underline">
             Projects
           </Link>
           <span>/</span>
-          <Link href={backLink} className="hover:text-blue-600 font-mono">
+          <Link href={backLink} className="hover:text-black hover:underline font-mono">
             {project.projectCode}
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">Dispute</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Dispute</span>
         </div>
 
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+        <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 mb-6 neo-shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-black text-[#ffe17c] border border-black">
               {project.projectCode}
             </span>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+            <span className="text-xs font-heading font-black uppercase px-2.5 py-0.5 rounded-full bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
               Status: {project.status}
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
             Project Dispute Mediation
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-black/70 font-semibold mt-1">
             BuildMate mediation portal for resolving scope disagreements, missing deliverables, or unresponsive communication.
           </p>
         </div>
 
         {/* If no active dispute and status is not in allowlist, show explanation */}
         {!activeDispute && !isStatusAllowed ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm text-center">
-            <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+          <div className="bg-white rounded-2xl border-2 border-black p-8 sm:p-12 neo-shadow-lg text-center">
+            <div className="w-14 h-14 bg-[#ffe17c] text-black border-2 border-black rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl font-black neo-shadow-sm">
               ℹ️
             </div>
-            <h2 className="text-base font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-heading font-black text-black mb-2">
               Dispute Filing Unavailable
             </h2>
-            <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+            <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
               Disputes can only be opened during active development, delivery review, or settlement phases. This project is currently in{" "}
-              <span className="font-semibold text-gray-900 font-mono">{project.status}</span>.
+              <span className="font-heading font-black text-black font-mono">{project.status}</span>.
             </p>
             <Link
               href={backLink}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition"
+              className="neo-btn inline-block px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
             >
-              Return to Project Overview
+              ← Return to Project Overview
             </Link>
           </div>
         ) : (

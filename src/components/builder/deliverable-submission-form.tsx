@@ -97,80 +97,85 @@ export function DeliverableSubmissionForm({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4 border-b pb-3">
+    <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md font-body text-[#171e19]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b-2 border-black/10 pb-4">
         <div>
-          <h3 className="text-lg font-bold text-gray-900">
-            Submit Project
+          <span className="font-heading font-black text-xs uppercase tracking-wider px-2.5 py-1 bg-[#ffe17c] text-black border border-black rounded inline-block mb-2">
+            Project Deliverables
+          </span>
+          <h3 className="text-xl sm:text-2xl font-heading font-black text-black tracking-tight">
+            Submit Source Code Deliverables
           </h3>
-          <p className="text-sm text-gray-500">
-            Submit your source repository URL and delivery documentation for client review.
+          <p className="text-xs text-black/70 font-semibold mt-1">
+            Submit your source repository URL and delivery documentation for client verification and final escrow release.
           </p>
         </div>
-        {isLocked && (
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-            Deliverables Locked (Paid &amp; Delivered)
-          </span>
-        )}
-        {isPendingFinalPayment && !isLocked && (
-          <div className="text-right">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 mr-2">
-              Project Submitted ✓
+        <div>
+          {isLocked && (
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-emerald-200 text-black border-2 border-black neo-shadow-sm">
+              Deliverables Locked (Delivered)
             </span>
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
-              Final Payment Pending
-            </span>
-          </div>
-        )}
+          )}
+          {isPendingFinalPayment && !isLocked && (
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
+                Submitted ✓
+              </span>
+              <span className="px-3 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-amber-200 text-black border-2 border-black neo-shadow-sm">
+                Final Payment Pending
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Before submitting notice */}
       {!isLocked && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">
+        <div className="mb-6 p-4 bg-[#ffe17c] border-2 border-black rounded-xl neo-shadow-sm">
+          <h4 className="text-xs font-heading font-black text-black uppercase tracking-wider mb-1">
             Before submitting:
           </h4>
-          <p className="text-xs text-blue-800">
-            Make sure your repository contains the complete project and required documentation.
+          <p className="text-xs text-black/80 font-medium">
+            Make sure your repository contains the complete project source code, accurate commit hash, and setup notes.
           </p>
         </div>
       )}
 
       {isLocked ? (
         <div className="space-y-4">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <p className="text-sm text-gray-700 font-medium mb-2">
+          <div className="bg-[#fffdf0] border-2 border-black rounded-xl p-5 neo-shadow-sm">
+            <p className="text-sm text-black font-heading font-black mb-3">
               Deliverables have been unlocked for the client. Editing is locked.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-600">
-              <div>
-                <span className="font-semibold text-gray-800">Repository:</span>{" "}
-                <span className="font-mono">{formData.githubUrl}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
+              <div className="bg-white p-3 rounded-lg border border-black/20">
+                <span className="font-heading font-black text-black block mb-0.5">Repository:</span>{" "}
+                <span className="font-mono text-black font-bold break-all">{formData.githubUrl}</span>
               </div>
-              <div>
-                <span className="font-semibold text-gray-800">Branch / Commit:</span>{" "}
-                <span className="font-mono">{formData.branch} @ {formData.commitRef}</span>
+              <div className="bg-white p-3 rounded-lg border border-black/20">
+                <span className="font-heading font-black text-black block mb-0.5">Branch / Commit:</span>{" "}
+                <span className="font-mono text-black font-bold">{formData.branch} @ {formData.commitRef}</span>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+            <div className="p-3.5 bg-rose-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
               {error}
             </div>
           )}
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+            <div className="p-3.5 bg-emerald-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
               {success}
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                GitHub Repository URL <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                GitHub Repository URL <span className="text-rose-600">*</span>
               </label>
               <input
                 type="url"
@@ -180,16 +185,16 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, githubUrl: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-black/50 font-semibold mt-1">
                 Must be an https:// URL pointing to github.com.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Repository Visibility <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                Repository Visibility <span className="text-rose-600">*</span>
               </label>
               <select
                 value={formData.repoType}
@@ -199,7 +204,7 @@ export function DeliverableSubmissionForm({
                     repoType: e.target.value as "public" | "private",
                   })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-bold bg-white focus:bg-[#ffe17c]/20 focus:outline-none"
               >
                 <option value="public">Public Repository</option>
                 <option value="private">Private Repository</option>
@@ -207,8 +212,8 @@ export function DeliverableSubmissionForm({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Target Branch <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                Target Branch <span className="text-rose-600">*</span>
               </label>
               <input
                 type="text"
@@ -218,13 +223,13 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, branch: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Commit Reference / Tag <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                Commit Reference / Tag <span className="text-rose-600">*</span>
               </label>
               <input
                 type="text"
@@ -234,12 +239,12 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, commitRef: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
                 Live Deployment URL (Optional)
               </label>
               <input
@@ -249,12 +254,12 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, deploymentUrl: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
                 Documentation URL (Optional)
               </label>
               <input
@@ -264,12 +269,12 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, documentationUrl: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
                 Project Presentation (PPT) URL (Optional)
               </label>
               <input
@@ -279,13 +284,13 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, pptUrl: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm font-mono"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-mono font-bold focus:bg-[#ffe17c]/20 focus:outline-none"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Implemented Features <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                Implemented Features <span className="text-rose-600">*</span>
               </label>
               <textarea
                 required
@@ -295,13 +300,13 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, implementedFeatures: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-medium focus:bg-[#ffe17c]/20 focus:outline-none leading-relaxed"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                Delivery Description / Instructions <span className="text-red-500">*</span>
+              <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+                Delivery Description / Instructions <span className="text-rose-600">*</span>
               </label>
               <textarea
                 required
@@ -311,22 +316,22 @@ export function DeliverableSubmissionForm({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="w-full px-4 py-3 border-2 border-black rounded-xl text-sm font-medium focus:bg-[#ffe17c]/20 focus:outline-none leading-relaxed"
               />
             </div>
           </div>
 
-          <div className="flex justify-end pt-3 border-t">
+          <div className="flex justify-end pt-4 border-t-2 border-black/10">
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition disabled:opacity-50"
+              className="neo-btn px-6 py-3 bg-black hover:bg-black/90 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50"
             >
               {loading
                 ? "Submitting..."
                 : isPendingFinalPayment
-                ? "Update Deliverables"
-                : "Submit Project"}
+                ? "Update Deliverables →"
+                : "Submit Deliverables →"}
             </button>
           </div>
         </form>

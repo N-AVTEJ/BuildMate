@@ -46,18 +46,18 @@ export function DeliveryAcceptButton({ projectId }: DeliveryAcceptButtonProps) {
   };
 
   return (
-    <div>
+    <div className="inline-flex items-center gap-2">
       {error && (
-        <span className="text-xs text-red-600 mr-2 block sm:inline">
+        <span className="text-xs font-bold text-rose-700 bg-rose-200 border border-black px-2 py-1 rounded">
           {error}
         </span>
       )}
       <button
         onClick={handleAccept}
         disabled={loading}
-        className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-sm transition disabled:opacity-50"
+        className="neo-btn px-5 py-2.5 bg-black hover:bg-emerald-600 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50"
       >
-        {loading ? "Accepting..." : "Accept & Complete"}
+        {loading ? "Accepting..." : "Accept & Complete ✓"}
       </button>
     </div>
   );

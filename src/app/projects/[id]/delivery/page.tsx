@@ -76,7 +76,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
     !isDisputeOpen;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
@@ -85,41 +85,41 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Navigation Breadcrumb */}
-        <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/projects" className="hover:text-blue-600">
+        <div className="mb-6 flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60">
+          <Link href="/projects" className="hover:text-black hover:underline">
             Projects
           </Link>
           <span>/</span>
-          <Link href={`/projects/${project.id}`} className="hover:text-blue-600">
+          <Link href={`/projects/${project.id}`} className="hover:text-black hover:underline">
             {project.projectCode}
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">Delivery</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Delivery</span>
         </div>
 
         {/* Header Banner */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm">
+        <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 mb-6 neo-shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-gray-100 text-gray-700">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-black text-[#ffe17c] border border-black">
                 {project.projectCode}
               </span>
-              <h1 className="text-2xl font-bold text-gray-900 mt-2">
+              <h1 className="text-2xl sm:text-3xl font-heading font-black text-black mt-3 tracking-tight">
                 {project.title} — Deliverables
               </h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-black/70 font-semibold mt-1">
                 Verified delivery portal and source code access.
               </p>
             </div>
             <div>
               {isDeliveryUnlocked ? (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-                  <span className="w-2 h-2 rounded-full bg-green-600 mr-2 animate-pulse" />
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-emerald-300 text-black border-2 border-black neo-shadow-sm">
+                  <span className="w-2.5 h-2.5 rounded-full bg-black mr-2 animate-pulse" />
                   Delivery Unlocked
                 </span>
               ) : (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
-                  <span className="w-2 h-2 rounded-full bg-amber-600 mr-2" />
+                <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
+                  <span className="w-2.5 h-2.5 rounded-full bg-black mr-2" />
                   Delivery Locked
                 </span>
               )}
@@ -129,32 +129,32 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
 
         {/* LOCKED STATE */}
         {!isDeliveryUnlocked && (
-          <div className="bg-white rounded-xl border border-amber-200 p-8 shadow-sm text-center">
-            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+          <div className="bg-white rounded-2xl border-2 border-black p-8 sm:p-12 neo-shadow-lg text-center">
+            <div className="w-16 h-16 bg-[#ffe17c] text-black border-2 border-black rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-black neo-shadow">
               🔒
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-heading font-black text-black mb-3">
               Deliverables Are Currently Locked
             </h2>
 
             {isDisputeOpen ? (
-              <p className="text-sm text-red-600 max-w-md mx-auto mb-6">
+              <p className="text-sm text-rose-700 font-semibold max-w-md mx-auto mb-6">
                 An active dispute is currently open for this project. Delivery access is blocked until an administrator resolves the dispute.
               </p>
             ) : !deliverable ? (
-              <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+              <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
                 The builder has not yet submitted the final project deliverables. Development is still ongoing.
               </p>
             ) : !isPaymentVerified ? (
-              <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+              <p className="text-sm text-black/80 font-medium max-w-md mx-auto mb-6 leading-relaxed">
                 The builder has submitted deliverables. To unlock access to the repository and deliverables, the final payment of{" "}
-                <span className="font-semibold text-gray-900">
+                <span className="font-heading font-black text-black">
                   ₹{project.remainingAmount || 0}
                 </span>{" "}
                 must be submitted and verified by BuildMate administration.
               </p>
             ) : (
-              <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+              <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
                 This project is currently in {project.status} status. Final payment verification is required.
               </p>
             )}
@@ -162,9 +162,9 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
             <div className="flex justify-center gap-4">
               <Link
                 href={`/projects/${project.id}`}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition"
+                className="neo-btn px-6 py-3 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
               >
-                Back to Project Overview
+                ← Back to Project Overview
               </Link>
             </div>
           </div>
@@ -174,17 +174,17 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
         {isDeliveryUnlocked && deliverable && (
           <div className="space-y-6">
             {/* Repository Card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b flex items-center justify-between">
+            <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md">
+              <h2 className="text-xl font-heading font-black text-black mb-4 pb-3 border-b-2 border-black/10 flex items-center justify-between">
                 <span>Source Code Repository</span>
-                <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                <span className="text-xs font-heading font-black uppercase px-2.5 py-1 rounded bg-[#ffe17c] text-black border border-black">
                   {deliverable.repoType}
                 </span>
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-heading font-black text-black/60 uppercase tracking-wider mb-1.5">
                     GitHub URL
                   </label>
                   <div className="flex items-center gap-3">
@@ -192,7 +192,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                       href={deliverable.githubUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-base font-mono font-semibold text-blue-600 hover:underline break-all"
+                      className="text-base font-mono font-bold text-black underline decoration-2 hover:bg-[#ffe17c] break-all px-2 py-1 rounded border border-black/20"
                     >
                       {deliverable.githubUrl}
                     </a>
@@ -200,39 +200,39 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <span className="text-xs text-gray-500 block uppercase font-medium">Branch</span>
-                    <span className="font-mono text-sm text-gray-900 font-bold">{deliverable.branch}</span>
+                  <div className="bg-[#fffdf0] rounded-xl p-3.5 border-2 border-black neo-shadow-sm">
+                    <span className="text-[11px] text-black/60 block uppercase font-heading font-black tracking-wider">Branch</span>
+                    <span className="font-mono text-sm text-black font-black">{deliverable.branch}</span>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <span className="text-xs text-gray-500 block uppercase font-medium">Commit Ref / Tag</span>
-                    <span className="font-mono text-sm text-gray-900 font-bold">{deliverable.commitRef}</span>
+                  <div className="bg-[#fffdf0] rounded-xl p-3.5 border-2 border-black neo-shadow-sm">
+                    <span className="text-[11px] text-black/60 block uppercase font-heading font-black tracking-wider">Commit Ref / Tag</span>
+                    <span className="font-mono text-sm text-black font-black">{deliverable.commitRef}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Implemented Features & Details */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b">
-                Implemented Features & Instructions
+            <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md">
+              <h2 className="text-xl font-heading font-black text-black mb-4 pb-3 border-b-2 border-black/10">
+                Implemented Features &amp; Instructions
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-1">
+                  <h3 className="text-xs font-heading font-black text-black uppercase tracking-wider mb-2">
                     Features Delivered
                   </h3>
-                  <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-line border border-gray-100 font-sans leading-relaxed">
+                  <div className="bg-[#fffdf0] rounded-xl p-4 text-sm text-black font-medium whitespace-pre-line border-2 border-black leading-relaxed">
                     {deliverable.implementedFeatures}
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-1">
-                    Setup & Delivery Notes
+                  <h3 className="text-xs font-heading font-black text-black uppercase tracking-wider mb-2">
+                    Setup &amp; Delivery Notes
                   </h3>
-                  <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-line border border-gray-100 font-sans leading-relaxed">
+                  <div className="bg-[#fffdf0] rounded-xl p-4 text-sm text-black font-medium whitespace-pre-line border-2 border-black leading-relaxed">
                     {deliverable.description}
                   </div>
                 </div>
@@ -243,8 +243,8 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                   deliverable.documentationUrl ||
                   deliverable.pptUrl) && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-2">
-                      Additional Resources & Links
+                    <h3 className="text-xs font-heading font-black text-black uppercase tracking-wider mb-3">
+                      Additional Resources &amp; Links
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {deliverable.deploymentUrl && (
@@ -252,9 +252,9 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                           href={deliverable.deploymentUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 text-sm text-blue-600 transition"
+                          className="neo-btn flex items-center gap-2 p-3.5 rounded-xl border-2 border-black bg-[#fffdf0] text-sm font-heading font-black text-black"
                         >
-                          <span className="font-bold">🚀 Live Deployment</span>
+                          <span>🚀 Live Deployment</span>
                         </a>
                       )}
                       {deliverable.demoUrl && (
@@ -262,9 +262,9 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                           href={deliverable.demoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 text-sm text-blue-600 transition"
+                          className="neo-btn flex items-center gap-2 p-3.5 rounded-xl border-2 border-black bg-[#fffdf0] text-sm font-heading font-black text-black"
                         >
-                          <span className="font-bold">🎥 Demo Link</span>
+                          <span>🎥 Demo Link</span>
                         </a>
                       )}
                       {deliverable.documentationUrl && (
@@ -272,9 +272,9 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                           href={deliverable.documentationUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 text-sm text-blue-600 transition"
+                          className="neo-btn flex items-center gap-2 p-3.5 rounded-xl border-2 border-black bg-[#fffdf0] text-sm font-heading font-black text-black"
                         >
-                          <span className="font-bold">📄 Documentation</span>
+                          <span>📄 Documentation</span>
                         </a>
                       )}
                       {deliverable.pptUrl && (
@@ -282,9 +282,9 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                           href={deliverable.pptUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 text-sm text-blue-600 transition"
+                          className="neo-btn flex items-center gap-2 p-3.5 rounded-xl border-2 border-black bg-[#fffdf0] text-sm font-heading font-black text-black"
                         >
-                          <span className="font-bold">📊 Presentation (PPT)</span>
+                          <span>📊 Presentation (PPT)</span>
                         </a>
                       )}
                     </div>
@@ -294,26 +294,26 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
             </div>
 
             {/* Client Review Action Card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="bg-[#ffe17c] rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-base font-bold text-gray-900">
-                    Client Review & Project Completion
+                  <h3 className="text-xl font-heading font-black text-black">
+                    Client Review &amp; Project Completion
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-xs text-black/80 font-medium mt-1">
                     Verify the deliverables against your requirements. Mark the project complete or raise an issue.
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   {project.status === "COMPLETED" ? (
-                    <span className="px-4 py-2 rounded-lg bg-green-100 text-green-800 font-bold text-sm border border-green-200">
+                    <span className="px-5 py-2.5 rounded-xl bg-white text-black font-heading font-black text-xs uppercase tracking-wider border-2 border-black neo-shadow-sm">
                       ✓ Project Completed
                     </span>
                   ) : (
                     <>
                       <Link
                         href={`/projects/${project.id}/dispute/new`}
-                        className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg transition"
+                        className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-100 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition"
                       >
                         Raise an Issue
                       </Link>

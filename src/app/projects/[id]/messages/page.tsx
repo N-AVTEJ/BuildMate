@@ -96,7 +96,7 @@ export default async function ProjectMessagesPage({ params }: ProjectMessagesPag
   const backLink = isBuilder ? `/builder/projects/${project.id}` : `/projects/${project.id}`;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
@@ -105,33 +105,33 @@ export default async function ProjectMessagesPage({ params }: ProjectMessagesPag
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Navigation Breadcrumb */}
-        <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href={isBuilder ? "/builder/projects" : "/projects"} className="hover:text-blue-600">
+        <div className="mb-6 flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60">
+          <Link href={isBuilder ? "/builder" : "/projects"} className="hover:text-black hover:underline">
             Projects
           </Link>
           <span>/</span>
-          <Link href={backLink} className="hover:text-blue-600 font-mono">
+          <Link href={backLink} className="hover:text-black hover:underline font-mono">
             {project.projectCode}
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">Messages</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Messages</span>
         </div>
 
         {/* Header Card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 mb-6 neo-shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-black text-[#ffe17c] border border-black">
                 {project.projectCode}
               </span>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+              <span className="text-xs font-heading font-black uppercase px-2.5 py-0.5 rounded-full bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
                 {project.status}
               </span>
             </div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
               {project.title} — Discussion Thread
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-black/70 font-semibold mt-1">
               Direct project messaging between client, assigned builder, and administrators.
             </p>
           </div>
@@ -139,9 +139,9 @@ export default async function ProjectMessagesPage({ params }: ProjectMessagesPag
           <div className="flex items-center gap-2">
             <Link
               href={backLink}
-              className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg transition"
+              className="neo-btn px-4 py-2 bg-white hover:bg-[#ffe17c] text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black"
             >
-              Project Overview
+              Project Overview →
             </Link>
           </div>
         </div>

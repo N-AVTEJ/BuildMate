@@ -33,18 +33,18 @@ export default async function AdminDisputesPage() {
   const isAuthorized = can(auth, "ADMIN_VIEW_DISPUTES").allowed;
   if (!isAuthorized) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+      <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4 font-body text-[#171e19]">
+        <div className="max-w-md w-full bg-white rounded-2xl border-2 border-black neo-shadow-lg p-8 text-center">
+          <div className="w-14 h-14 bg-rose-200 border-2 border-black rounded-xl text-black flex items-center justify-center mx-auto mb-4 font-black text-2xl neo-shadow-sm">
             !
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <h1 className="font-heading font-black text-2xl text-black mb-2">Access Denied</h1>
+          <p className="text-sm text-black/70 font-medium mb-6 leading-relaxed">
             Administrator privileges are required to access this portal.
           </p>
           <Link
             href="/"
-            className="inline-block px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
+            className="neo-btn inline-block px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
           >
             Return Home
           </Link>
@@ -266,7 +266,7 @@ export default async function AdminDisputesPage() {
   const openCount = fullDisputes.filter((d) => d.status === "OPEN").length;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
@@ -274,36 +274,36 @@ export default async function AdminDisputesPage() {
       />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="mb-6 flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/admin/dashboard" className="hover:text-blue-600">
+        <div className="mb-6 flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60">
+          <Link href="/admin" className="hover:text-black hover:underline">
             Admin Dashboard
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-medium">Dispute Mediation</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Dispute Mediation</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 mb-8 neo-shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
               Dispute Investigation & Resolution
             </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-black/70 font-semibold mt-1">
               Unified mediation dashboard with full project scope, deliverables, payment proofs, and messages.
             </p>
           </div>
 
           <div>
-            <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+            <span className="px-4 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-rose-200 text-black border-2 border-black neo-shadow-sm">
               {openCount} Open Dispute{openCount === 1 ? "" : "s"}
             </span>
           </div>
         </div>
 
         {fullDisputes.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-500">
+          <div className="bg-white rounded-2xl border-2 border-black p-12 text-center neo-shadow-lg">
             <span className="text-4xl mb-3 block">⚖️</span>
-            <h3 className="text-base font-bold text-gray-800">No disputes found</h3>
-            <p className="text-xs text-gray-400 mt-1">
+            <h3 className="text-xl font-heading font-black text-black">No disputes found</h3>
+            <p className="text-xs text-black/60 font-semibold mt-1">
               No formal disputes have been opened across any projects.
             </p>
           </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { inArray, desc, eq } from "drizzle-orm";
+import { inArray, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { payments, projects, users, paymentProofs } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
@@ -19,18 +19,18 @@ export default async function AdminPaymentsPage() {
   const isAuthorized = can(auth, "ADMIN_PAYMENT_LIST").allowed;
   if (!isAuthorized) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+      <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4 font-body text-[#171e19]">
+        <div className="max-w-md w-full bg-white rounded-2xl border-2 border-black neo-shadow-lg p-8 text-center">
+          <div className="w-14 h-14 bg-rose-200 border-2 border-black rounded-xl text-black flex items-center justify-center mx-auto mb-4 font-black text-2xl neo-shadow-sm">
             !
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <h1 className="font-heading font-black text-2xl text-black mb-2">Access Denied</h1>
+          <p className="text-sm text-black/70 font-medium mb-6 leading-relaxed">
             Administrator privileges are required to access this portal.
           </p>
           <Link
             href="/"
-            className="inline-block px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
+            className="neo-btn inline-block px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
           >
             Return Home
           </Link>
@@ -127,59 +127,61 @@ export default async function AdminPaymentsPage() {
   const lateCount = pendingPayments.filter((p) => p.status === "LATE_PAYMENT_PROOF").length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white pb-16">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
         currentPortalTitle="Payment Verification"
       />
 
-      <main className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/admin"
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-              >
-                ← Back to Dashboard
-              </Link>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mt-1">
-              Payment Verification Queue
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Review submitted payment screenshots and confirm receipt before unlocking project stages.
-            </p>
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60 mb-3">
+            <Link href="/admin" className="hover:text-black hover:underline">
+              Admin Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Payment Queue</span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/disputes"
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
-            >
-              Dispute Queue
-            </Link>
-            <div className="px-4 py-2 bg-white rounded-lg border border-gray-200 shadow-sm text-xs font-semibold">
-              <span className="text-gray-500">Pending Review: </span>
-              <span className="text-gray-900 font-bold">{pendingPayments.length}</span>
+          <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
+                Payment Verification Queue
+              </h1>
+              <p className="text-sm text-black/70 font-semibold mt-1 max-w-xl leading-relaxed">
+                Review submitted payment screenshots and confirm receipt before unlocking project milestones and source code.
+              </p>
             </div>
-            {lateCount > 0 && (
-              <div className="px-4 py-2 bg-amber-50 rounded-lg border border-amber-200 text-xs font-semibold text-amber-900">
-                <span>Late Proofs: </span>
-                <span className="font-bold text-amber-700">{lateCount}</span>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin/disputes"
+                className="neo-btn px-4 py-2 bg-[#b7c6c2] hover:bg-[#ffe17c] text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black"
+              >
+                Dispute Queue →
+              </Link>
+              <div className="px-3.5 py-2 bg-white rounded-xl border-2 border-black neo-shadow-sm text-xs font-heading font-black">
+                <span className="text-black/60">Pending: </span>
+                <span className="text-black">{pendingPayments.length}</span>
               </div>
-            )}
+              {lateCount > 0 && (
+                <div className="px-3.5 py-2 bg-amber-200 rounded-xl border-2 border-black neo-shadow-sm text-xs font-heading font-black text-black">
+                  <span>Late: </span>
+                  <span>{lateCount}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* R2 Storage Warning Banner */}
         {process.env.NODE_ENV === "production" && !isR2Configured() && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-            <span className="text-amber-600 text-lg font-bold">⚠️</span>
+          <div className="mb-6 bg-amber-200 border-2 border-black rounded-2xl p-5 flex items-start gap-3 neo-shadow">
+            <span className="text-2xl font-bold">⚠️</span>
             <div>
-              <h3 className="text-sm font-bold text-amber-900">Cloudflare R2 Storage Not Configured</h3>
-              <p className="text-xs text-amber-700 mt-0.5">
+              <h3 className="font-heading font-black text-sm text-black">Cloudflare R2 Storage Not Configured</h3>
+              <p className="text-xs text-black/80 font-medium mt-0.5 leading-relaxed">
                 Payment proof image previews are currently unavailable because production storage credentials (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME) are not configured. You can still verify payments using transaction references or configure R2 credentials to view screenshots.
               </p>
             </div>
@@ -187,29 +189,29 @@ export default async function AdminPaymentsPage() {
         )}
 
         {/* Payments Table */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border-2 border-black neo-shadow-lg overflow-hidden">
           {pendingPayments.length === 0 ? (
             <div className="p-12 text-center">
-              <span className="text-3xl block mb-2">✓</span>
-              <h3 className="text-base font-bold text-gray-900">Queue is clear</h3>
-              <p className="text-xs text-gray-500 mt-1">
+              <span className="text-4xl block mb-2">✓</span>
+              <h3 className="font-heading font-black text-xl text-black">Queue is clear</h3>
+              <p className="text-xs text-black/70 font-semibold mt-1">
                 No payment proofs are currently awaiting administrative review.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-left text-sm">
-                <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <table className="min-w-full divide-y-2 divide-black text-left text-sm">
+                <thead className="bg-black text-[#ffe17c] text-xs font-heading font-black uppercase tracking-wider">
                   <tr>
-                    <th className="px-6 py-3">Project / Client</th>
-                    <th className="px-6 py-3">Stage & Amount</th>
-                    <th className="px-6 py-3">Reference / Submitted</th>
-                    <th className="px-6 py-3">Proof Screenshot</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3 text-right">Actions</th>
+                    <th className="px-6 py-4 border-r-2 border-black/20">Project / Client</th>
+                    <th className="px-6 py-4 border-r-2 border-black/20">Stage &amp; Amount</th>
+                    <th className="px-6 py-4 border-r-2 border-black/20">Reference / Submitted</th>
+                    <th className="px-6 py-4 border-r-2 border-black/20">Proof Screenshot</th>
+                    <th className="px-6 py-4 border-r-2 border-black/20">Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y-2 divide-black/10 bg-white">
                   {pendingPayments.map((payment) => {
                     const project = projectMap.get(payment.projectId);
                     const client = project ? clientMap.get(project.clientId) : null;
@@ -219,55 +221,55 @@ export default async function AdminPaymentsPage() {
                     return (
                       <tr
                         key={payment.id}
-                        className={`hover:bg-gray-50/80 transition ${
-                          isLate ? "bg-amber-50/30" : ""
+                        className={`hover:bg-[#ffe17c]/20 transition-colors ${
+                          isLate ? "bg-amber-100/50" : ""
                         }`}
                       >
-                        <td className="px-6 py-4">
-                          <div className="font-mono text-xs font-bold text-blue-600">
+                        <td className="px-6 py-4 border-r-2 border-black/10">
+                          <div className="font-mono text-xs font-bold bg-black text-[#ffe17c] px-2 py-0.5 rounded inline-block">
                             {project?.projectCode || "N/A"}
                           </div>
-                          <div className="font-semibold text-gray-900 text-sm">
+                          <div className="font-heading font-black text-black text-sm mt-1">
                             {project?.title || "Unknown Project"}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-black/60 font-semibold mt-0.5">
                             {client ? `${client.name} (${client.email})` : "Unknown Client"}
                           </div>
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 border-r-2 border-black/10">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
+                            className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-heading font-black uppercase border border-black ${
                               payment.type === "ADVANCE"
-                                ? "bg-indigo-50 text-indigo-700"
-                                : "bg-emerald-50 text-emerald-700"
+                                ? "bg-[#ffe17c] text-black"
+                                : "bg-emerald-300 text-black"
                             }`}
                           >
                             {payment.type}
                           </span>
-                          <div className="text-base font-bold text-gray-900 mt-1">
+                          <div className="text-base font-heading font-black text-black mt-1">
                             ₹{payment.expectedAmount.toLocaleString()}
                           </div>
                         </td>
 
-                        <td className="px-6 py-4">
-                          <div className="font-mono text-xs text-gray-800 font-medium">
+                        <td className="px-6 py-4 border-r-2 border-black/10">
+                          <div className="font-mono text-xs text-black font-black bg-[#fffdf0] px-2 py-1 rounded border border-black inline-block">
                             {payment.transactionReference || "None supplied"}
                           </div>
-                          <div className="text-xs text-gray-400 mt-0.5">
+                          <div className="text-xs text-black/60 font-mono font-semibold mt-1">
                             {payment.submittedAt
                               ? new Date(payment.submittedAt).toLocaleString()
                               : "N/A"}
                           </div>
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 border-r-2 border-black/10">
                           {proofs.length === 0 ? (
-                            <span className="text-xs text-gray-400 italic">
+                            <span className="text-xs text-black/40 italic">
                               No screenshot attached
                             </span>
                           ) : (
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-1.5">
                               {proofs.map((proofItem, idx) =>
                                 proofItem.url ? (
                                   <a
@@ -275,18 +277,18 @@ export default async function AdminPaymentsPage() {
                                     href={proofItem.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 underline"
+                                    className="neo-btn inline-flex items-center gap-1 text-xs font-heading font-black px-2.5 py-1 bg-[#fffdf0] border border-black rounded text-black hover:bg-[#ffe17c]"
                                   >
                                     <span>View Proof {proofs.length > 1 ? `#${idx + 1}` : ""}</span>
-                                    <span className="text-[10px] text-gray-400">↗ (60s TTL)</span>
+                                    <span className="text-[10px] text-black/50">↗</span>
                                   </a>
                                 ) : (
                                   <span
                                     key={proofItem.id}
-                                    className="inline-flex items-center gap-1 text-[11px] text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-medium"
+                                    className="inline-flex items-center gap-1 text-[11px] text-black bg-amber-200 border border-black px-2 py-0.5 rounded font-bold"
                                     title={proofItem.error || undefined}
                                   >
-                                    ⚠️ Preview Unavailable (R2 Unconfigured)
+                                    ⚠️ Preview Unavailable
                                   </span>
                                 )
                               )}
@@ -294,21 +296,20 @@ export default async function AdminPaymentsPage() {
                           )}
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 border-r-2 border-black/10">
                           {isLate ? (
                             <div>
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-rose-200 text-black border-2 border-black neo-shadow-sm">
                                 ⚠️ LATE PROOF
                               </span>
                               {project?.advancePaymentDeadline && (
-                                <div className="text-[10px] text-amber-700 mt-0.5">
-                                  Deadline was:{" "}
-                                  {new Date(project.advancePaymentDeadline).toLocaleDateString()}
+                                <div className="text-[10px] text-rose-800 font-bold mt-1">
+                                  Deadline: {new Date(project.advancePaymentDeadline).toLocaleDateString()}
                                 </div>
                               )}
                             </div>
                           ) : (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
                               PROOF_SUBMITTED
                             </span>
                           )}

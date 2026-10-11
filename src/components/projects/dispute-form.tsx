@@ -96,74 +96,74 @@ export function DisputeForm({
   // If an active dispute already exists
   if (activeDispute) {
     return (
-      <div className="bg-white rounded-xl border border-red-200 p-6 shadow-sm">
-        <div className="flex items-center gap-3 mb-4 text-red-600">
-          <span className="text-2xl">⚠️</span>
+      <div className="bg-rose-100 rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-lg font-body text-[#171e19]">
+        <div className="flex items-center gap-3 mb-6">
+          <span className="text-3xl">⚠️</span>
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Active Dispute in Progress</h2>
-            <p className="text-xs text-gray-500">
-              This project is currently under administrative dispute review.
+            <h2 className="text-xl font-heading font-black text-black">Active Dispute in Progress</h2>
+            <p className="text-xs font-semibold text-black/70 mt-0.5">
+              This project is currently under administrative dispute mediation.
             </p>
           </div>
         </div>
 
-        <div className="bg-red-50/60 border border-red-100 rounded-lg p-4 mb-6 space-y-3">
+        <div className="bg-white border-2 border-black rounded-xl p-5 mb-6 space-y-4 neo-shadow-sm">
           <div>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            <span className="text-[11px] font-heading font-black uppercase tracking-wider text-black/60 block">
               Reason
             </span>
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-base font-heading font-black text-black">
               {activeDispute.reason.replace(/_/g, " ")}
             </span>
           </div>
 
           <div>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block">
+            <span className="text-[11px] font-heading font-black uppercase tracking-wider text-black/60 block">
               Description
             </span>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed mt-1">
+            <p className="text-sm font-medium text-black/90 whitespace-pre-wrap leading-relaxed mt-1 bg-[#fffdf0] p-3 rounded-lg border border-black/20">
               {activeDispute.description}
             </p>
           </div>
 
-          <div className="text-xs text-gray-500 pt-1 border-t border-red-100">
+          <div className="text-xs font-mono font-bold text-black/60 pt-2 border-t border-black/10">
             Opened on {new Date(activeDispute.createdAt).toLocaleDateString()} at{" "}
             {new Date(activeDispute.createdAt).toLocaleTimeString()}
           </div>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg mb-4">
+          <div className="p-3.5 bg-rose-200 border-2 border-black text-black text-xs font-bold rounded-xl mb-4 neo-shadow-sm">
             {error}
           </div>
         )}
 
         {success && (
-          <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-xs rounded-lg mb-4">
+          <div className="p-3.5 bg-emerald-200 border-2 border-black text-black text-xs font-bold rounded-xl mb-4 neo-shadow-sm">
             {success}
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
           {isRaiser ? (
             <button
               onClick={handleCancelDispute}
               disabled={loading}
-              className="px-4 py-2 border border-red-300 text-red-700 hover:bg-red-50 text-sm font-semibold rounded-lg transition disabled:opacity-50"
+              className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-200 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition disabled:opacity-50"
             >
               {loading ? "Withdrawing..." : "Withdraw / Cancel Dispute"}
             </button>
           ) : (
-            <p className="text-xs text-gray-500 italic">
+            <p className="text-xs text-black/70 font-semibold italic">
               Dispute was opened by the other party. BuildMate administration has been notified for mediation.
             </p>
           )}
 
           <a
             href={`/projects/${projectId}/messages`}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition"
+            className="neo-btn px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
           >
-            Open Project Chat
+            Open Project Chat →
           </a>
         </div>
       </div>
@@ -171,28 +171,28 @@ export function DisputeForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 neo-shadow-md space-y-5 font-body text-[#171e19]">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+        <div className="p-3.5 bg-rose-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg">
+        <div className="p-3.5 bg-emerald-200 border-2 border-black text-black text-xs font-bold rounded-xl neo-shadow-sm">
           {success}
         </div>
       )}
 
       <div>
-        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-          Dispute Reason <span className="text-red-500">*</span>
+        <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+          Dispute Reason <span className="text-rose-600">*</span>
         </label>
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           required
-          className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full px-3.5 py-2.5 border-2 border-black rounded-xl text-sm font-semibold focus:bg-[#ffe17c]/20 bg-white"
         >
           {allowedReasons.map((r) => (
             <option key={r} value={r}>
@@ -200,14 +200,14 @@ export function DisputeForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-black/60 font-semibold mt-1">
           Select the category that best describes the issue.
         </p>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-          Detailed Description <span className="text-red-500">*</span>
+        <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
+          Detailed Description <span className="text-rose-600">*</span>
         </label>
         <textarea
           value={description}
@@ -217,23 +217,23 @@ export function DisputeForm({
           maxLength={3000}
           rows={5}
           placeholder="Describe the issue in detail, referencing specific scope items, missing features, or broken functionality..."
-          className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3.5 py-2.5 border-2 border-black rounded-xl text-sm font-medium focus:bg-[#ffe17c]/20 leading-relaxed"
         />
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <div className="flex justify-between text-xs font-bold text-black/50 mt-1">
           <span>Minimum 10 characters</span>
           <span>{description.length}/3000</span>
         </div>
       </div>
 
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 leading-relaxed">
-        <span className="font-bold">Important Note:</span> Opening a formal dispute locks active project delivery, halts automatic transitions, and invites BuildMate administration to mediate the dispute.
+      <div className="p-4 bg-[#ffe17c] border-2 border-black rounded-xl text-xs font-semibold text-black leading-relaxed">
+        <span className="font-heading font-black uppercase">Important Note:</span> Opening a formal dispute locks active project delivery, halts automatic transitions, and invites BuildMate administration to mediate the dispute.
       </div>
 
-      <div className="flex justify-end gap-3 pt-3 border-t">
+      <div className="flex justify-end gap-3 pt-3 border-t-2 border-black/10">
         <button
           type="submit"
           disabled={loading || description.length < 10}
-          className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm transition disabled:opacity-50"
+          className="neo-btn px-6 py-3 bg-black text-white hover:bg-rose-600 text-xs font-heading font-black uppercase tracking-wider rounded-xl disabled:opacity-50"
         >
           {loading ? "Submitting Dispute..." : "Submit Formal Dispute"}
         </button>

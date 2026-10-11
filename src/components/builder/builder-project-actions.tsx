@@ -94,7 +94,7 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
     <>
       <div className="flex flex-col gap-2">
         {error && (
-          <div className="p-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-3 text-xs font-bold text-black bg-rose-200 border-2 border-black rounded-xl neo-shadow-sm">
             {error}
           </div>
         )}
@@ -103,18 +103,18 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
           <button
             onClick={() => handleAccept(false)}
             disabled={loading}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="neo-btn px-5 py-2.5 bg-black hover:bg-black/90 text-[#ffe17c] text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {loading ? "Processing..." : "Accept Project"}
+            {loading ? "Processing..." : "Acquire Project →"}
           </button>
 
           {showReject && (
             <button
               onClick={handleReject}
               disabled={loading}
-              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="neo-btn px-4 py-2.5 bg-white hover:bg-rose-100 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              Reject
+              Pass
             </button>
           )}
         </div>
@@ -122,31 +122,37 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
 
       {/* Duplicate Project Confirmation Modal */}
       {showConfirmModal && conflicts && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-200">
-            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-4 font-bold text-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs font-body text-[#171e19]">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8 border-2 border-black neo-shadow-lg">
+            <div className="w-14 h-14 rounded-xl bg-[#ffe17c] text-black border-2 border-black flex items-center justify-center mb-4 text-2xl neo-shadow-sm">
               ⚠️
             </div>
 
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-heading font-black text-black mb-2">
               Similar Active Project Detected
             </h3>
 
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-black/70 font-semibold mb-4">
               You already have active projects with similar scope or tech stack:
             </p>
 
-            <ul className="mb-6 divide-y divide-gray-100 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs">
+            <ul className="mb-6 divide-y-2 divide-black/10 bg-[#fffdf0] p-3.5 rounded-xl border-2 border-black text-xs font-medium">
               {conflicts.map((c) => (
-                <li key={c.id} className="py-2">
-                  <span className="font-mono font-bold text-blue-600">{c.projectCode}</span>:{" "}
-                  <span className="font-medium text-gray-800">{c.title}</span>{" "}
-                  <span className="text-gray-400">({c.status})</span>
+                <li key={c.id} className="py-2 flex items-center justify-between">
+                  <div>
+                    <span className="font-mono font-bold bg-black text-[#ffe17c] px-1.5 py-0.5 rounded text-[10px] mr-1.5">
+                      {c.projectCode}
+                    </span>
+                    <span className="font-bold text-black">{c.title}</span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase bg-white border border-black px-1.5 py-0.5 rounded">
+                    {c.status}
+                  </span>
                 </li>
               ))}
             </ul>
 
-            <p className="text-xs text-amber-700 font-semibold mb-6">
+            <p className="text-xs text-rose-800 font-bold mb-6">
               Do you want to proceed anyway and acquire this project?
             </p>
 
@@ -154,16 +160,16 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
               <button
                 onClick={() => setShowConfirmModal(false)}
                 disabled={loading}
-                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition"
+                className="neo-btn px-4 py-2.5 text-xs font-heading font-black uppercase text-black bg-white hover:bg-gray-100 rounded-xl border-2 border-black"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleAccept(true)}
                 disabled={loading}
-                className="px-4 py-2 text-sm text-white bg-amber-600 hover:bg-amber-700 font-semibold rounded-lg shadow-sm transition"
+                className="neo-btn px-5 py-2.5 text-xs font-heading font-black uppercase text-black bg-[#ffe17c] hover:bg-emerald-300 rounded-xl border-2 border-black"
               >
-                {loading ? "Acquiring..." : "Proceed & Accept"}
+                {loading ? "Acquiring..." : "Proceed & Acquire"}
               </button>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { projects, quotations } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { QuotationResponseActions } from "@/components/projects/quotation-response-actions";
+import { PortalHeader } from "@/components/navigation/portal-header";
 
 export default async function ClientQuotationReviewPage({
   params,
@@ -27,18 +28,18 @@ export default async function ClientQuotationReviewPage({
   // Ownership Enforcement (Consistent 403 defense)
   if (!project || project.clientId !== auth.user.id) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+      <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4 font-body text-[#171e19]">
+        <div className="max-w-md w-full bg-white rounded-2xl border-2 border-black neo-shadow-lg p-8 text-center">
+          <div className="w-14 h-14 bg-amber-200 border-2 border-black rounded-xl text-black flex items-center justify-center mx-auto mb-4 font-black text-2xl neo-shadow-sm">
             🔒
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <h1 className="font-heading font-black text-2xl text-black mb-2">Access Denied</h1>
+          <p className="text-sm text-black/70 font-medium mb-6 leading-relaxed">
             You do not have permission to view this quotation.
           </p>
           <Link
             href="/projects"
-            className="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+            className="neo-btn inline-block px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
           >
             ← Back to My Projects
           </Link>
@@ -55,78 +56,84 @@ export default async function ClientQuotationReviewPage({
     .limit(1);
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white">
+      <PortalHeader
+        user={auth.user}
+        roles={auth.roles}
+        currentPortalTitle="Quotation Review"
+      />
+
+      <main className="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link
             href={`/projects/${project.id}`}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800 transition"
+            className="neo-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-black rounded-lg text-xs font-heading font-black uppercase tracking-wider text-black"
           >
             ← Back to Project Details
           </Link>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
-          <div className="p-6 border-b border-gray-100">
+        <div className="bg-white rounded-2xl border-2 border-black neo-shadow-lg overflow-hidden mb-6">
+          <div className="p-6 sm:p-8 border-b-2 border-black/10 bg-[#ffe17c]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-xs font-semibold text-blue-600 tracking-wider uppercase">
+                <span className="font-heading font-black text-[11px] uppercase tracking-wider bg-black text-[#ffe17c] px-2.5 py-1 border border-black rounded inline-block">
                   Quotation Review
                 </span>
-                <h1 className="text-xl font-bold text-gray-900 mt-1">
+                <h1 className="font-heading font-black text-2xl sm:text-3xl text-black mt-2 tracking-tight">
                   {project.title}
                 </h1>
               </div>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 self-start sm:self-auto">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-black bg-white self-start sm:self-auto neo-shadow-sm">
                 {project.status}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-1 font-mono">{project.projectCode}</p>
+            <p className="text-xs text-black/70 mt-1 font-mono font-bold">{project.projectCode}</p>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-6 sm:p-8 space-y-6">
             {!latestQuotation ? (
-              <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+              <div className="p-5 bg-[#fffdf0] rounded-xl border-2 border-black text-sm text-black/80 font-medium">
                 No quotation has been submitted for this project yet.
               </div>
             ) : (
               <>
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100 rounded-xl p-6">
-                  <h2 className="text-sm font-bold text-blue-950 uppercase tracking-wider mb-4">
-                    Price & Payment Schedule Breakdown
+                <div className="bg-[#b7c6c2]/40 border-2 border-black rounded-2xl p-6 neo-shadow">
+                  <h2 className="font-heading font-black text-xs uppercase tracking-wider text-black mb-4">
+                    Price &amp; Payment Schedule Breakdown
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-xs">
-                      <span className="text-xs text-gray-500 block">Total Quotation</span>
-                      <span className="text-xl font-bold text-gray-900 mt-1 block">
+                    <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Total Quotation</span>
+                      <span className="text-2xl font-heading font-black text-black mt-1 block">
                         ₹{latestQuotation.totalPrice.toLocaleString()}
                       </span>
-                      <span className="text-[11px] text-gray-400">Total contracted scope</span>
+                      <span className="text-[11px] text-black/60 font-semibold">Total contracted scope</span>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-xs">
-                      <span className="text-xs text-gray-500 block">Required Advance</span>
-                      <span className="text-xl font-bold text-emerald-600 mt-1 block">
+                    <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Required Advance</span>
+                      <span className="text-2xl font-heading font-black text-emerald-700 mt-1 block">
                         ₹{latestQuotation.advanceAmount.toLocaleString()}
                       </span>
-                      <span className="text-[11px] text-emerald-700">Due before development begins</span>
+                      <span className="text-[11px] text-emerald-800 font-bold">Due before dev begins</span>
                     </div>
-                    <div className="bg-white p-4 rounded-lg border border-blue-100 shadow-xs">
-                      <span className="text-xs text-gray-500 block">Remaining Balance</span>
-                      <span className="text-xl font-bold text-gray-700 mt-1 block">
+                    <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Remaining Balance</span>
+                      <span className="text-2xl font-heading font-black text-black mt-1 block">
                         ₹{latestQuotation.remainingAmount.toLocaleString()}
                       </span>
-                      <span className="text-[11px] text-gray-400">Due upon verified delivery</span>
+                      <span className="text-[11px] text-black/60 font-semibold">Due upon verified delivery</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200/80 text-xs text-gray-600 space-y-2">
-                  <div className="font-semibold text-gray-800">
+                <div className="bg-[#fffdf0] p-5 rounded-xl border-2 border-black text-xs text-black/80 space-y-2">
+                  <div className="font-heading font-black text-black uppercase tracking-wider">
                     Important Terms upon Acceptance:
                   </div>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  <ul className="list-disc list-inside space-y-1 font-medium">
                     <li>Accepting this quotation will create an immutable Scope Version 1 snapshot.</li>
-                    <li>The project status will advance to <strong className="text-gray-900">Awaiting Advance</strong>.</li>
+                    <li>The project status will advance to <strong className="text-black font-black">Awaiting Advance</strong>.</li>
                     <li>Any future changes to scope or cost will require a formal Change Request.</li>
                   </ul>
                 </div>
@@ -138,13 +145,13 @@ export default async function ClientQuotationReviewPage({
                 )}
 
                 {project.status !== "QUOTATION_SENT" && (
-                  <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-600 flex items-center justify-between">
-                    <span>
-                      Quotation status: <strong className="text-gray-900">{latestQuotation.status}</strong> (Project is {project.status})
+                  <div className="p-4 bg-[#fffdf0] rounded-xl border-2 border-black text-sm text-black flex items-center justify-between">
+                    <span className="font-medium">
+                      Quotation status: <strong className="font-heading font-black">{latestQuotation.status}</strong> (Project is {project.status})
                     </span>
                     <Link
                       href={`/projects/${project.id}`}
-                      className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                      className="neo-btn px-3 py-1 bg-black text-white text-xs font-heading font-black uppercase rounded-lg"
                     >
                       View Project →
                     </Link>
@@ -154,7 +161,7 @@ export default async function ClientQuotationReviewPage({
             )}
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

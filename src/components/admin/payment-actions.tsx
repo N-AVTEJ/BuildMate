@@ -80,26 +80,26 @@ export function PaymentActions({
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 font-body text-[#171e19]">
       {error && (
-        <div className="p-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded">
+        <div className="p-2.5 bg-rose-200 border-2 border-black text-black font-bold text-xs rounded-xl neo-shadow-sm">
           {error}
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
         <button
           onClick={handleVerify}
           disabled={loading}
-          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition shadow-sm"
+          className="neo-btn px-3.5 py-1.5 bg-[#ffe17c] hover:bg-emerald-300 disabled:opacity-50 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black transition"
         >
-          {loading ? "Processing..." : isLate ? "Verify Late Payment" : "Verify Payment"}
+          {loading ? "Processing..." : isLate ? "Verify Late ✓" : "Verify ✓"}
         </button>
 
         <button
           onClick={() => setShowRejectModal(true)}
           disabled={loading}
-          className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg transition"
+          className="neo-btn px-3.5 py-1.5 bg-white hover:bg-rose-200 text-black border-2 border-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition"
         >
           Reject
         </button>
@@ -107,19 +107,19 @@ export function PaymentActions({
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-200">
-            <h3 className="text-base font-bold text-gray-900 mb-1">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 border-2 border-black neo-shadow-lg text-left">
+            <h3 className="text-xl font-heading font-black text-black mb-1">
               Reject Payment Proof
             </h3>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-black/70 font-semibold mb-4 leading-relaxed">
               Specify the reason for rejecting payment for {projectCode}. This will be communicated directly to the client.
             </p>
 
             <form onSubmit={handleReject} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Rejection Reason
+                <label className="block text-xs font-heading font-black uppercase tracking-wider text-black mb-1.5">
+                  Rejection Reason <span className="text-rose-600">*</span>
                 </label>
                 <textarea
                   value={rejectionReason}
@@ -127,22 +127,22 @@ export function PaymentActions({
                   placeholder="e.g. Transaction reference is unreadable or amount on receipt does not match expected amount."
                   rows={3}
                   required
-                  className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                  className="w-full text-xs p-3 border-2 border-black rounded-xl focus:bg-[#ffe17c]/20 focus:outline-none font-medium leading-relaxed"
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowRejectModal(false)}
-                  className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800"
+                  className="neo-btn px-4 py-2 text-xs font-heading font-black uppercase text-black bg-white hover:bg-gray-100 rounded-xl border-2 border-black"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || !rejectionReason.trim()}
-                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition"
+                  className="neo-btn px-4 py-2 bg-black hover:bg-rose-600 disabled:opacity-50 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black transition"
                 >
                   {loading ? "Rejecting..." : "Confirm Rejection"}
                 </button>
