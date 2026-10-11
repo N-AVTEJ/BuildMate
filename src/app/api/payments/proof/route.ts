@@ -8,6 +8,7 @@ import {
   projectStatusHistory,
   notifications,
   userRoles,
+  users,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
@@ -285,6 +286,7 @@ export async function POST(req: Request) {
       const adminUsers = await tx
         .select({ userId: userRoles.userId })
         .from(userRoles)
+        .innerJoin(users, eq(userRoles.userId, users.id))
         .where(eq(userRoles.role, "ADMIN"));
 
       for (const admin of adminUsers) {
