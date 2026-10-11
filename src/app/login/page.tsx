@@ -43,9 +43,7 @@ export default function LoginPage() {
       }
 
       const roles: string[] = data.user?.roles || [];
-      if (roles.length > 1) {
-        router.push("/portal-select");
-      } else if (roles.includes("ADMIN")) {
+      if (roles.includes("ADMIN")) {
         router.push("/admin");
       } else if (roles.includes("BUILDER")) {
         router.push("/builder");
