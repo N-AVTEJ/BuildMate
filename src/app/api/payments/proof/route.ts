@@ -282,26 +282,13 @@ export async function POST(req: Request) {
         })
         .returning();
 
-      // Query all admins and create transactional notifications
-      const adminUsers = await tx
-        .select({ userId: userRoles.userId })
-        .from(userRoles)
-        .innerJoin(users, eq(userRoles.userId, users.id))
-        .where(eq(userRoles.role, "ADMIN"));
-
-      for (const admin of adminUsers) {
-        await tx.insert(notifications).values({
-          userId: admin.userId,
-          message: `New payment proof submitted for project "${project.title}" (${project.projectCode}) - [${paymentType}]. Review pending.`,
-          read: false,
-        });
-      }
-
       return {
         type: "SUCCESS" as const,
         payment: paymentRow,
         proof: proofRow,
         isLate,
+        projectTitle: project.title,
+        projectCode: project.projectCode,
       };
     });
 
@@ -315,6 +302,29 @@ export async function POST(req: Request) {
 
     if (txResult.type === "CONFLICT") {
       return NextResponse.json({ error: txResult.message }, { status: 409 });
+    }
+
+    // Best-effort admin notifications outside critical payment transaction
+    try {
+      const adminUsers = await db
+        .select({ userId: userRoles.userId })
+        .from(userRoles)
+        .innerJoin(users, eq(userRoles.userId, users.id))
+        .where(eq(userRoles.role, "ADMIN"));
+
+      for (const admin of adminUsers) {
+        try {
+          await db.insert(notifications).values({
+            userId: admin.userId,
+            message: `New payment proof submitted for project "${txResult.projectTitle}" (${txResult.projectCode}) - [${paymentType}]. Review pending.`,
+            read: false,
+          });
+        } catch {
+          // Ignore individual notification failure if user deleted concurrently in tests
+        }
+      }
+    } catch (notifErr) {
+      console.warn("[Payments/Proof] Non-fatal notification error:", notifErr);
     }
 
     return NextResponse.json({
