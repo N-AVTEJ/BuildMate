@@ -19,18 +19,20 @@ export default async function ClientDashboardPage() {
   const isClient = auth.roles.includes("CLIENT");
   if (!isClient) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 font-bold text-xl">
+      <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white border-2 border-black p-8 text-center neo-shadow-lg">
+          <div className="w-14 h-14 bg-[#ffe17c] text-[#171e19] border-2 border-black flex items-center justify-center mx-auto mb-4 font-black text-2xl neo-shadow-sm">
             !
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-sm text-gray-600 mb-6">
+          <h1 className="text-2xl font-cabinet font-black text-[#171e19] mb-2 uppercase tracking-wide">
+            Access Denied
+          </h1>
+          <p className="text-sm font-bold text-gray-700 mb-6">
             Only accounts with the Client role can access the Client Portal.
           </p>
           <Link
             href="/"
-            className="inline-block px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition"
+            className="neo-btn inline-block px-5 py-2.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
           >
             Return Home
           </Link>
@@ -155,7 +157,7 @@ export default async function ClientDashboardPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fffdf0] neo-dots">
       <PortalHeader
         user={auth.user}
         roles={auth.roles}
