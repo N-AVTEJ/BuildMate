@@ -1,26 +1,106 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&f[]=satoshi@400,500,700,900&display=swap');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #171e19;
+  --neo-yellow: #ffe17c;
+  --neo-charcoal: #171e19;
+  --neo-sage: #b7c6c2;
+  --neo-dark: #272727;
+  --font-cabinet: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-satoshi: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-satoshi);
+}
+
+.font-heading {
+  font-family: var(--font-cabinet);
+}
+
+.font-body {
+  font-family: var(--font-satoshi);
+}
+
+/* 32px x 32px radial dot pattern (opacity 10%) on yellow background */
+.neo-dots {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.12) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+}
+
+/* Neo-Brutalist Hard Shadows (0px blur) */
+.neo-shadow-sm {
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-shadow {
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-shadow-lg {
+  box-shadow: 8px 8px 0px 0px #000000;
+}
+
+.neo-shadow-xl {
+  box-shadow: 12px 12px 0px 0px #000000;
+}
+
+/* Push button micro-interaction: translates 4px into shadow on hover / press */
+.neo-btn {
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.neo-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px #000000;
+}
+
+.neo-btn-lg {
+  border: 2px solid #000000;
+  border-radius: 0.75rem;
+  box-shadow: 8px 8px 0px 0px #000000;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.neo-btn-lg:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0px 0px #000000;
+}
+
+.neo-btn-lg:active {
+  transform: translate(8px, 8px);
+  box-shadow: 0px 0px 0px 0px #000000;
+}
+
+/* Text outline effect for keywords */
+.neo-text-stroke {
+  -webkit-text-stroke: 2px #000000;
+  color: transparent;
+}
+
+/* Infinite Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
