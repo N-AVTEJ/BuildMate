@@ -50,7 +50,7 @@ export default function LoginPage() {
       } else if (roles.includes("BUILDER")) {
         router.push("/builder");
       } else {
-        router.push("/dashboard");
+        router.push("/projects");
       }
       router.refresh();
     } catch (err: any) {

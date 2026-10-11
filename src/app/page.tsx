@@ -64,27 +64,73 @@ export default function Home() {
                 Connect with verified software builders, lock project specifications, safeguard advance deposits in escrow, and release final payment only after verified code delivery.
               </p>
 
-              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href="/projects/new"
-                  className="w-full sm:w-auto px-6 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md hover:shadow-lg transition text-center"
-                >
-                  Post a Project
-                </Link>
-                <Link
-                  href="/register"
-                  className="w-full sm:w-auto px-6 py-3.5 text-base font-semibold text-gray-800 bg-white hover:bg-gray-50 border border-gray-300 rounded-xl shadow-xs transition text-center"
-                >
-                  Become a Builder
-                </Link>
-              </div>
+              {/* Role Chooser Cards (Phase 13: Role-First Entry Flow) */}
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                {/* Card 1: Client / Student */}
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-blue-200/80 hover:border-blue-500 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                  <div>
+                    <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-105 transition-transform">
+                      🎓
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-blue-600">Client Portal</span>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">
+                      I&apos;m a Client / Student
+                    </h2>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-6">
+                      Post your software or academic project, review quotes, lock scope, and release payments only after verified code delivery.
+                    </p>
+                  </div>
+                  <div>
+                    <Link
+                      href="/login"
+                      className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition active:scale-98"
+                    >
+                      Sign In as Client →
+                    </Link>
+                    <p className="mt-3 text-xs text-center text-gray-500">
+                      New here?{" "}
+                      <Link href="/register" className="font-semibold text-blue-600 hover:underline">
+                        Sign up for free
+                      </Link>
+                    </p>
+                  </div>
+                </div>
 
-              <p className="mt-4 text-xs sm:text-sm text-gray-500">
-                Already have an account?{" "}
-                <Link href="/login" className="font-semibold text-blue-600 hover:underline">
-                  Sign in here →
-                </Link>
-              </p>
+                {/* Card 2: Builder */}
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 hover:border-amber-400 shadow-sm hover:shadow-md transition flex flex-col justify-between group">
+                  <div>
+                    <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-105 transition-transform">
+                      ⚡
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">Engineering Network</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800">
+                        Invite-Only
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">
+                      I&apos;m a Builder
+                    </h2>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-6">
+                      Builder access is invite-only right now. Apply to join our curated network of verified software engineers.
+                    </p>
+                  </div>
+                  <div>
+                    <Link
+                      href="/builder/apply"
+                      className="w-full inline-flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-gray-800 bg-gray-100 hover:bg-gray-200 border border-gray-300 transition active:scale-98"
+                    >
+                      Apply for Builder Access →
+                    </Link>
+                    <p className="mt-3 text-xs text-center text-gray-500">
+                      Already approved?{" "}
+                      <Link href="/login" className="font-semibold text-blue-600 hover:underline">
+                        Sign in to Builder Portal
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Trust Highlights Strip */}
