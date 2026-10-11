@@ -7,59 +7,99 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8 sm:p-12">
-        <div className="mb-8 border-b border-gray-200 pb-6">
-          <Link href="/" className="text-sm font-medium text-blue-600 hover:text-blue-800 mb-2 inline-block">
-            ← Return to Home
+    <div className="min-h-screen bg-[#ffe17c] neo-dots flex flex-col justify-between font-body text-[#171e19] selection:bg-black selection:text-white">
+      {/* Top Header */}
+      <header className="bg-[#ffe17c] border-b-2 border-black h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-black border-2 border-black flex items-center justify-center neo-shadow-sm group-hover:rotate-6 transition-transform">
+              <span className="text-[#ffe17c] font-black text-xl">⚡</span>
+            </div>
+            <span className="font-heading font-black text-2xl tracking-tighter text-black">
+              Build<span className="underline decoration-black decoration-wavy decoration-2">Mate</span>
+            </span>
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Terms of Service</h1>
-          <p className="text-sm text-gray-500 mt-2">Effective Date: September 2026</p>
+          <div className="flex items-center gap-4 text-sm font-bold">
+            <Link
+              href="/"
+              className="text-black hover:underline transition"
+            >
+              ← Return Home
+            </Link>
+          </div>
         </div>
+      </header>
 
-        <div className="prose prose-blue max-w-none text-gray-700 space-y-6 text-sm sm:text-base leading-relaxed">
-          <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">1. Overview and Acceptance</h2>
-            <p>
-              By accessing, registering with, or utilizing BuildMate (&quot;the Platform&quot;), clients, builders, and administrators agree to be bound by these Terms of Service. BuildMate operates as a milestone-managed software development and builder procurement platform.
+      {/* Main Legal Content */}
+      <main className="flex-1 py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border-2 border-black neo-shadow-lg space-y-8">
+          <div className="border-b-2 border-black/10 pb-6">
+            <span className="inline-block px-3 py-1 bg-[#b7c6c2] border-2 border-black rounded-full text-xs font-black uppercase tracking-wider mb-3 neo-shadow-sm">
+              Platform Governance
+            </span>
+            <h1 className="font-heading font-black text-4xl text-black tracking-tighter">
+              Terms of Service
+            </h1>
+            <p className="text-xs font-bold text-black/60 mt-1 uppercase tracking-wider">
+              Effective Date: September 2026 • Version 1.0 Escrow Standard
             </p>
-          </section>
+          </div>
 
-          <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">2. Non-Refundable Advance Payment Clause</h2>
-            <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-amber-900">
-              <p className="font-semibold mb-1">Advance Payment Non-Refundability Policy:</p>
-              <p className="text-sm">
-                Advance payments (typically 30% to 50% of the agreed total project quotation) are collected to secure builder resource allocation and cover initial design, architecture, and milestone setup. Once verified and the project transitions to <strong className="font-mono">IN_PROGRESS</strong> status, advance payments are strictly non-refundable, except where an administrator explicitly orders a refund following formal dispute adjudication.
+          <div className="space-y-6 text-sm sm:text-base leading-relaxed text-black/90 font-medium">
+            <section>
+              <h2 className="font-heading font-black text-xl text-black mb-2">1. Overview and Acceptance</h2>
+              <p>
+                By accessing, registering with, or utilizing BuildMate (&quot;the Platform&quot;), clients, builders, and administrators agree to be bound by these Terms of Service. BuildMate operates as a milestone-managed software development and builder procurement platform.
               </p>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">3. Admin Unavailability and Escalation (5-Business-Day Clause)</h2>
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 text-blue-900">
-              <p className="font-semibold mb-1">Administrative Timelines &amp; 5-Business-Day Safeguard:</p>
-              <p className="text-sm">
-                Platform administrators are responsible for verifying payment proofs, reviewing change requests, and resolving disputes. If a pending verification or dispute remains unaddressed by platform administrators for more than five (5) consecutive business days, the affected client or builder may invoke dispute cancellation, request automated escalation, or withdraw open disputes back to the pre-dispute project milestone to avoid permanent escrow or delivery lockup.
+            <section>
+              <h2 className="font-heading font-black text-xl text-black mb-2">2. Non-Refundable Advance Payment Clause</h2>
+              <div className="rounded-2xl bg-[#ffe17c]/40 border-2 border-black p-5 neo-shadow-sm">
+                <p className="font-heading font-black text-sm uppercase text-black mb-1">
+                  Advance Payment Non-Refundability Policy:
+                </p>
+                <p className="text-sm text-black/90">
+                  Advance payments (typically 30% to 50% of the agreed total project quotation) are collected to secure builder resource allocation and cover initial design, architecture, and milestone setup. Once verified and the project transitions to <strong className="font-mono font-bold bg-white px-1.5 py-0.5 border border-black rounded">IN_PROGRESS</strong> status, advance payments are strictly non-refundable, except where an administrator explicitly orders a refund following formal dispute adjudication.
+                </p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-heading font-black text-xl text-black mb-2">3. Admin Unavailability and Escalation (5-Business-Day Clause)</h2>
+              <div className="rounded-2xl bg-[#b7c6c2]/40 border-2 border-black p-5 neo-shadow-sm">
+                <p className="font-heading font-black text-sm uppercase text-black mb-1">
+                  5-Business-Day Resolution Commitment:
+                </p>
+                <p className="text-sm text-black/90">
+                  BuildMate administrators commit to reviewing, mediating, and rendering a final determination on all submitted disputes within five (5) business days of dispute initiation. If an assigned administrator becomes unresponsive or fails to act within this SLA, the dispute automatically escalates to senior supervisory review.
+                </p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="font-heading font-black text-xl text-black mb-2">4. Code Delivery Gate &amp; Deliverables Protection</h2>
+              <p>
+                Repository source code, build artifacts, and deliverables remain locked behind platform delivery security gates until the client validates delivery acceptance and final milestone settlement has been verified.
               </p>
-            </div>
-          </section>
+            </section>
 
-          <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">4. Milestone and Delivery Security</h2>
-            <p>
-              Project deliverables (source code, repository access, documentation, and live deployment credentials) remain strictly locked on the server until the final payment is submitted by the client and verified by a platform administrator. Unlocking deliverables requires meeting all seven delivery security invariants enforced by the platform.
-            </p>
-          </section>
+            <section>
+              <h2 className="font-heading font-black text-xl text-black mb-2">5. User Conduct and Integrity</h2>
+              <p>
+                Users agree not to bypass the platform for off-platform payment avoidance, submit fraudulent proof receipts, or harass counter-parties. Violations result in immediate account suspension and escrow forfeiture.
+              </p>
+            </section>
+          </div>
 
-          <section>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">5. Project Integrity and Academic Honesty</h2>
-            <p>
-              Users must certify that project specifications represent legitimate work requirements. Misrepresenting identity, uploading malicious binaries, attempting path traversal, or spoofing server timestamps constitutes a material violation of these Terms and results in immediate account termination.
-            </p>
-          </section>
+          <div className="pt-6 border-t-2 border-black/10 flex justify-between items-center text-xs font-bold text-black/60">
+            <span>&copy; {new Date().getFullYear()} BuildMate Escrow Platform</span>
+            <Link href="/privacy" className="text-black underline font-black">
+              View Privacy Policy →
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
