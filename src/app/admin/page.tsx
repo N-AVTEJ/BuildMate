@@ -87,7 +87,14 @@ export default async function AdminDashboardPage() {
               Global overview of platform activity, project lifecycles, and verification queues.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/admin/builder-inquiries"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
+            >
+              <span>📋 Builder Inquiries</span>
+              <span>→</span>
+            </Link>
             <Link
               href="/admin/disputes"
               className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition shadow-sm"
