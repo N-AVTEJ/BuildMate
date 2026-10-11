@@ -292,12 +292,12 @@ export function BuilderDashboardView({
 
           {/* Attention Alerts */}
           {countAwaitingQuote > 0 && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="p-5 bg-[#ffe17c] border-2 border-black neo-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-3">
-                <span className="text-xl">⚠️</span>
+                <span className="text-2xl">⚠️</span>
                 <div>
-                  <h4 className="text-sm font-bold text-amber-900">Quotation Pending</h4>
-                  <p className="text-xs text-amber-700 mt-0.5">
+                  <h4 className="text-base font-cabinet font-black text-[#171e19] uppercase tracking-wide">Quotation Pending</h4>
+                  <p className="text-xs font-bold text-gray-800 mt-0.5">
                     You have accepted {countAwaitingQuote} project(s) awaiting your formal development quotation and timeline.
                   </p>
                 </div>
@@ -307,7 +307,7 @@ export function BuilderDashboardView({
                   setActiveTab("my-projects");
                   setStatusFilter("AWAITING_QUOTE");
                 }}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition shrink-0"
+                className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0"
               >
                 Submit Quotation Now →
               </button>
@@ -315,12 +315,12 @@ export function BuilderDashboardView({
           )}
 
           {countOverdue > 0 && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="p-5 bg-rose-200 border-2 border-black neo-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-3">
-                <span className="text-xl">🚨</span>
+                <span className="text-2xl">🚨</span>
                 <div>
-                  <h4 className="text-sm font-bold text-red-900">Overdue Development Alert</h4>
-                  <p className="text-xs text-red-700 mt-0.5">
+                  <h4 className="text-base font-cabinet font-black text-rose-950 uppercase tracking-wide">Overdue Development Alert</h4>
+                  <p className="text-xs font-bold text-rose-900 mt-0.5">
                     {countOverdue} project(s) have passed their official development deadline. Please upload deliverables or post a progress update immediately.
                   </p>
                 </div>
@@ -329,7 +329,7 @@ export function BuilderDashboardView({
                 onClick={() => {
                   setActiveTab("deadlines");
                 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition shrink-0"
+                className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0"
               >
                 Inspect Overdue Projects →
               </button>
@@ -337,47 +337,47 @@ export function BuilderDashboardView({
           )}
 
           {/* Available Projects Preview */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
+            <div className="p-5 border-b-2 border-black flex items-center justify-between bg-[#fffdf0]">
               <div>
-                <h3 className="text-base font-bold text-gray-900">Recently Available Projects</h3>
-                <p className="text-xs text-gray-500">New projects submitted by verified clients awaiting discovery</p>
+                <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Recently Available Projects</h3>
+                <p className="text-xs font-bold text-gray-600">New projects submitted by verified clients awaiting discovery</p>
               </div>
               <button
                 onClick={() => setActiveTab("available")}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800"
+                className="neo-btn px-3 py-1 bg-white text-[#171e19] hover:bg-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
               >
                 Browse All ({countAvailable}) →
               </button>
             </div>
 
             {availableProjects.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 text-sm">
+              <div className="p-8 text-center text-gray-600 text-sm font-bold">
                 There are currently no new projects awaiting builder discovery. Check back soon.
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y-2 divide-black">
                 {availableProjects.slice(0, 3).map((p) => (
-                  <div key={p.id} className="p-5 hover:bg-gray-50/60 transition flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div key={p.id} className="p-5 hover:bg-[#ffe17c]/20 transition flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                        <span className="text-xs font-mono font-black text-[#171e19] bg-white border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                        <span className="px-2 py-0.5 text-[11px] font-black border border-black bg-emerald-200 text-emerald-950 uppercase">
                           AVAILABLE
                         </span>
                       </div>
-                      <h4 className="text-base font-bold text-gray-900">
-                        <Link href={`/builder/projects/${p.id}`} className="hover:text-blue-600 transition">
+                      <h4 className="text-lg font-cabinet font-black text-[#171e19]">
+                        <Link href={`/builder/projects/${p.id}`} className="hover:underline">
                           {p.title}
                         </Link>
                       </h4>
-                      <p className="text-xs text-gray-500 line-clamp-1">{p.description}</p>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 pt-1">
-                        <span>Budget: <strong>₹{p.budgetMin.toLocaleString()} - ₹{p.budgetMax.toLocaleString()}</strong></span>
-                        <span>Tech: <strong>{p.techStack}</strong></span>
+                      <p className="text-xs font-medium text-gray-700 line-clamp-1">{p.description}</p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-700 pt-1">
+                        <span>Budget: <strong className="text-black">₹{p.budgetMin.toLocaleString()} - ₹{p.budgetMax.toLocaleString()}</strong></span>
+                        <span>Tech: <strong className="text-black">{p.techStack}</strong></span>
                         <span>
                           Requested Completion:{" "}
-                          <strong className="text-blue-700">{p.requestedCompletionDate || "Flexible"}</strong>
+                          <strong className="text-black">{p.requestedCompletionDate || "Flexible"}</strong>
                         </span>
                       </div>
                     </div>
@@ -387,7 +387,7 @@ export function BuilderDashboardView({
                       )}
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                       >
                         Inspect &amp; Accept →
                       </Link>
@@ -403,34 +403,34 @@ export function BuilderDashboardView({
       {/* TAB 2: AVAILABLE PROJECTS */}
       {activeTab === "available" && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-6 border-2 border-black neo-shadow flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-gray-900">Available Projects for Discovery</h3>
-              <p className="text-xs text-gray-500">Clients are actively searching for builders. Review specifications and accept to prepare your quotation.</p>
+              <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Available Projects for Discovery</h3>
+              <p className="text-xs font-bold text-gray-600">Clients are actively searching for builders. Review specifications and accept to prepare your quotation.</p>
             </div>
-            <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">
+            <span className="px-3 py-1 bg-emerald-200 text-emerald-950 text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm">
               {countAvailable} Available
             </span>
           </div>
 
           {availableProjects.length === 0 ? (
-            <div className="bg-white p-12 rounded-xl border border-gray-200 text-center text-gray-500">
-              <p className="text-base font-semibold text-gray-800 mb-1">No Available Projects</p>
-              <p className="text-xs text-gray-500">All submitted projects have been acquired or expired. New submissions will appear here.</p>
+            <div className="bg-white p-12 border-2 border-black neo-shadow text-center text-gray-700">
+              <p className="text-lg font-cabinet font-black text-[#171e19] uppercase mb-1">No Available Projects</p>
+              <p className="text-xs font-bold text-gray-600">All submitted projects have been acquired or expired. New submissions will appear here.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {availableProjects.map((p) => (
-                <div key={p.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:border-gray-300 transition space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-gray-100 pb-4">
+                <div key={p.id} className="bg-white p-6 border-2 border-black neo-shadow space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-black pb-4">
                     <div>
-                      <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                      <h4 className="text-xl font-bold text-gray-900 mt-1">
-                        <Link href={`/builder/projects/${p.id}`} className="hover:text-blue-600 transition">
+                      <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                      <h4 className="text-xl font-cabinet font-black text-[#171e19] mt-2">
+                        <Link href={`/builder/projects/${p.id}`} className="hover:underline">
                           {p.title}
                         </Link>
                       </h4>
-                      <p className="text-xs text-gray-500 mt-0.5">{p.subject}</p>
+                      <p className="text-xs font-bold text-gray-600 mt-0.5">{p.subject}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {p.acceptanceDeadline && (
@@ -438,33 +438,33 @@ export function BuilderDashboardView({
                       )}
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                       >
                         View &amp; Accept →
                       </Link>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 p-3 rounded-lg text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#fffdf0] border-2 border-black p-3 text-xs">
                     <div>
-                      <span className="text-gray-500 block">Client Budget</span>
-                      <span className="font-bold text-gray-900">₹{p.budgetMin.toLocaleString()} - ₹{p.budgetMax.toLocaleString()}</span>
+                      <span className="text-[10px] font-black uppercase text-gray-600 block">Client Budget</span>
+                      <span className="font-black text-[#171e19]">₹{p.budgetMin.toLocaleString()} - ₹{p.budgetMax.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500 block">Tech Stack</span>
-                      <span className="font-bold text-gray-900">{p.techStack}</span>
+                      <span className="text-[10px] font-black uppercase text-gray-600 block">Tech Stack</span>
+                      <span className="font-black text-[#171e19]">{p.techStack}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500 block">Requested Completion</span>
-                      <span className="font-bold text-blue-700">{p.requestedCompletionDate || "Not specified"}</span>
+                      <span className="text-[10px] font-black uppercase text-gray-600 block">Requested Completion</span>
+                      <span className="font-black text-black">{p.requestedCompletionDate || "Not specified"}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500 block">Requirements Uploaded</span>
-                      <span className="font-bold text-gray-900">{p.requirementCount} attachment(s)</span>
+                      <span className="text-[10px] font-black uppercase text-gray-600 block">Requirements Uploaded</span>
+                      <span className="font-black text-[#171e19]">{p.requirementCount} attachment(s)</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-700 line-clamp-2 leading-relaxed">
+                  <p className="text-xs font-medium text-gray-800 line-clamp-2 leading-relaxed">
                     {p.description}
                   </p>
                 </div>
@@ -477,21 +477,21 @@ export function BuilderDashboardView({
       {/* TAB 3: MY PROJECTS */}
       {activeTab === "my-projects" && (
         <div className="space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="bg-white p-4 border-2 border-black neo-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <input
               type="text"
               placeholder="Filter by title or code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:max-w-xs rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full sm:max-w-xs border-2 border-black px-3 py-2 text-xs font-bold outline-none focus:bg-[#ffe17c]/20"
             />
             <div className="flex items-center gap-1.5 overflow-x-auto">
               {["ALL", "AWAITING_QUOTE", "IN_PROGRESS", "OVERDUE", "COMPLETED"].map((f) => (
                 <button
                   key={f}
                   onClick={() => setStatusFilter(f)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition whitespace-nowrap ${
-                    statusFilter === f ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider border-2 border-black transition whitespace-nowrap ${
+                    statusFilter === f ? "bg-[#171e19] text-[#ffe17c]" : "bg-white text-[#171e19] hover:bg-[#ffe17c]"
                   }`}
                 >
                   {f}
@@ -502,36 +502,34 @@ export function BuilderDashboardView({
 
           <div className="grid grid-cols-1 gap-4">
             {filteredMyProjects.length === 0 ? (
-              <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+              <div className="bg-white p-10 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
                 No acquired projects match your filter.
               </div>
             ) : (
               filteredMyProjects.map((p) => {
                 const nextAction = getBuilderNextAction(p.status, p.id);
                 return (
-                  <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-gray-100 pb-3">
+                  <div key={p.id} className="bg-white p-5 border-2 border-black neo-shadow space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b-2 border-black pb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                              p.status === "ACCEPTED_PENDING_QUOTE"
-                                ? "bg-amber-100 text-amber-800"
-                                : p.status === "IN_PROGRESS"
-                                ? "bg-blue-100 text-blue-800"
-                                : p.status === "OVERDUE"
-                                ? "bg-red-100 text-red-800"
-                                : p.status === "COMPLETED"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-gray-100 text-gray-800"
-                            }`}
-                          >
+                          <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                          <span className={`px-2 py-0.5 text-[11px] border border-black font-black uppercase ${
+                            p.status === "ACCEPTED_PENDING_QUOTE"
+                              ? "bg-[#ffe17c] text-[#171e19]"
+                              : p.status === "IN_PROGRESS"
+                              ? "bg-white text-[#171e19]"
+                              : p.status === "OVERDUE"
+                              ? "bg-rose-200 text-rose-950"
+                              : p.status === "COMPLETED"
+                              ? "bg-emerald-200 text-emerald-950"
+                              : "bg-gray-200 text-[#171e19]"
+                          }`}>
                             {p.status}
                           </span>
                         </div>
-                        <h4 className="text-base font-bold text-gray-900 mt-1">
-                          <Link href={`/builder/projects/${p.id}`} className="hover:text-blue-600 transition">
+                        <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-2">
+                          <Link href={`/builder/projects/${p.id}`} className="hover:underline">
                             {p.title}
                           </Link>
                         </h4>
@@ -540,13 +538,13 @@ export function BuilderDashboardView({
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/builder/projects/${p.id}`}
-                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                          className="neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                         >
                           Manage Project →
                         </Link>
                         <Link
                           href={`/projects/${p.id}#messages`}
-                          className="px-3 py-1.5 border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold rounded-lg transition"
+                          className="neo-btn px-3.5 py-1.5 bg-white hover:bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                         >
                           💬 Messages
                         </Link>
@@ -554,44 +552,44 @@ export function BuilderDashboardView({
                     </div>
 
                     {/* Next Action Box */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border border-blue-100 rounded-lg">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-[#ffe17c] border-2 border-black neo-shadow-sm">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-lg">{nextAction.icon}</span>
+                        <span className="text-xl">{nextAction.icon}</span>
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">What to do next:</span>
-                          <p className="text-xs font-bold text-gray-900">
-                            {nextAction.label} — <span className="text-gray-600 font-normal">{nextAction.description}</span>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-[#171e19] block">What to do next:</span>
+                          <p className="text-xs font-black text-[#171e19]">
+                            {nextAction.label} — <span className="font-bold text-gray-800">{nextAction.description}</span>
                           </p>
                         </div>
                       </div>
                       <Link
                         href={nextAction.href}
-                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shrink-0 shadow-sm inline-flex items-center gap-1"
+                        className="neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0 inline-flex items-center gap-1"
                       >
                         {nextAction.actionText}
                       </Link>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-gray-50/70 p-3 rounded-lg">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-[#fffdf0] border-2 border-black p-3">
                       <div>
-                        <span className="text-gray-500 block">Requested Completion</span>
-                        <span className="font-semibold text-blue-700">{p.requestedCompletionDate || "—"}</span>
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Requested Completion</span>
+                        <span className="font-black text-black">{p.requestedCompletionDate || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block">Official Dev Deadline</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Official Dev Deadline</span>
+                        <span className="font-black text-[#171e19]">
                           {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending quote & advance"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block">Agreed Price</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Agreed Price</span>
+                        <span className="font-black text-[#171e19]">
                           {p.totalPrice ? `₹${p.totalPrice.toLocaleString()}` : "Pending quote"}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-500 block">Last Progress Update</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Last Progress Update</span>
+                        <span className="font-black text-[#171e19]">
                           {p.lastProgressUpdateAt ? new Date(p.lastProgressUpdateAt).toLocaleDateString() : "No updates yet"}
                         </span>
                       </div>
@@ -607,15 +605,15 @@ export function BuilderDashboardView({
       {/* TAB: QUOTATIONS */}
       {activeTab === "quotations" && (
         <div className="space-y-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-base font-bold text-gray-900">Quotations Pending &amp; Review</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+          <div className="bg-white p-6 border-2 border-black neo-shadow">
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Quotations Pending &amp; Review</h3>
+            <p className="text-xs font-bold text-gray-600 mt-0.5">
               Submit estimates or view client status for active quotations.
             </p>
           </div>
 
           {myProjects.filter((p) => ["ACCEPTED_PENDING_QUOTE", "QUOTATION_SENT"].includes(p.status)).length === 0 ? (
-            <div className="bg-white p-10 rounded-xl border border-gray-200 text-center text-sm text-gray-500">
+            <div className="bg-white p-10 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
               No quotations currently awaiting builder submission or client review.
             </div>
           ) : (
@@ -625,21 +623,21 @@ export function BuilderDashboardView({
                 .map((p) => {
                   const nextAction = getBuilderNextAction(p.status, p.id);
                   return (
-                    <div key={p.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+                    <div key={p.id} className="bg-white p-5 border-2 border-black neo-shadow space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="text-xs font-mono font-bold text-blue-600">{p.projectCode}</span>
-                          <h4 className="text-base font-bold text-gray-900">{p.title}</h4>
+                          <span className="text-xs font-mono font-black text-[#171e19] bg-[#ffe17c] border border-black px-1.5 py-0.5">{p.projectCode}</span>
+                          <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                         </div>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${nextAction.badgeClass}`}>
+                        <span className={`px-2.5 py-0.5 text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm ${nextAction.badgeClass}`}>
                           {nextAction.label}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600">{nextAction.description}</p>
+                      <p className="text-xs font-medium text-gray-700">{nextAction.description}</p>
                       <div className="flex justify-end pt-2">
                         <Link
                           href={nextAction.href}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition"
+                          className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
                         >
                           {nextAction.actionText}
                         </Link>
