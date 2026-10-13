@@ -86,8 +86,14 @@ export async function POST(req: Request) {
         roles,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Auth/Login] Unexpected error:", error);
+    if (error?.code === "ECONNREFUSED" || error?.message?.includes("ECONNREFUSED")) {
+      return NextResponse.json(
+        { error: "Database connection failed. Please ensure the local database is running." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { error: "An unexpected error occurred during login." },
       { status: 500 }
