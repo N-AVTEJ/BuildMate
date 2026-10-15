@@ -117,11 +117,27 @@ export async function GET(req: Request) {
 
     // 4. Issue authenticated session
     const { rawToken, expiresAt } = await createSession(userId);
-    await setSessionCookie(rawToken, expiresAt);
 
     // 5. Redirect user to destination
     const destination = savedState.returnTo || "/dashboard";
-    return NextResponse.redirect(new URL(destination, req.url));
+    const redirectRes = NextResponse.redirect(new URL(destination, req.url));
+
+    redirectRes.cookies.set(SESSION_COOKIE_NAME, rawToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: expiresAt,
+    });
+
+    // Clear state cookie
+    redirectRes.cookies.set("google_oauth_state", "", {
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
+    });
+
+    return redirectRes;
   } catch (err: any) {
     console.error("[Auth/GoogleCallback] Unexpected error:", err);
     if (err?.code === "ECONNREFUSED" || err?.cause?.code === "ECONNREFUSED" || err?.message?.includes("ECONNREFUSED")) {
