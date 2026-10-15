@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -140,6 +141,17 @@ export default function RegisterPage() {
                 <div>{error}</div>
               </div>
             )}
+
+            {/* Google Sign Up for Clients */}
+            <div className="mb-6 space-y-4">
+              <GoogleSignInButton label="Sign Up with Google" returnTo="/dashboard" />
+              <div className="relative flex items-center justify-center">
+                <div className="border-t-2 border-black/10 w-full absolute"></div>
+                <span className="bg-white px-3 text-[11px] font-heading font-black text-black/50 uppercase tracking-wider relative">
+                  Or register with email
+                </span>
+              </div>
+            </div>
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
