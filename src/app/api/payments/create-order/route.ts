@@ -3,7 +3,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, payments } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
-import { getRazorpayClient } from "@/lib/payments/razorpay";
+import { createRazorpayOrder } from "@/lib/payments/razorpay";
 
 export async function POST(req: Request) {
   try {
@@ -85,13 +85,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Create Order with Razorpay SDK
-    const razorpay = getRazorpayClient();
+    // 4. Create Order via Resilient Razorpay Client
     const cleanReceipt = `${project.projectCode}-${paymentType}`.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40);
 
     let order: any;
     try {
-      order = await razorpay.orders.create({
+      order = await createRazorpayOrder({
         amount: amountInPaise,
         currency: "INR",
         receipt: cleanReceipt,
@@ -104,15 +103,16 @@ export async function POST(req: Request) {
       });
     } catch (rzpErr: any) {
       console.error("[Razorpay/CreateOrder] Gateway Error:", rzpErr);
-      if (rzpErr?.statusCode === 401 || rzpErr?.error?.code === "BAD_REQUEST_ERROR") {
+      const statusCode = rzpErr?.statusCode || 500;
+      if (statusCode === 401) {
         return NextResponse.json(
           { error: "Payment gateway authentication failed. Check credentials." },
           { status: 401 }
         );
       }
       return NextResponse.json(
-        { error: "Unable to create payment order with payment gateway. Please try again." },
-        { status: 500 }
+        { error: rzpErr?.message || "Unable to create payment order with payment gateway. Please try again." },
+        { status: statusCode }
       );
     }
 
