@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "node scripts/ensure-db.js && next dev",
     "db:start": "node scripts/ensure-db.js",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
