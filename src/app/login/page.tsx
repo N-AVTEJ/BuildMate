@@ -144,39 +144,46 @@ function LoginForm() {
           </div>
 
           <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black neo-shadow-lg">
-            {/* Quick Autofill Trigger (Strictly Local Development Only) */}
-            {isDevelopment && (
-              <div className="mb-6 p-3.5 bg-[#b7c6c2]/40 border-2 border-black rounded-xl flex items-center justify-between neo-shadow-sm">
-                <div>
-                  <div className="text-xs font-black font-heading text-black flex items-center gap-1 uppercase tracking-wider">
-                    <span>⚡</span> Builder Quick Login
-                  </div>
-                  <div className="text-[11px] text-black/70 font-medium">Autofill verified builder test account</div>
+            {/* Quick Autofill Trigger (Protected by passcode 1234) */}
+            <div className="mb-6 p-3.5 bg-[#b7c6c2]/40 border-2 border-black rounded-xl flex items-center justify-between neo-shadow-sm">
+              <div>
+                <div className="text-xs font-black font-heading text-black flex items-center gap-1 uppercase tracking-wider">
+                  <span>⚡</span> Builder Quick Login
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAutofillPrompt(!showAutofillPrompt);
-                    setAutofillError(null);
-                    setAutofillPasscode("");
-                  }}
-                  className="neo-btn px-3 py-1 bg-black text-white text-xs font-black font-heading uppercase tracking-wider rounded-lg"
-                >
-                  {showAutofillPrompt ? "Cancel" : "Autofill"}
-                </button>
+                <div className="text-[11px] text-black/70 font-medium">Autofill verified builder test account</div>
               </div>
-            )}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAutofillPrompt(!showAutofillPrompt);
+                  setAutofillError(null);
+                  setAutofillPasscode("");
+                }}
+                className="neo-btn px-3 py-1 bg-black text-white text-xs font-black font-heading uppercase tracking-wider rounded-lg"
+              >
+                {showAutofillPrompt ? "Cancel" : "Autofill"}
+              </button>
+            </div>
 
-            {/* Passcode Prompt for Autofill (Development Only) */}
-            {isDevelopment && showAutofillPrompt && (
+            {/* Passcode Prompt for Autofill (Protected with 1234) */}
+            {showAutofillPrompt && (
               <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-[#ffe17c]/30 border-2 border-black rounded-xl space-y-3 neo-shadow-sm">
-                <label htmlFor="passcode" className="block text-xs font-black text-black uppercase tracking-wider">
-                  Enter Passcode (1234) to Unlock &amp; Sign In:
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="passcode" className="block text-xs font-black text-black uppercase tracking-wider">
+                    Enter Passcode (1234) to Unlock &amp; Sign In:
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasscode(!showPasscode)}
+                    className="text-[11px] font-heading font-black uppercase tracking-wider text-black/70 hover:text-black focus:outline-none"
+                  >
+                    {showPasscode ? "Hide 🙈" : "Show 👁️"}
+                  </button>
+                </div>
                 <div className="flex gap-2">
                   <input
                     id="passcode"
-                    type="password"
+                    type={showPasscode ? "text" : "password"}
                     autoFocus
                     placeholder="Enter 1234"
                     value={autofillPasscode}
@@ -233,19 +240,39 @@ function LoginForm() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="••••••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-xs font-heading font-black uppercase tracking-wider text-black/70 hover:text-black flex items-center gap-1 focus:outline-none"
+                  >
+                    <span>{showPassword ? "Hide" : "Show"}</span>
+                    <span>{showPassword ? "🙈" : "👁️"}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="••••••••••••"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-black/60 hover:text-black transition"
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
               </div>
 
               <div className="pt-2">
