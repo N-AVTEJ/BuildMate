@@ -938,40 +938,42 @@ export function BuilderDashboardView({
                   </p>
                 </div>
                 <div className="p-3.5 bg-white border-2 border-black neo-shadow-sm">
-                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">3. Server-Authoritative Verification</p>
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">3. Cryptographic Verification</p>
                   <p className="font-medium text-gray-800">
-                    Neither builder nor client can alter payment statuses. Verification is strictly performed by platform administrators reviewing transaction proofs.
+                    Neither builder nor client can alter payment statuses. Verification is strictly executed server-side via Razorpay HMAC-SHA256 signature checks.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Official Payment QR Display */}
+            {/* Official Razorpay Gateway Status */}
             <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4 text-center">
               <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">
-                Official Payment Channel
+                Official Payment Gateway
               </span>
-              <h4 className="text-xl font-cabinet font-black text-[#171e19]">Platform UPI Escrow</h4>
-              <p className="text-xs font-bold text-gray-600">Scan to make the required milestone deposit</p>
+              <h4 className="text-xl font-cabinet font-black text-[#171e19]">Razorpay Standard Checkout</h4>
+              <p className="text-xs font-bold text-gray-600">Integrated automated milestone escrow</p>
 
-              <div className="flex justify-center p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
-                <Image
-                  src="/images/payment-qr.svg"
-                  alt="BuildMate Payment QR"
-                  width={180}
-                  height={180}
-                  className="border-2 border-black"
-                  priority
-                />
+              <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm text-left space-y-2">
+                <div className="flex items-center justify-between border-b border-black/10 pb-2">
+                  <span className="text-xs font-black uppercase text-gray-700">Status</span>
+                  <span className="text-xs font-black px-2 py-0.5 bg-emerald-300 border border-black text-black">ONLINE (ACTIVE)</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-black/10 pb-2">
+                  <span className="text-xs font-black uppercase text-gray-700">Supported Methods</span>
+                  <span className="text-xs font-bold text-gray-900">UPI, Cards, NetBanking</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase text-gray-700">Verification</span>
+                  <span className="text-xs font-bold text-gray-900">Automated Webhook/Signature</span>
+                </div>
               </div>
 
               <div className="text-xs text-gray-800 space-y-1 text-left bg-[#ffe17c]/30 p-3.5 border-2 border-black">
-                <p className="font-black text-[#171e19] uppercase tracking-wide">Instructions for Clients / Builders:</p>
-                <p className="font-bold text-[#171e19]">1. Scan to make the required deposit.</p>
-                <p className="font-bold text-[#171e19]">2. After payment, upload the transaction receipt.</p>
-                <p className="text-[11px] font-bold text-gray-700 pt-1 italic">
-                  * Note: The QR code is an instruction/display mechanism. Payment verification is strictly server and administrator controlled.
-                </p>
+                <p className="font-black text-[#171e19] uppercase tracking-wide">Automated Workflow:</p>
+                <p className="font-bold text-[#171e19]">1. Clients initiate payments directly on the project portal.</p>
+                <p className="font-bold text-[#171e19]">2. Razorpay checkout opens in-modal for instant payment.</p>
+                <p className="font-bold text-[#171e19]">3. Milestones unlock instantly upon valid HMAC verification.</p>
               </div>
             </div>
           </div>
