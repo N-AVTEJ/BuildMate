@@ -106,8 +106,6 @@ export async function GET(
       paymentType,
       expectedAmount,
       advancePaymentDeadline: project.advancePaymentDeadline,
-      qrImageUrl: "/images/payment-qr.svg",
-      upiId: "buildmate@bank",
       projectStatus: project.status,
       existingPayment: existingPayment || null,
     });
