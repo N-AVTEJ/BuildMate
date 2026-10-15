@@ -1,7 +1,7 @@
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import * as schema from "../../../src/db/schema";
-import { hashPassword } from "../../../src/lib/auth/password";
+import * as schema from "../db/schema";
+import { hashPassword } from "../lib/auth/password";
 import { eq } from "drizzle-orm";
 
 const neonUrl = "postgresql://neondb_owner:npg_lpy7de4HEAOF@ep-ancient-pond-b5aujk34-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require";
