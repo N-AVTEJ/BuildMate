@@ -19,9 +19,21 @@ export interface GoogleUserInfo {
   email_verified: boolean;
 }
 
-export function getAppBaseUrl(): string {
+export function getAppBaseUrl(req?: Request): string {
+  if (req) {
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    if (host) {
+      const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
+      const scheme = isLocal ? "http" : proto;
+      return `${scheme}://${host}`;
+    }
+  }
   if (process.env.APP_URL) {
     return process.env.APP_URL.trim().replace(/\/$/, "");
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`;
   }
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL.trim()}`;
@@ -29,21 +41,21 @@ export function getAppBaseUrl(): string {
   return "http://localhost:3000";
 }
 
-export function getGoogleRedirectUri(): string {
-  return `${getAppBaseUrl()}/api/auth/google/callback`;
+export function getGoogleRedirectUri(req?: Request): string {
+  return `${getAppBaseUrl(req)}/api/auth/google/callback`;
 }
 
 export function generateOAuthState(): string {
   return crypto.randomBytes(24).toString("hex");
 }
 
-export function getGoogleAuthUrl(state: string): string {
+export function getGoogleAuthUrl(state: string, req?: Request): string {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   if (!clientId) {
     throw new Error("GOOGLE_CLIENT_ID is not configured in environment variables.");
   }
 
-  const redirectUri = getGoogleRedirectUri();
+  const redirectUri = getGoogleRedirectUri(req);
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -57,10 +69,10 @@ export function getGoogleAuthUrl(state: string): string {
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
-export async function exchangeGoogleCode(code: string): Promise<GoogleTokens> {
+export async function exchangeGoogleCode(code: string, redirectUriOverride?: string): Promise<GoogleTokens> {
   const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
-  const redirectUri = getGoogleRedirectUri();
+  const redirectUri = redirectUriOverride || getGoogleRedirectUri();
 
   if (!clientId || !clientSecret) {
     throw new Error("Google OAuth credentials (GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET) are missing.");

@@ -12,12 +12,13 @@ export async function GET(req: Request) {
     }
 
     const state = generateOAuthState();
-    const authUrl = getGoogleAuthUrl(state);
+    const authUrl = getGoogleAuthUrl(state, req);
+    const redirectUri = new URL(authUrl).searchParams.get("redirect_uri") || "";
 
     const response = NextResponse.redirect(authUrl);
 
-    // Store state and optional returnTo in an HttpOnly cookie (valid 10 minutes)
-    response.cookies.set("google_oauth_state", JSON.stringify({ state, returnTo }), {
+    // Store state, returnTo, and redirectUri in an HttpOnly cookie (valid 10 minutes)
+    response.cookies.set("google_oauth_state", JSON.stringify({ state, returnTo, redirectUri }), {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
