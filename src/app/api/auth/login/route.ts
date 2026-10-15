@@ -56,6 +56,15 @@ export async function POST(req: Request) {
       );
     }
 
+    if (!user.passwordHash) {
+      // User registered via Google OAuth
+      await dummyVerifyPassword(password);
+      return NextResponse.json(
+        { error: "This account was registered via Google. Please click 'Continue with Google' to sign in." },
+        { status: 400 }
+      );
+    }
+
     const isValidPassword = await verifyPassword(user.passwordHash, password);
     if (!isValidPassword) {
       return NextResponse.json(
@@ -88,9 +97,19 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("[Auth/Login] Unexpected error:", error);
-    if (error?.code === "ECONNREFUSED" || error?.message?.includes("ECONNREFUSED")) {
+    const isConnRefused =
+      error?.code === "ECONNREFUSED" ||
+      error?.cause?.code === "ECONNREFUSED" ||
+      error?.message?.includes("ECONNREFUSED") ||
+      error?.cause?.message?.includes("ECONNREFUSED") ||
+      error?.message?.includes("connect ECONNREFUSED");
+
+    if (isConnRefused) {
       return NextResponse.json(
-        { error: "Database connection failed. Please ensure the local database is running." },
+        {
+          error:
+            "Database connection failed. On Vercel, please check that your cloud PostgreSQL DATABASE_URL is configured in Project Settings > Environment Variables.",
+        },
         { status: 503 }
       );
     }

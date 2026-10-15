@@ -183,8 +183,24 @@ export async function POST(req: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Auth/Register] Unexpected error:", error);
+    const isConnRefused =
+      error?.code === "ECONNREFUSED" ||
+      error?.cause?.code === "ECONNREFUSED" ||
+      error?.message?.includes("ECONNREFUSED") ||
+      error?.cause?.message?.includes("ECONNREFUSED") ||
+      error?.message?.includes("connect ECONNREFUSED");
+
+    if (isConnRefused) {
+      return NextResponse.json(
+        {
+          error:
+            "Database connection failed. On Vercel, please check that your cloud PostgreSQL DATABASE_URL is configured in Project Settings > Environment Variables.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { error: "An unexpected error occurred during registration." },
       { status: 500 }
