@@ -196,6 +196,13 @@ function LoginForm() {
               </form>
             )}
 
+            {error && (
+              <div className="mb-6 bg-red-100 border-2 border-black text-red-900 p-3.5 rounded-xl text-sm font-bold flex items-start gap-2.5 neo-shadow-sm">
+                <span className="font-black text-red-800">✕</span>
+                <div>{error}</div>
+              </div>
+            )}
+
             {/* Google Sign In for Client */}
             <div className="mb-6 space-y-4">
               <GoogleSignInButton label="Continue with Google" returnTo="/dashboard" />
@@ -269,5 +276,19 @@ function LoginForm() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#ffe17c] flex items-center justify-center font-heading font-black text-lg">
+          Loading BuildMate...
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
