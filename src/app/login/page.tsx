@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -194,12 +196,16 @@ function LoginForm() {
               </form>
             )}
 
-            {error && (
-              <div className="mb-6 bg-red-100 border-2 border-black text-red-900 p-3.5 rounded-xl text-sm font-bold flex items-start gap-2.5 neo-shadow-sm">
-                <span className="font-black text-red-800">✕</span>
-                <div>{error}</div>
+            {/* Google Sign In for Client */}
+            <div className="mb-6 space-y-4">
+              <GoogleSignInButton label="Continue with Google" returnTo="/dashboard" />
+              <div className="relative flex items-center justify-center">
+                <div className="border-t-2 border-black/10 w-full absolute"></div>
+                <span className="bg-white px-3 text-[11px] font-heading font-black text-black/50 uppercase tracking-wider relative">
+                  Or sign in with email
+                </span>
               </div>
-            )}
+            </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
