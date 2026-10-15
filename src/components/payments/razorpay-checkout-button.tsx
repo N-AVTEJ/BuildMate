@@ -35,7 +35,13 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
     setLoading(true);
 
     try {
-      // 1. Create order on server (server determines amount)
+      // 1. Ensure Razorpay SDK script is loaded
+      if (typeof window !== "undefined" && !(window as any).Razorpay) {
+        // Quick wait in case script is still finishing execution
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      // 2. Create order on server (server determines amount)
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,7 +56,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
 
       if (typeof window === "undefined" || !(window as any).Razorpay) {
         throw new Error(
-          "Razorpay Checkout SDK is still loading. Please wait 2 seconds and try again."
+          "Razorpay Checkout SDK is still loading. Please check your internet connection and try again."
         );
       }
 
@@ -140,7 +146,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="lazyOnload"
+        strategy="afterInteractive"
         onLoad={() => setScriptLoaded(true)}
       />
 
@@ -182,16 +188,25 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
           </div>
         )}
 
-        {/* Error Banner */}
+        {/* Error Banner with Retry */}
         {error && (
-          <div className="bg-rose-100 border-2 border-black rounded-xl p-4 text-xs font-semibold text-rose-900 flex items-start gap-3">
-            <span className="text-xl">❌</span>
-            <div>
-              <p className="font-heading font-black text-sm text-black">
-                Payment Unsuccessful
-              </p>
-              <p className="mt-0.5">{error}</p>
+          <div className="bg-rose-100 border-2 border-black rounded-xl p-4 text-xs font-semibold text-rose-900 flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <span className="text-xl">❌</span>
+              <div>
+                <p className="font-heading font-black text-sm text-black">
+                  Payment Unsuccessful
+                </p>
+                <p className="mt-0.5">{error}</p>
+              </div>
             </div>
+            <button
+              onClick={handlePayment}
+              disabled={loading}
+              className="neo-btn flex-shrink-0 px-3 py-1.5 bg-[#ffe17c] hover:bg-[#ffd643] text-black font-heading font-black text-xs uppercase tracking-wider rounded-lg border-2 border-black transition"
+            >
+              Try Again ↻
+            </button>
           </div>
         )}
 
