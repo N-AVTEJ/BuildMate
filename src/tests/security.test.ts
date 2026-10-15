@@ -23,8 +23,9 @@ import { POST as createProjectRoute } from "@/app/api/projects/route";
 import { GET as getProjectRoute } from "@/app/api/projects/[id]/route";
 import { POST as submitProofRoute } from "@/app/api/payments/proof/route";
 import { GET as getPaymentRoute } from "@/app/api/payments/[id]/route";
-import { GET as getDeliveryRoute } from "@/app/api/projects/[id]/delivery/route";
+import { POST as getDeliveryRoute } from "@/app/api/projects/[id]/delivery/route";
 import { POST as verifyPaymentRoute } from "@/app/api/admin/payments/[id]/verify/route";
+import { POST as createOrderRoute } from "@/app/api/payments/create-order/route";
 
 describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => {
   const testRunId = `sec_${Date.now()}`;
