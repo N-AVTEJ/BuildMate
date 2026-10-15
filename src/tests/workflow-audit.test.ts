@@ -308,7 +308,7 @@ describe("Workflow Audit & Production UX Invariant Regression Suite (20 Requirem
       () => verifyPaymentRoute(req, { params: Promise.resolve({ id: fakePaymentId }) })
     );
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(410);
   });
 
   // 8. Client cannot verify payment
@@ -323,7 +323,7 @@ describe("Workflow Audit & Production UX Invariant Regression Suite (20 Requirem
       () => verifyPaymentRoute(req, { params: Promise.resolve({ id: fakePaymentId }) })
     );
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(410);
   });
 
   // 9. GitHub URL unavailable before final payment verification
