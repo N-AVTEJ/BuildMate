@@ -327,7 +327,6 @@ export const projectStatusHistory = pgTable("project_status_history", {
   fromStatus: projectStatusEnum("from_status"),
   toStatus: projectStatusEnum("to_status").notNull(),
   changedBy: uuid("changed_by")
-    .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
   reason: text("reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
