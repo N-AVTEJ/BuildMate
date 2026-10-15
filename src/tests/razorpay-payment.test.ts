@@ -74,7 +74,6 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
 
   afterAll(async () => {
     if (createdProjectIds.length > 0) {
-      await db.delete(notifications).where(inArray(notifications.projectId, createdProjectIds));
       await db.delete(projectStatusHistory).where(inArray(projectStatusHistory.projectId, createdProjectIds));
       await db.delete(payments).where(inArray(payments.projectId, createdProjectIds));
       await db.delete(projects).where(inArray(projects.id, createdProjectIds));
