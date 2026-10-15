@@ -32,11 +32,12 @@ function LoginForm() {
     }
   }, [searchParams]);
 
-  // Autofill Passcode state (strictly local development only)
-  const isDevelopment = process.env.NODE_ENV === "development";
+  // Autofill Passcode state (protected with passcode 1234)
   const [showAutofillPrompt, setShowAutofillPrompt] = useState(false);
   const [autofillPasscode, setAutofillPasscode] = useState("");
   const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasscode, setShowPasscode] = useState(false);
 
   const executeLogin = async (emailToUse: string, passwordToUse: string) => {
     setError(null);
