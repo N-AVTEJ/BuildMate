@@ -76,6 +76,7 @@ export const paymentTypeEnum = pgEnum("payment_type", [
 
 export const paymentStatusEnum = pgEnum("payment_status", [
   "AWAITING",
+  "ORDER_CREATED",
   "PROOF_SUBMITTED",
   "UNDER_REVIEW",
   "VERIFIED",
@@ -260,6 +261,9 @@ export const payments = pgTable(
     submittedAmount: integer("submitted_amount"),
     transactionReference: text("transaction_reference"),
     status: paymentStatusEnum("status").default("AWAITING").notNull(),
+    razorpayOrderId: varchar("razorpay_order_id", { length: 255 }),
+    razorpayPaymentId: varchar("razorpay_payment_id", { length: 255 }),
+    razorpaySignature: varchar("razorpay_signature", { length: 512 }),
     submittedAt: timestamp("submitted_at", { withTimezone: true }),
     verifiedAt: timestamp("verified_at", { withTimezone: true }),
     verifiedBy: uuid("verified_by").references(() => users.id, {
