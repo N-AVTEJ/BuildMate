@@ -21,10 +21,10 @@ export interface GoogleUserInfo {
 
 export function getAppBaseUrl(): string {
   if (process.env.APP_URL) {
-    return process.env.APP_URL.replace(/\/$/, "");
+    return process.env.APP_URL.trim().replace(/\/$/, "");
   }
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+    return `https://${process.env.VERCEL_URL.trim()}`;
   }
   return "http://localhost:3000";
 }
@@ -38,7 +38,7 @@ export function generateOAuthState(): string {
 }
 
 export function getGoogleAuthUrl(state: string): string {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
   if (!clientId) {
     throw new Error("GOOGLE_CLIENT_ID is not configured in environment variables.");
   }
@@ -58,8 +58,8 @@ export function getGoogleAuthUrl(state: string): string {
 }
 
 export async function exchangeGoogleCode(code: string): Promise<GoogleTokens> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
   const redirectUri = getGoogleRedirectUri();
 
   if (!clientId || !clientSecret) {
