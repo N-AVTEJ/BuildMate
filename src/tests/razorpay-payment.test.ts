@@ -30,10 +30,10 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     const [cUser] = await db
       .insert(users)
       .values({
+        name: "Razorpay Test Client",
         email: `client_${testRunId}@buildmate.test`,
         passwordHash: await hashPassword("ValidPassword123!"),
-        fullName: "Razorpay Test Client",
-        phoneNumber: "+919876543210",
+        phone: "+919876543210",
       })
       .returning();
     createdUserIds.push(cUser.id);
@@ -45,10 +45,10 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     const [otherUser] = await db
       .insert(users)
       .values({
+        name: "Other Client",
         email: `other_${testRunId}@buildmate.test`,
         passwordHash: await hashPassword("ValidPassword123!"),
-        fullName: "Other Client",
-        phoneNumber: "+919876543211",
+        phone: "+919876543211",
       })
       .returning();
     createdUserIds.push(otherUser.id);
@@ -60,10 +60,10 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     const [bUser] = await db
       .insert(users)
       .values({
+        name: "Razorpay Test Builder",
         email: `builder_${testRunId}@buildmate.test`,
         passwordHash: await hashPassword("ValidPassword123!"),
-        fullName: "Razorpay Test Builder",
-        phoneNumber: "+919876543212",
+        phone: "+919876543212",
       })
       .returning();
     createdUserIds.push(bUser.id);
