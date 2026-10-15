@@ -1,11 +1,11 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -13,6 +13,22 @@ export default function LoginPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check URL query parameters for OAuth errors
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam === "google_not_configured") {
+      setError("Google Sign-In is not yet configured on this deployment. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.");
+    } else if (errorParam === "google_cancelled") {
+      setError("Google sign-in was cancelled.");
+    } else if (errorParam === "db_connection_failed") {
+      setError("Database connection failed. On Vercel, please check that DATABASE_URL is configured in Project Settings > Environment Variables.");
+    } else if (errorParam === "google_auth_failed") {
+      setError("Google authentication failed. Please try again or sign in with your email.");
+    } else if (errorParam === "invalid_oauth_state") {
+      setError("Authentication session expired or state mismatch. Please try again.");
+    }
+  }, [searchParams]);
 
   // Autofill Passcode state (strictly local development only)
   const isDevelopment = process.env.NODE_ENV === "development";
