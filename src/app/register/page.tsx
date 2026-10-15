@@ -204,35 +204,75 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
-                  Password <span className="text-red-600">*</span>
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Min 8 chars, 1 uppercase, 1 symbol"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-black">
+                    Password <span className="text-red-600">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-xs font-heading font-black uppercase tracking-wider text-black/70 hover:text-black flex items-center gap-1 focus:outline-none"
+                  >
+                    <span>{showPassword ? "Hide" : "Show"}</span>
+                    <span>{showPassword ? "🙈" : "👁️"}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="Min 8 chars, 1 uppercase, 1 symbol"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-black/60 hover:text-black transition"
+                  >
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-xs font-black uppercase tracking-wider text-black mb-1.5">
-                  Confirm Password <span className="text-red-600">*</span>
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  placeholder="Repeat your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="confirmPassword" className="block text-xs font-black uppercase tracking-wider text-black">
+                    Confirm Password <span className="text-red-600">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="text-xs font-heading font-black uppercase tracking-wider text-black/70 hover:text-black flex items-center gap-1 focus:outline-none"
+                  >
+                    <span>{showConfirmPassword ? "Hide" : "Show"}</span>
+                    <span>{showConfirmPassword ? "🙈" : "👁️"}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    placeholder="Repeat your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-black text-sm font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-black/60 hover:text-black transition"
+                  >
+                    {showConfirmPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
               </div>
 
               <div className="pt-2">
