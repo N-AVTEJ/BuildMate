@@ -249,7 +249,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
       expect(JSON.stringify(data)).not.toContain("key");
     });
 
-    it("POST /api/payments/proof returns HTTP 503 when R2 is unconfigured in production", async () => {
+    it("POST /api/payments/proof is deprecated and returns HTTP 410 Gone", async () => {
       const req = new Request("http://localhost:3000/api/payments/proof", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -267,9 +267,7 @@ describe("Cloudflare R2 Storage Hardening & Graceful Failure Verification", () =
         () => proofRoute(req)
       );
 
-      expect(res.status).toBe(503);
-      const data = await res.json();
-      expect(data.error).toContain("Cloudflare R2 storage is not configured");
+      expect(res.status).toBe(410);
     });
 
     it("GET /api/payments/[id] returns HTTP 200 with downloadUrl: null rather than crashing with 500", async () => {

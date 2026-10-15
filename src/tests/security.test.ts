@@ -545,7 +545,7 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     const storageKey = generatePaymentProofKey(proj.id, "ADVANCE", ".png");
     registerMockFile(storageKey, 2048, "image/png");
 
-    // 2. Client submits proof after deadline
+    // 2. Client attempting manual proof submission receives 410 Gone (Phase 14 removal)
     const proofReq = new Request("http://localhost:3000/api/payments/proof", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -563,57 +563,32 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
       () => submitProofRoute(proofReq)
     );
 
-    expect(proofRes.status).toBe(200);
-    const proofBody = await proofRes.json();
-    expect(proofBody.isLate).toBe(true);
+    expect(proofRes.status).toBe(410);
 
-    // 3. Confirm payment status is LATE_PAYMENT_PROOF
-    const [paymentRow] = await db
-      .select()
-      .from(payments)
-      .where(eq(payments.projectId, proj.id))
-      .limit(1);
-
-    expect(paymentRow).toBeDefined();
-    expect(paymentRow.status).toBe("LATE_PAYMENT_PROOF");
-
-    // 4. Confirm project status strictly remains AWAITING_ADVANCE (did NOT auto-progress to ADVANCE_VERIFIED or IN_PROGRESS)
-    const [projectAfterProof] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, proj.id))
-      .limit(1);
-
-    expect(projectAfterProof.status).toBe("AWAITING_ADVANCE");
-    expect(projectAfterProof.status).not.toBe("ADVANCE_VERIFIED");
-    expect(projectAfterProof.status).not.toBe("IN_PROGRESS");
-    expect(projectAfterProof.developmentDeadline).toBeNull();
-
-    // 5. Require explicit admin action for activation
+    // 3. Confirm manual admin verification is also removed (410 Gone)
     const adminVerifyReq = new Request(
-      `http://localhost:3000/api/admin/payments/${paymentRow.id}/verify`,
+      `http://localhost:3000/api/admin/payments/${proj.id}/verify`,
       { method: "POST" }
     );
 
     const adminRes = await testRequestContext.run(
       { cookie: `buildmate_session=${adminUser.rawToken}` },
-      () => verifyPaymentRoute(adminVerifyReq, { params: Promise.resolve({ id: paymentRow.id }) })
+      () => verifyPaymentRoute(adminVerifyReq, { params: Promise.resolve({ id: proj.id }) })
     );
 
-    expect(adminRes.status).toBe(200);
-    const adminBody = await adminRes.json();
-    expect(adminBody.success).toBe(true);
-    expect(adminBody.projectStatus).toBe("IN_PROGRESS");
+    expect(adminRes.status).toBe(410);
 
-    // 6. Project is only now IN_PROGRESS after explicit admin adjudication
-    const [projectAfterAdmin] = await db
+    // 4. Project status strictly remains AWAITING_ADVANCE (did NOT auto-progress to ADVANCE_VERIFIED or IN_PROGRESS)
+    const [projectAfterCheck] = await db
       .select()
       .from(projects)
       .where(eq(projects.id, proj.id))
       .limit(1);
 
-    expect(projectAfterAdmin.status).toBe("IN_PROGRESS");
-    expect(projectAfterAdmin.developmentDeadline).not.toBeNull();
+    expect(projectAfterCheck.status).toBe("AWAITING_ADVANCE");
+    expect(projectAfterCheck.status).not.toBe("ADVANCE_VERIFIED");
+    expect(projectAfterCheck.status).not.toBe("IN_PROGRESS");
+    expect(projectAfterCheck.developmentDeadline).toBeNull();
   });
 
   /**
