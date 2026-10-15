@@ -23,7 +23,7 @@ import { POST as createProjectRoute } from "@/app/api/projects/route";
 import { GET as getProjectRoute } from "@/app/api/projects/[id]/route";
 import { POST as submitProofRoute } from "@/app/api/payments/proof/route";
 import { GET as getPaymentRoute } from "@/app/api/payments/[id]/route";
-import { POST as getDeliveryRoute } from "@/app/api/projects/[id]/delivery/route";
+import { GET as getDeliveryRoute } from "@/app/api/projects/[id]/delivery/route";
 import { POST as verifyPaymentRoute } from "@/app/api/admin/payments/[id]/verify/route";
 import { POST as createOrderRoute } from "@/app/api/payments/create-order/route";
 
@@ -156,17 +156,14 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     // Client attempts to spoof expected_amount and submitted_amount to 1
     const attackPayload = {
       projectId: proj.id,
-      transactionReference: "UPI-ATTACK-001",
-      storageKey,
-      fileType: "image/png",
-      fileSize: 2048,
+      amount: 1,
       expected_amount: 1,
       expectedAmount: 1,
       submitted_amount: 1,
       submittedAmount: 1,
     };
 
-    const req = new Request("http://localhost:3000/api/payments/proof", {
+    const req = new Request("http://localhost:3000/api/payments/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(attackPayload),
@@ -174,12 +171,15 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
 
     const res = await testRequestContext.run(
       { cookie: `buildmate_session=${clientA.rawToken}` },
-      () => submitProofRoute(req)
+      () => createOrderRoute(req)
     );
 
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.success).toBe(true);
+    // Razorpay amount is returned in paise: 50000 INR = 5000000 paise
+    expect(body.amount).toBe(5000000);
+    expect(body.amount).not.toBe(1);
+    expect(body.order_id).toBeDefined();
 
     // Assert stored payment in DB matches the server-derived value (50000), not the spoofed 1
     const [storedPayment] = await db
@@ -191,7 +191,7 @@ describe("Phase 10 — Security Hardening & Invariant Integration Tests", () => 
     expect(storedPayment).toBeDefined();
     expect(storedPayment.expectedAmount).toBe(50000);
     expect(storedPayment.expectedAmount).not.toBe(1);
-    expect(storedPayment.submittedAmount).toBeNull();
+    expect(storedPayment.status).toBe("ORDER_CREATED");
   });
 
   /**
