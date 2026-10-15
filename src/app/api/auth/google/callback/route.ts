@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { eq, or, and } from "drizzle-orm";
 import { db } from "@/db";
 import { users, userRoles } from "@/db/schema";
 import { exchangeGoogleCode, getGoogleUserInfo } from "@/lib/auth/google";
-import { createSession, setSessionCookie } from "@/lib/auth/session";
+import { createSession, SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -12,39 +11,37 @@ export async function GET(req: Request) {
   const state = url.searchParams.get("state");
   const errorParam = url.searchParams.get("error");
 
-  const cookieStore = await cookies();
-  const stateCookie = cookieStore.get("google_oauth_state");
-
-  // Clean up state cookie
-  cookieStore.set("google_oauth_state", "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 0,
-    expires: new Date(0),
-  });
+  // Read state cookie from request header
+  const cookieHeader = req.headers.get("cookie") || "";
+  const match = cookieHeader.match(/google_oauth_state=([^;]+)/);
+  const rawStateCookie = match ? decodeURIComponent(match[1]) : null;
 
   if (errorParam) {
     console.warn("[Auth/GoogleCallback] User cancelled or Google returned error:", errorParam);
-    return NextResponse.redirect(new URL("/login?error=google_cancelled", req.url));
+    const redirectRes = NextResponse.redirect(new URL("/login?error=google_cancelled", req.url));
+    redirectRes.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    return redirectRes;
   }
 
-  if (!code || !state || !stateCookie?.value) {
+  if (!code || !state || !rawStateCookie) {
     console.error("[Auth/GoogleCallback] Missing code, state, or state cookie.");
-    return NextResponse.redirect(new URL("/login?error=invalid_oauth_state", req.url));
+    const redirectRes = NextResponse.redirect(new URL("/login?error=invalid_oauth_state", req.url));
+    redirectRes.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    return redirectRes;
   }
 
   let savedState: { state: string; returnTo: string };
   try {
-    savedState = JSON.parse(stateCookie.value);
+    savedState = JSON.parse(rawStateCookie);
   } catch {
-    savedState = { state: stateCookie.value, returnTo: "/dashboard" };
+    savedState = { state: rawStateCookie, returnTo: "/dashboard" };
   }
 
   if (savedState.state !== state) {
     console.error("[Auth/GoogleCallback] OAuth state mismatch (possible CSRF attempt).");
-    return NextResponse.redirect(new URL("/login?error=invalid_oauth_state", req.url));
+    const redirectRes = NextResponse.redirect(new URL("/login?error=invalid_oauth_state", req.url));
+    redirectRes.cookies.set("google_oauth_state", "", { path: "/", maxAge: 0, expires: new Date(0) });
+    return redirectRes;
   }
 
   try {
