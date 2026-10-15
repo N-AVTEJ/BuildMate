@@ -7,7 +7,7 @@ async function check() {
   const user = await db.query.users.findFirst({
     where: eq(users.email, "madipadiganavtej@gmail.com"),
   });
-  if (!user) return;
+  if (!user || !user.passwordHash) return;
   console.log("Full hash:", user.passwordHash);
   const candidates = [
     "Navtej2006",

@@ -10,12 +10,12 @@ async function test() {
   const user = await db.query.users.findFirst({
     where: eq(users.email, "madipadiganavtej@gmail.com"),
   });
-  if (!user) {
-    console.log("User not found!");
+  if (!user || !user.passwordHash) {
+    console.log("User not found or has no password hash!");
     return;
   }
   console.log("Found user:", user.email, "hash:", user.passwordHash.substring(0, 20));
-  const matchNavtej = await verifyPassword("Navtej2006", user.passwordHash);
+  const matchNavtej = await verifyPassword(user.passwordHash, "Navtej2006");
   console.log("Match Navtej2006:", matchNavtej);
 }
 
