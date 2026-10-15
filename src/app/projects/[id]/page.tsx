@@ -8,7 +8,7 @@ import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/projec
 import { reconcilePaymentReminders } from "@/lib/projects/payment-reminders";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { RequirementUploadForm } from "@/components/projects/requirement-upload-form";
-import { PaymentProofUploadForm } from "@/components/projects/payment-proof-upload-form";
+import { RazorpayCheckoutButton } from "@/components/payments/razorpay-checkout-button";
 import { PortalHeader } from "@/components/navigation/portal-header";
 
 export default async function ProjectDetailPage({
@@ -267,33 +267,17 @@ export default async function ProjectDetailPage({
         )}
 
         {/* Phase 6 Payment Cards */}
+        {/* Phase 14: Advance Payment with Razorpay Standard Checkout */}
         {(project.status === "AWAITING_ADVANCE" || project.status === "PAYMENT_REJECTED") && (
           <div className="bg-white border-2 border-black rounded-2xl p-6 sm:p-8 mb-6 neo-shadow-md">
-            <PaymentProofUploadForm
+            <RazorpayCheckoutButton
               projectId={project.id}
               projectCode={project.projectCode}
-              expectedAmount={project.advanceAmount || 0}
+              amount={project.advanceAmount || 0}
               paymentType="ADVANCE"
               advancePaymentDeadline={project.advancePaymentDeadline?.toISOString()}
               rejectionReason={existingPayment?.status === "REJECTED" ? existingPayment.rejectionReason : null}
             />
-          </div>
-        )}
-
-        {project.status === "ADVANCE_PROOF_SUBMITTED" && (
-          <div className="bg-[#ffe17c]/40 border-2 border-black rounded-2xl p-6 mb-6 flex items-start gap-4 neo-shadow">
-            <span className="text-3xl">⏳</span>
-            <div>
-              <h3 className="font-heading font-black text-lg text-black">Advance Payment Submitted — Under Review</h3>
-              <p className="text-xs text-black/80 font-medium mt-1">
-                Your payment proof has been submitted and is currently being verified by an administrator. Development will automatically begin once verified.
-              </p>
-              {existingPayment?.transactionReference && (
-                <div className="mt-2 text-xs font-mono font-bold text-black bg-white inline-block px-2.5 py-1 border border-black rounded">
-                  Transaction Ref: {existingPayment.transactionReference}
-                </div>
-              )}
-            </div>
           </div>
         )}
 
@@ -303,7 +287,7 @@ export default async function ProjectDetailPage({
             <div>
               <h3 className="font-heading font-black text-lg text-black">Development In Progress</h3>
               <p className="text-xs text-black/80 font-medium mt-1">
-                Advance payment has been verified and work is actively underway.
+                Advance payment has been verified via Razorpay and work is actively underway.
               </p>
               {project.developmentStartedAt && (
                 <div className="mt-2 text-xs font-bold text-black">
@@ -314,28 +298,16 @@ export default async function ProjectDetailPage({
           </div>
         )}
 
-        {/* Phase 8: Final Payment Form */}
+        {/* Phase 14: Final Payment with Razorpay Standard Checkout */}
         {project.status === "FINAL_PAYMENT_PENDING" && (
           <div className="bg-white border-2 border-black rounded-2xl p-6 sm:p-8 mb-6 neo-shadow-md">
-            <PaymentProofUploadForm
+            <RazorpayCheckoutButton
               projectId={project.id}
               projectCode={project.projectCode}
-              expectedAmount={project.remainingAmount || 0}
+              amount={project.remainingAmount || 0}
               paymentType="FINAL"
               rejectionReason={existingPayment?.status === "REJECTED" && existingPayment.type === "FINAL" ? existingPayment.rejectionReason : null}
             />
-          </div>
-        )}
-
-        {project.status === "FINAL_PAYMENT_PROOF_SUBMITTED" && (
-          <div className="bg-[#ffe17c]/40 border-2 border-black rounded-2xl p-6 mb-6 flex items-start gap-4 neo-shadow">
-            <span className="text-3xl">⏳</span>
-            <div>
-              <h3 className="font-heading font-black text-lg text-black">Final Payment Submitted — Under Review</h3>
-              <p className="text-xs text-black/80 font-medium mt-1">
-                Your final payment proof of ₹{project.remainingAmount || 0} has been submitted. Delivery will unlock automatically once verified by an administrator.
-              </p>
-            </div>
           </div>
         )}
 
