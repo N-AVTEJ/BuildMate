@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     return redirectRes;
   }
 
-  let savedState: { state: string; returnTo: string };
+  let savedState: { state: string; returnTo: string; redirectUri?: string };
   try {
     savedState = JSON.parse(rawStateCookie);
   } catch {
@@ -45,8 +45,8 @@ export async function GET(req: Request) {
   }
 
   try {
-    // 1. Exchange code for access tokens
-    const tokens = await exchangeGoogleCode(code);
+    // 1. Exchange code for access tokens using the exact redirect_uri stored during auth initiation
+    const tokens = await exchangeGoogleCode(code, savedState.redirectUri);
 
     // 2. Retrieve verified user profile from Google
     const profile = await getGoogleUserInfo(tokens.access_token);
