@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { generateOAuthState, getGoogleAuthUrl } from "@/lib/auth/google";
 
 export async function GET(req: Request) {
@@ -13,10 +12,12 @@ export async function GET(req: Request) {
     }
 
     const state = generateOAuthState();
+    const authUrl = getGoogleAuthUrl(state);
+
+    const response = NextResponse.redirect(authUrl);
 
     // Store state and optional returnTo in an HttpOnly cookie (valid 10 minutes)
-    const cookieStore = await cookies();
-    cookieStore.set("google_oauth_state", JSON.stringify({ state, returnTo }), {
+    response.cookies.set("google_oauth_state", JSON.stringify({ state, returnTo }), {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
@@ -24,8 +25,7 @@ export async function GET(req: Request) {
       maxAge: 60 * 10, // 10 minutes
     });
 
-    const authUrl = getGoogleAuthUrl(state);
-    return NextResponse.redirect(authUrl);
+    return response;
   } catch (error: any) {
     console.error("[Auth/Google] Error initiating Google login:", error);
     return NextResponse.redirect(new URL("/login?error=google_init_failed", req.url));
