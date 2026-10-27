@@ -6,6 +6,7 @@ import {
   deliverables,
   projectStatusHistory,
   notifications,
+  payments,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
@@ -131,12 +132,19 @@ export async function POST(
         })
         .returning();
 
-      // 6. Project status transition: set to FINAL_PAYMENT_PENDING
+      // 6. Project status transition: set to FINAL_PAYMENT_PENDING or DELIVERY_UNLOCKED
+      const hasRemainingAmount =
+        typeof project.remainingAmount === "number" && project.remainingAmount > 0;
+      const targetStatus = hasRemainingAmount
+        ? "FINAL_PAYMENT_PENDING"
+        : "DELIVERY_UNLOCKED";
+
       await tx
         .update(projects)
         .set({
-          status: "FINAL_PAYMENT_PENDING",
+          status: targetStatus,
           submittedAt: now,
+          ...(hasRemainingAmount ? {} : { completedAt: now }),
           updatedAt: now,
         })
         .where(eq(projects.id, project.id));
@@ -150,18 +158,36 @@ export async function POST(
         changedBy: auth.user.id,
       });
 
-      // Hop 2: SUBMITTED_FOR_DELIVERY -> FINAL_PAYMENT_PENDING
+      // Hop 2: SUBMITTED_FOR_DELIVERY -> targetStatus
       await tx.insert(projectStatusHistory).values({
         projectId: project.id,
         fromStatus: "SUBMITTED_FOR_DELIVERY",
-        toStatus: "FINAL_PAYMENT_PENDING",
+        toStatus: targetStatus,
         changedBy: auth.user.id,
+        reason: hasRemainingAmount
+          ? undefined
+          : "Full payment completed in advance. Delivery unlocked automatically.",
       });
+
+      // If zero remaining amount, record verified FINAL payment record for defense-in-depth
+      if (!hasRemainingAmount) {
+        await tx.insert(payments).values({
+          projectId: project.id,
+          type: "FINAL",
+          expectedAmount: 0,
+          submittedAmount: 0,
+          status: "VERIFIED",
+          transactionReference: "FULL_ADVANCE_SETTLED",
+          verifiedAt: now,
+        });
+      }
 
       // 8. Notify client
       await tx.insert(notifications).values({
         userId: project.clientId,
-        message: `Builder has submitted deliverables for "${project.title}". Please review and complete final payment to unlock delivery.`,
+        message: hasRemainingAmount
+          ? `Builder has submitted deliverables for "${project.title}". Please review and complete final payment to unlock delivery.`
+          : `Builder has submitted deliverables for "${project.title}". Since project was 100% settled in advance, source code delivery is now unlocked!`,
       });
 
       return {

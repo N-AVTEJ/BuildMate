@@ -75,32 +75,62 @@ export async function GET(
       );
     }
 
-    // Condition 4: A FINAL payment row exists for that exact project
-    // Condition 5: The FINAL payment status is strictly VERIFIED
+    // Condition 4: A verified payment exists covering the project obligations
     // (Defense-in-depth: Re-query payments table fresh; never trust project.status alone)
-    const [finalPayment] = await db
-      .select({
-        id: payments.id,
-        status: payments.status,
-        type: payments.type,
-      })
-      .from(payments)
-      .where(
-        and(
-          eq(payments.projectId, project.id),
-          eq(payments.type, "FINAL")
-        )
-      )
-      .limit(1);
+    const requiresFinalPayment =
+      typeof project.remainingAmount === "number" && project.remainingAmount > 0;
 
-    if (!finalPayment || finalPayment.status !== "VERIFIED") {
-      return NextResponse.json(
-        {
-          error: "Delivery locked. Final payment has not been verified.",
-          locked: true,
-        },
-        { status: 403 }
-      );
+    if (requiresFinalPayment) {
+      const [finalPayment] = await db
+        .select({
+          id: payments.id,
+          status: payments.status,
+          type: payments.type,
+        })
+        .from(payments)
+        .where(
+          and(
+            eq(payments.projectId, project.id),
+            eq(payments.type, "FINAL")
+          )
+        )
+        .limit(1);
+
+      if (!finalPayment || finalPayment.status !== "VERIFIED") {
+        return NextResponse.json(
+          {
+            error: "Delivery locked. Final payment has not been verified.",
+            locked: true,
+          },
+          { status: 403 }
+        );
+      }
+    } else {
+      // 100% advance project: Verify advance payment is verified
+      const [advancePayment] = await db
+        .select({
+          id: payments.id,
+          status: payments.status,
+          type: payments.type,
+        })
+        .from(payments)
+        .where(
+          and(
+            eq(payments.projectId, project.id),
+            eq(payments.type, "ADVANCE")
+          )
+        )
+        .limit(1);
+
+      if (!advancePayment || advancePayment.status !== "VERIFIED") {
+        return NextResponse.json(
+          {
+            error: "Delivery locked. Advance payment has not been verified.",
+            locked: true,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Condition 6: The project is not DISPUTE_OPEN
