@@ -54,6 +54,14 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         throw new Error(data.error || "Failed to initiate payment order.");
       }
 
+      if (data.zeroRemaining) {
+        setSuccess(true);
+        setTimeout(() => {
+          router.refresh();
+        }, 800);
+        return;
+      }
+
       if (typeof window === "undefined" || !(window as any).Razorpay) {
         throw new Error(
           "Razorpay Checkout SDK is still loading. Please check your internet connection and try again."
