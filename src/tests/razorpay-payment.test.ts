@@ -462,4 +462,61 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
 
     expect(projAfter.status).toBe("DELIVERY_UNLOCKED");
   });
+
+  it("9. create-order for FINAL payment with zero remaining balance transitions automatically to DELIVERY_UNLOCKED", async () => {
+    const [proj] = await db
+      .insert(projects)
+      .values({
+        projectCode: `PRJ-RZP-${(Date.now() + 5).toString().slice(-4)}`,
+        clientId: clientUser.id,
+        builderId: builderUser.id,
+        title: "Zero Remaining Balance Project",
+        subject: "Web Dev",
+        description: "Testing 100% advance zero remaining final transition",
+        techStack: "Next.js",
+        budgetMin: 300,
+        budgetMax: 300,
+        totalPrice: 300,
+        advanceAmount: 300,
+        remainingAmount: 0,
+        status: "FINAL_PAYMENT_PENDING",
+      })
+      .returning();
+    createdProjectIds.push(proj.id);
+
+    const req = new Request("http://localhost:3000/api/payments/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId: proj.id }),
+    });
+
+    const res = await testRequestContext.run(
+      { cookie: `buildmate_session=${clientUser.rawToken}` },
+      () => createOrderRoute(req)
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.zeroRemaining).toBe(true);
+    expect(body.newStatus).toBe("DELIVERY_UNLOCKED");
+
+    const [projAfter] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, proj.id))
+      .limit(1);
+
+    expect(projAfter.status).toBe("DELIVERY_UNLOCKED");
+
+    const [finalPayment] = await db
+      .select()
+      .from(payments)
+      .where(eq(payments.projectId, proj.id))
+      .limit(1);
+
+    expect(finalPayment).toBeDefined();
+    expect(finalPayment.status).toBe("VERIFIED");
+    expect(finalPayment.expectedAmount).toBe(0);
+  });
 });
