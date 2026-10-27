@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     }
 
     // 3. Cryptographic Signature Verification via HMAC-SHA256
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET?.trim();
     if (!keySecret) {
       console.error("[Payments/Verify] RAZORPAY_KEY_SECRET is not configured.");
       return NextResponse.json(

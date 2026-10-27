@@ -144,7 +144,8 @@ export async function POST(req: Request) {
     }
 
     const keyId =
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim() ||
+      process.env.RAZORPAY_KEY_ID?.trim();
 
     return NextResponse.json({
       order_id: order.id,
