@@ -253,7 +253,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         {advancePaymentDeadline && isAdvance && (
           <p className="text-xs font-bold text-black/70">
             Payment Deadline:{" "}
-            <span className="text-black font-black">
+            <span className="text-black font-black" suppressHydrationWarning>
               {new Date(advancePaymentDeadline).toLocaleString()}
             </span>
           </p>
