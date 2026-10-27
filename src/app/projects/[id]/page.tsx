@@ -300,15 +300,37 @@ export default async function ProjectDetailPage({
 
         {/* Phase 14: Final Payment with Razorpay Standard Checkout */}
         {project.status === "FINAL_PAYMENT_PENDING" && (
-          <div className="bg-white border-2 border-black rounded-2xl p-6 sm:p-8 mb-6 neo-shadow-md">
-            <RazorpayCheckoutButton
-              projectId={project.id}
-              projectCode={project.projectCode}
-              amount={project.remainingAmount || 0}
-              paymentType="FINAL"
-              rejectionReason={existingPayment?.status === "REJECTED" && existingPayment.type === "FINAL" ? existingPayment.rejectionReason : null}
-            />
-          </div>
+          (project.remainingAmount || 0) > 0 ? (
+            <div className="bg-white border-2 border-black rounded-2xl p-6 sm:p-8 mb-6 neo-shadow-md">
+              <RazorpayCheckoutButton
+                projectId={project.id}
+                projectCode={project.projectCode}
+                amount={project.remainingAmount || 0}
+                paymentType="FINAL"
+                rejectionReason={existingPayment?.status === "REJECTED" && existingPayment.type === "FINAL" ? existingPayment.rejectionReason : null}
+              />
+            </div>
+          ) : (
+            <div className="bg-[#ffe17c] border-2 border-black rounded-2xl p-6 sm:p-8 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 neo-shadow-md">
+              <div className="flex items-start gap-4">
+                <span className="text-3xl">📦</span>
+                <div>
+                  <h3 className="font-heading font-black text-xl text-black">
+                    Project Deliverables Ready!
+                  </h3>
+                  <p className="text-xs text-black/80 font-medium mt-1">
+                    Your advance payment covered 100% of the project total. Full source code delivery is ready to access!
+                  </p>
+                </div>
+              </div>
+              <Link
+                href={`/projects/${project.id}/delivery`}
+                className="neo-btn px-5 py-3 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl text-center whitespace-nowrap"
+              >
+                Access Deliverables →
+              </Link>
+            </div>
+          )
         )}
 
         {/* Phase 8: Delivery Unlocked / Completed Banner */}
