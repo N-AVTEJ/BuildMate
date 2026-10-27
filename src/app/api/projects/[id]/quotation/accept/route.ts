@@ -117,11 +117,14 @@ export async function POST(
         })
         .where(eq(quotations.id, quotation.id));
 
-      // 9. Update project status directly to AWAITING_ADVANCE (single hop, no CLIENT_ACCEPTED)
+      // 9. Update project status directly to AWAITING_ADVANCE (single hop, no CLIENT_ACCEPTED) and copy pricing
       const [updatedProject] = await tx
         .update(projects)
         .set({
           status: "AWAITING_ADVANCE",
+          totalPrice: quotation.totalPrice,
+          advanceAmount: quotation.advanceAmount,
+          remainingAmount: quotation.remainingAmount,
           advancePaymentDeadline: new Date(now.getTime() + 24 * 60 * 60 * 1000),
           updatedAt: now,
         })

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { db } from "@/db";
-import { projects, payments } from "@/db/schema";
+import { projects, payments, quotations } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 
@@ -59,9 +59,59 @@ export async function GET(
       );
     }
 
-    // 4. Server-derived expected amount with STRICT POSITIVE INTEGER GUARD
-    const rawExpectedAmount =
+    // 4. Server-derived expected amount with STRICT POSITIVE INTEGER GUARD & Self-healing
+    let rawExpectedAmount =
       paymentType === "ADVANCE" ? project.advanceAmount : project.remainingAmount;
+
+    // Self-healing fallback: If project amounts are null, unconfigured, or invalid, inspect accepted quotation
+    if (
+      rawExpectedAmount === null ||
+      rawExpectedAmount === undefined ||
+      typeof rawExpectedAmount !== "number" ||
+      (paymentType === "ADVANCE" && rawExpectedAmount <= 0)
+    ) {
+      const [quote] = await db
+        .select()
+        .from(quotations)
+        .where(
+          and(
+            eq(quotations.projectId, project.id),
+            eq(quotations.status, "ACCEPTED")
+          )
+        )
+        .orderBy(desc(quotations.createdAt))
+        .limit(1);
+
+      if (quote) {
+        rawExpectedAmount =
+          paymentType === "ADVANCE" ? quote.advanceAmount : quote.remainingAmount;
+
+        await db
+          .update(projects)
+          .set({
+            totalPrice: quote.totalPrice,
+            advanceAmount: quote.advanceAmount,
+            remainingAmount: quote.remainingAmount,
+            updatedAt: new Date(),
+          })
+          .where(eq(projects.id, project.id));
+      }
+    }
+
+    // Zero-remaining support for FINAL payment (100% advance deposit)
+    if (paymentType === "FINAL" && (rawExpectedAmount ?? 0) <= 0) {
+      return NextResponse.json({
+        projectId: project.id,
+        projectCode: project.projectCode,
+        title: project.title,
+        paymentType,
+        expectedAmount: 0,
+        zeroRemaining: true,
+        advancePaymentDeadline: null,
+        projectStatus: project.status,
+        existingPayment: null,
+      });
+    }
 
     if (
       rawExpectedAmount === null ||
