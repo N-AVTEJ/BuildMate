@@ -49,6 +49,7 @@ export async function GET(
         clientId: projects.clientId,
         builderId: projects.builderId,
         status: projects.status,
+        remainingAmount: projects.remainingAmount,
       })
       .from(projects)
       .where(eq(projects.id, projectId))
