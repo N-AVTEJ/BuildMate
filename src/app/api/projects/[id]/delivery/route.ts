@@ -77,26 +77,29 @@ export async function GET(
 
     // Condition 4: A verified payment exists covering the project obligations
     // (Defense-in-depth: Re-query payments table fresh; never trust project.status alone)
-    const requiresFinalPayment =
-      typeof project.remainingAmount === "number" && project.remainingAmount > 0;
-
-    if (requiresFinalPayment) {
-      const [finalPayment] = await db
-        .select({
-          id: payments.id,
-          status: payments.status,
-          type: payments.type,
-        })
-        .from(payments)
-        .where(
-          and(
-            eq(payments.projectId, project.id),
-            eq(payments.type, "FINAL")
-          )
+    const [finalPayment] = await db
+      .select({
+        id: payments.id,
+        status: payments.status,
+        type: payments.type,
+      })
+      .from(payments)
+      .where(
+        and(
+          eq(payments.projectId, project.id),
+          eq(payments.type, "FINAL")
         )
-        .limit(1);
+      )
+      .limit(1);
 
-      if (!finalPayment || finalPayment.status !== "VERIFIED") {
+    if (finalPayment && finalPayment.status === "VERIFIED") {
+      // Verified final payment exists — requirement satisfied
+    } else {
+      // If no verified final payment, check if project has zero remaining balance and verified advance payment
+      const isZeroRemaining =
+        typeof project.remainingAmount === "number" && project.remainingAmount <= 0;
+
+      if (!isZeroRemaining) {
         return NextResponse.json(
           {
             error: "Delivery locked. Final payment has not been verified.",
@@ -105,8 +108,7 @@ export async function GET(
           { status: 403 }
         );
       }
-    } else {
-      // 100% advance project: Verify advance payment is verified
+
       const [advancePayment] = await db
         .select({
           id: payments.id,
