@@ -32,14 +32,10 @@ function LoginForm() {
     }
   }, [searchParams]);
 
-  // Autofill Passcode state (protected with passcode 1234)
-  const [showAutofillPrompt, setShowAutofillPrompt] = useState(false);
-  const [autofillPasscode, setAutofillPasscode] = useState("");
-  const [autofillError, setAutofillError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [showPasscode, setShowPasscode] = useState(false);
 
-  const executeLogin = async (emailToUse: string, passwordToUse: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
@@ -50,8 +46,8 @@ function LoginForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: emailToUse,
-          password: passwordToUse,
+          email: formData.email,
+          password: formData.password,
         }),
       });
 
@@ -75,33 +71,6 @@ function LoginForm() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await executeLogin(formData.email, formData.password);
-  };
-
-  const handleAutofillSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAutofillError(null);
-
-    if (autofillPasscode.trim() !== "1234") {
-      setAutofillError("Incorrect passcode. Please enter 1234.");
-      return;
-    }
-
-    const builderEmail = "madipadiganavtej@gmail.com";
-    const builderPass = "Navtej2006";
-
-    setFormData({
-      email: builderEmail,
-      password: builderPass,
-    });
-    setShowAutofillPrompt(false);
-    setAutofillPasscode("");
-
-    await executeLogin(builderEmail, builderPass);
   };
 
   return (
@@ -144,65 +113,6 @@ function LoginForm() {
           </div>
 
           <div className="bg-white rounded-3xl p-8 sm:p-10 border-2 border-black neo-shadow-lg">
-            {/* Quick Autofill Trigger (Protected by passcode 1234) */}
-            <div className="mb-6 p-3.5 bg-[#b7c6c2]/40 border-2 border-black rounded-xl flex items-center justify-between neo-shadow-sm">
-              <div>
-                <div className="text-xs font-black font-heading text-black flex items-center gap-1 uppercase tracking-wider">
-                  <span>⚡</span> Builder Quick Login
-                </div>
-                <div className="text-[11px] text-black/70 font-medium">Autofill verified builder test account</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAutofillPrompt(!showAutofillPrompt);
-                  setAutofillError(null);
-                  setAutofillPasscode("");
-                }}
-                className="neo-btn px-3 py-1 bg-black text-white text-xs font-black font-heading uppercase tracking-wider rounded-lg"
-              >
-                {showAutofillPrompt ? "Cancel" : "Autofill"}
-              </button>
-            </div>
-
-            {/* Passcode Prompt for Autofill (Protected with 1234) */}
-            {showAutofillPrompt && (
-              <form onSubmit={handleAutofillSubmit} className="mb-6 p-4 bg-[#ffe17c]/30 border-2 border-black rounded-xl space-y-3 neo-shadow-sm">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="passcode" className="block text-xs font-black text-black uppercase tracking-wider">
-                    Enter Passcode (1234) to Unlock &amp; Sign In:
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasscode(!showPasscode)}
-                    className="text-[11px] font-heading font-black uppercase tracking-wider text-black/70 hover:text-black focus:outline-none"
-                  >
-                    {showPasscode ? "Hide 🙈" : "Show 👁️"}
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    id="passcode"
-                    type={showPasscode ? "text" : "password"}
-                    autoFocus
-                    placeholder="Enter 1234"
-                    value={autofillPasscode}
-                    onChange={(e) => setAutofillPasscode(e.target.value)}
-                    className="flex-1 rounded-lg border-2 border-black px-3 py-2 text-sm font-medium focus:bg-[#ffe17c]/20 focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="neo-btn px-4 py-2 bg-black text-white text-xs font-black font-heading uppercase rounded-lg disabled:opacity-50"
-                  >
-                    {isSubmitting ? "..." : "Unlock"}
-                  </button>
-                </div>
-                {autofillError && (
-                  <p className="text-xs text-red-600 font-bold">{autofillError}</p>
-                )}
-              </form>
-            )}
 
             {error && (
               <div className="mb-6 bg-red-100 border-2 border-black text-red-900 p-3.5 rounded-xl text-sm font-bold flex items-start gap-2.5 neo-shadow-sm">
