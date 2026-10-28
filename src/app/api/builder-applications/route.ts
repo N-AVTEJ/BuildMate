@@ -88,6 +88,22 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
+
+      const extMatch = resumeUrl.match(/\.([a-zA-Z0-9]+)(\?.*)?$/);
+      const ext = extMatch ? extMatch[1].toLowerCase() : "";
+      if (ext !== "pdf" && ext !== "docx") {
+        return NextResponse.json(
+          { error: "Only PDF (.pdf) and Word documents (.docx) are permitted for resumes." },
+          { status: 400 }
+        );
+      }
+
+      if (resumeUrl.includes("..") || resumeUrl.includes("\0")) {
+        return NextResponse.json(
+          { error: "Invalid resumeUrl path." },
+          { status: 400 }
+        );
+      }
     }
 
     // 2. Input Validation
@@ -106,8 +122,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
     }
 
-    if (githubUrl && githubUrl.length > 500) {
-      return NextResponse.json({ error: "GitHub link must not exceed 500 characters." }, { status: 400 });
+    if (githubUrl) {
+      if (githubUrl.length > 500) {
+        return NextResponse.json({ error: "GitHub link must not exceed 500 characters." }, { status: 400 });
+      }
+      if (!githubUrl.startsWith("http://") && !githubUrl.startsWith("https://")) {
+        return NextResponse.json(
+          { error: "GitHub profile must be a valid URL starting with http:// or https://" },
+          { status: 400 }
+        );
+      }
     }
 
     if (message && message.length > 1000) {
