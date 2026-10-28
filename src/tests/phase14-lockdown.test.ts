@@ -9,6 +9,7 @@ import { GET as adminGetResumeRoute } from "@/app/api/admin/builder-applications
 import { GET as googleCallbackRoute } from "@/app/api/auth/google/callback/route";
 import { createSession, testRequestContext } from "@/lib/auth/session";
 import * as googleAuthModule from "@/lib/auth/google";
+import { validateResumeFile } from "@/lib/storage/resume-validation";
 
 describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite", () => {
   const testRunId = `p14_${Date.now()}`;
@@ -369,19 +370,31 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
     expect(notif.message).toContain("scripts/provision-builder.ts");
   });
 
-  it("8. Admin can reject an application", async () => {
-    const [newApp] = await db
+  it("8. Admin can reject an application and applicant receives notification (if registered) with zero role creation", async () => {
+    // 8a. Rejection for an applicant who ALREADY has a user account (e.g. registered as client)
+    const registeredApplicantEmail = `reject_registered_${testRunId}@example.com`;
+    const [regUser] = await db
+      .insert(users)
+      .values({
+        name: "Registered Applicant",
+        email: registeredApplicantEmail,
+        emailVerified: true,
+      })
+      .returning();
+    createdUserIds.push(regUser.id);
+
+    const [appWithUser] = await db
       .insert(builderApplications)
       .values({
-        name: "Reject Candidate",
-        email: `reject_${testRunId}@example.com`,
+        name: "Registered Candidate",
+        email: registeredApplicantEmail,
         resumeUrl: "mock-storage-key.pdf",
         status: "PENDING",
       })
       .returning();
-    createdAppIds.push(newApp.id);
+    createdAppIds.push(appWithUser.id);
 
-    const rejectReq = new Request(`http://localhost:3000/api/admin/builder-applications/${newApp.id}`, {
+    const rejectReq = new Request(`http://localhost:3000/api/admin/builder-applications/${appWithUser.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "REJECT" }),
@@ -389,19 +402,58 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
 
     const rejectRes = await testRequestContext.run(
       { token: adminSessionToken },
-      async () => await adminPatchApplicationRoute(rejectReq, { params: Promise.resolve({ id: newApp.id }) })
+      async () => await adminPatchApplicationRoute(rejectReq, { params: Promise.resolve({ id: appWithUser.id }) })
     );
 
     expect(rejectRes.status).toBe(200);
     const rejectData = await rejectRes.json();
     expect(rejectData.application.status).toBe("REJECTED");
 
-    const [updatedApp] = await db
+    // Verify in-app notification was dispatched to the applicant's existing account
+    const [applicantNotif] = await db
       .select()
-      .from(builderApplications)
-      .where(eq(builderApplications.id, newApp.id))
+      .from(notifications)
+      .where(eq(notifications.userId, regUser.id))
+      .orderBy(desc(notifications.createdAt))
       .limit(1);
-    expect(updatedApp.status).toBe("REJECTED");
+
+    expect(applicantNotif).toBeDefined();
+    expect(applicantNotif.message).toContain("not accepted");
+
+    // 8b. Rejection for an applicant who has NO user account
+    const [unregisteredApp] = await db
+      .insert(builderApplications)
+      .values({
+        name: "Unregistered Candidate",
+        email: `reject_unreg_${testRunId}@example.com`,
+        resumeUrl: "mock-storage-key.pdf",
+        status: "PENDING",
+      })
+      .returning();
+    createdAppIds.push(unregisteredApp.id);
+
+    const unregReq = new Request(`http://localhost:3000/api/admin/builder-applications/${unregisteredApp.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "REJECT" }),
+    });
+
+    const unregRes = await testRequestContext.run(
+      { token: adminSessionToken },
+      async () => await adminPatchApplicationRoute(unregReq, { params: Promise.resolve({ id: unregisteredApp.id }) })
+    );
+
+    expect(unregRes.status).toBe(200);
+    const unregData = await unregRes.json();
+    expect(unregData.application.status).toBe("REJECTED");
+
+    // Invariant: no user account was created from this path
+    const [noneUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, `reject_unreg_${testRunId}@example.com`))
+      .limit(1);
+    expect(noneUser).toBeUndefined();
   });
 
   it("9. Admin can fetch signed short-TTL download URL for applicant resume", async () => {
@@ -427,5 +479,70 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
     expect(data.success).toBe(true);
     expect(data.downloadUrl).toBeDefined();
     expect(typeof data.downloadUrl).toBe("string");
+  });
+
+  it("10. POST /api/builder-applications JSON payload validation rejects invalid extensions and protocols", async () => {
+    // 10a. Non-PDF/DOCX extension in JSON
+    const badExtReq = new Request("http://localhost:3000/api/builder-applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Bad Extension User",
+        email: `bad_ext_${testRunId}@example.com`,
+        resumeUrl: "https://example.com/exploit.exe",
+      }),
+    });
+
+    const badExtRes = await builderApplicationsRoute(badExtReq);
+    expect(badExtRes.status).toBe(400);
+    const badExtData = await badExtRes.json();
+    expect(badExtData.error).toContain("Only PDF (.pdf) and Word documents (.docx) are permitted");
+
+    // 10b. Path traversal in resumeUrl
+    const traversalReq = new Request("http://localhost:3000/api/builder-applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Traversal User",
+        email: `traversal_${testRunId}@example.com`,
+        resumeUrl: "../../etc/passwd.pdf",
+      }),
+    });
+
+    const traversalRes = await builderApplicationsRoute(traversalReq);
+    expect(traversalRes.status).toBe(400);
+    const traversalData = await traversalRes.json();
+    expect(traversalData.error).toContain("Invalid resumeUrl path");
+
+    // 10c. Invalid protocol in githubUrl
+    const badProtoReq = new Request("http://localhost:3000/api/builder-applications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Protocol User",
+        email: `bad_proto_${testRunId}@example.com`,
+        resumeUrl: "https://storage.buildmate.test/resumes/valid.pdf",
+        githubUrl: "javascript:alert(1)",
+      }),
+    });
+
+    const badProtoRes = await builderApplicationsRoute(badProtoReq);
+    expect(badProtoRes.status).toBe(400);
+    const badProtoData = await badProtoRes.json();
+    expect(badProtoData.error).toContain("GitHub profile must be a valid URL");
+  });
+
+  it("11. validateResumeFile accepts DOCX archives with content beyond 16KB without truncation error", () => {
+    // Construct a synthetic ZIP archive buffer > 20KB with [Content_Types].xml and word/ located deep in buffer
+    const prefix = Buffer.from([0x50, 0x4b, 0x03, 0x04]); // PK zip local header
+    const padding = Buffer.alloc(20000, 0x20); // 20KB padding
+    const contentTypes = Buffer.from("[Content_Types].xml");
+    const wordDir = Buffer.from("word/document.xml");
+    const fullBuffer = Buffer.concat([prefix, padding, contentTypes, wordDir]);
+
+    const result = validateResumeFile(fullBuffer, "my_resume_2026.docx");
+    expect(result.valid).toBe(true);
+    expect(result.extension).toBe("docx");
+    expect(result.detectedMime).toBe("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
   });
 });

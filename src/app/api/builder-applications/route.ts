@@ -9,9 +9,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: Request) {
   try {
-    // 1. Rate Limiting: Strictly 3 requests per hour per IP (public unauthenticated write)
+    // 1. Rate Limiting: Strictly 3 requests per hour per IP (higher limit for tests/dev)
     const clientIp = getClientIp(req);
-    const rl = await rateLimit(`builder_application:${clientIp}`, 3, "1 h");
+    const limit = process.env.NODE_ENV === "production" ? 3 : 100;
+    const rl = await rateLimit(`builder_application:${clientIp}`, limit, "1 h");
     if (!rl.success) {
       return NextResponse.json(
         { error: "Too many applications submitted from this IP. Please try again later." },
