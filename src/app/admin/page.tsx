@@ -91,10 +91,17 @@ export default async function AdminDashboardPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="/admin/builder-inquiries"
+              href="/admin/builder-applications"
               className="neo-btn inline-flex items-center gap-2 px-4 py-2.5 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm transition"
             >
-              <span>📋 Builder Inquiries</span>
+              <span>📋 Builder Applications</span>
+              <span>→</span>
+            </Link>
+            <Link
+              href="/admin/builder-inquiries"
+              className="neo-btn inline-flex items-center gap-2 px-4 py-2.5 bg-[#b7c6c2] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm transition"
+            >
+              <span>📩 Builder Leads</span>
               <span>→</span>
             </Link>
             <Link
