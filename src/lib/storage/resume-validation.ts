@@ -79,9 +79,8 @@ export function validateResumeFile(
       return { valid: false, error: "File content does not match a valid DOCX archive signature." };
     }
 
-    const rawString = buffer.subarray(0, Math.min(buffer.length, 16384)).toString("binary");
-    const hasContentTypes = rawString.includes("[Content_Types].xml");
-    const hasWord = rawString.includes("word/");
+    const hasContentTypes = buffer.includes(Buffer.from("[Content_Types].xml"));
+    const hasWord = buffer.includes(Buffer.from("word/"));
     if (!hasContentTypes || !hasWord) {
       return { valid: false, error: "File is not a valid DOCX WordprocessingML package." };
     }
