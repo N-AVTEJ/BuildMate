@@ -131,8 +131,19 @@ export async function GET(req: Request) {
     // 4. Issue authenticated session
     const { rawToken, expiresAt } = await createSession(userId);
 
-    // 5. Redirect user to destination
-    const destination = savedState.returnTo || "/dashboard";
+    // 5. Redirect user to destination with open-redirect sanitization
+    let destination = savedState.returnTo || "/dashboard";
+
+    // Sanitize open redirect: destination must be an internal relative path starting with a single '/'
+    if (!destination.startsWith("/") || destination.startsWith("//") || destination.startsWith("/\\")) {
+      destination = "/dashboard";
+    }
+
+    // Master admin exception: if destination is default client dashboard, direct to /admin instead of hitting client-only portal
+    if (normalizedEmail === MASTER_ADMIN_EMAIL && destination === "/dashboard") {
+      destination = "/admin";
+    }
+
     const redirectRes = NextResponse.redirect(new URL(destination, req.url));
 
     redirectRes.cookies.set(SESSION_COOKIE_NAME, rawToken, {
