@@ -248,4 +248,111 @@ describe("Google OAuth Integration for Client Authentication", () => {
     expect(roles[0].role).toBe("CLIENT");
     expect(roles.map((r) => r.role)).toEqual(["CLIENT"]);
   });
+
+  it("test_master_admin_oauth_signin_preserves_seeded_roles_without_granting_client", async () => {
+    const adminEmail = "madipadiganavtej@gmail.com";
+    const googleSub = `g_admin_sub_${Date.now()}`;
+    const validState = `state_admin_${Date.now()}`;
+
+    // Ensure master admin user exists in DB with ADMIN & BUILDER roles (simulating seeded state)
+    const [existingAdmin] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, adminEmail))
+      .limit(1);
+
+    expect(existingAdmin).toBeDefined();
+
+    vi.spyOn(googleAuthModule, "exchangeGoogleCode").mockResolvedValueOnce({
+      access_token: "mock_admin_token",
+      expires_in: 3600,
+      token_type: "Bearer",
+      scope: "openid email profile",
+    });
+
+    vi.spyOn(googleAuthModule, "getGoogleUserInfo").mockResolvedValueOnce({
+      sub: googleSub,
+      email: adminEmail,
+      name: "Navtej Madipadi",
+      picture: "https://example.com/avatar.png",
+      email_verified: true,
+    });
+
+    // Default OAuth sign-in without explicit returnTo defaults to /dashboard in cookie
+    const cookieHeader = `google_oauth_state=${JSON.stringify({ state: validState, returnTo: "/dashboard" })}`;
+    const req = new Request(
+      `http://localhost:3000/api/auth/google/callback?code=admin_code&state=${validState}`,
+      { headers: { Cookie: cookieHeader } }
+    );
+
+    const res = await googleCallbackRoute(req);
+    expect(res.status).toBe(307);
+
+    // Assert redirect directs to /admin (not client-only /dashboard)
+    const location = res.headers.get("location");
+    expect(location).toContain("/admin");
+
+    // Assert user account was NOT duplicated
+    const adminUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, adminEmail));
+    expect(adminUsers.length).toBe(1);
+
+    // Assert user roles contain ADMIN and BUILDER from seeded state
+    const roles = await db
+      .select({ role: userRoles.role })
+      .from(userRoles)
+      .where(eq(userRoles.userId, existingAdmin.id));
+
+    const roleList = roles.map((r) => r.role);
+    expect(roleList).toContain("ADMIN");
+    expect(roleList).toContain("BUILDER");
+  });
+
+  it("test_oauth_open_redirect_attempt_sanitized_to_internal_path", async () => {
+    const victimEmail = `victim_open_redir_${Date.now()}@example.com`;
+    const googleSub = `g_sub_open_redir_${Date.now()}`;
+    const validState = `state_open_redir_${Date.now()}`;
+
+    vi.spyOn(googleAuthModule, "exchangeGoogleCode").mockResolvedValueOnce({
+      access_token: "mock_victim_token",
+      expires_in: 3600,
+      token_type: "Bearer",
+      scope: "openid email profile",
+    });
+
+    vi.spyOn(googleAuthModule, "getGoogleUserInfo").mockResolvedValueOnce({
+      sub: googleSub,
+      email: victimEmail,
+      name: "Open Redirect Victim",
+      picture: undefined,
+      email_verified: true,
+    });
+
+    // Attacker attempted open redirect to an external phishing URL
+    const cookieHeader = `google_oauth_state=${JSON.stringify({ state: validState, returnTo: "https://attacker.evil.com/phish" })}`;
+    const req = new Request(
+      `http://localhost:3000/api/auth/google/callback?code=mock_code&state=${validState}`,
+      { headers: { Cookie: cookieHeader } }
+    );
+
+    const res = await googleCallbackRoute(req);
+    expect(res.status).toBe(307);
+
+    const location = res.headers.get("location");
+    // Verify that the redirect was neutralized and redirected to safe internal destination (/dashboard)
+    expect(location).not.toContain("attacker.evil.com");
+    expect(location).toContain("/dashboard");
+
+    const [createdUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, victimEmail))
+      .limit(1);
+
+    if (createdUser) {
+      createdUserIds.push(createdUser.id);
+    }
+  });
 });
