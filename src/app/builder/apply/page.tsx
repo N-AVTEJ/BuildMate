@@ -7,23 +7,58 @@ export default function BuilderApplyPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    githubUrl: "",
     message: "",
   });
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    const file = e.target.files?.[0] || null;
+    if (!file) {
+      setResumeFile(null);
+      return;
+    }
+
+    // 5 MB max
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Resume file size exceeds the 5 MB maximum limit.");
+      setResumeFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    const extMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
+    const ext = extMatch ? extMatch[1].toLowerCase() : "";
+    if (ext !== "pdf" && ext !== "docx") {
+      setError("Only PDF (.pdf) and Word documents (.docx) are permitted for resumes.");
+      setResumeFile(null);
+      e.target.value = "";
+      return;
+    }
+
+    setResumeFile(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!formData.name.trim()) {
-      setError("Please provide your name.");
+      setError("Please provide your full name.");
       return;
     }
 
     if (!formData.email.trim()) {
       setError("Please provide your email address.");
+      return;
+    }
+
+    if (!resumeFile) {
+      setError("Please upload your resume (.pdf or .docx, max 5 MB).");
       return;
     }
 
@@ -35,18 +70,26 @@ export default function BuilderApplyPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/builder-inquiries", {
+      const data = new FormData();
+      data.append("name", formData.name.trim());
+      data.append("email", formData.email.trim());
+      if (formData.githubUrl.trim()) {
+        data.append("githubUrl", formData.githubUrl.trim());
+      }
+      if (formData.message.trim()) {
+        data.append("message", formData.message.trim());
+      }
+      data.append("resume", resumeFile);
+
+      const res = await fetch("/api/builder-applications", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: data,
       });
 
-      const data = await res.json();
+      const json = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to submit inquiry.");
+        throw new Error(json.error || "Failed to submit builder application.");
       }
 
       setSubmitted(true);
@@ -91,11 +134,14 @@ export default function BuilderApplyPage() {
                 ✓
               </div>
               <h1 className="font-heading font-black text-3xl sm:text-4xl text-black tracking-tight">
-                Thanks — we&apos;ll be in touch.
+                Application Received.
               </h1>
               <p className="mt-4 text-base text-black/80 font-medium leading-relaxed">
-                We review every builder inquiry personally to guarantee software delivery excellence on BuildMate.
-                Keep an eye on your inbox for our invite and onboarding instructions.
+                Thank you for applying to the BuildMate engineering network. We personally review every
+                application and verify credentials to guarantee software delivery excellence.
+              </p>
+              <p className="mt-2 text-sm text-black/60 font-medium">
+                If approved, an administrator will reach out with your invite and onboarding access.
               </p>
 
               <div className="mt-8 pt-6 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -125,7 +171,7 @@ export default function BuilderApplyPage() {
                   Apply for Builder Access
                 </h1>
                 <p className="mt-2 text-sm sm:text-base text-black/80 font-medium">
-                  Builder access is invite-only right now. Submit your details below to join the verification queue.
+                  Direct builder self-registration is closed. Submit your application below to be vetted by the BuildMate engineering team.
                 </p>
               </div>
 
@@ -139,7 +185,7 @@ export default function BuilderApplyPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider text-black mb-2">
-                    Your Full Name <span className="text-red-600">*</span>
+                    Full Name <span className="text-red-600">*</span>
                   </label>
                   <input
                     id="name"
@@ -172,9 +218,45 @@ export default function BuilderApplyPage() {
                 </div>
 
                 <div>
+                  <label htmlFor="githubUrl" className="block text-xs font-black uppercase tracking-wider text-black mb-2">
+                    GitHub Profile / Portfolio Link <span className="text-black/50 lowercase font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="githubUrl"
+                    name="githubUrl"
+                    type="url"
+                    maxLength={500}
+                    value={formData.githubUrl}
+                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                    placeholder="https://github.com/username"
+                    className="w-full px-4 py-3 rounded-xl border-2 border-black text-base font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="resume" className="block text-xs font-black uppercase tracking-wider text-black mb-2">
+                    Resume / CV (.pdf or .docx, max 5 MB) <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="resume"
+                    name="resume"
+                    type="file"
+                    required
+                    accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-black text-sm font-medium text-black file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-2 file:border-black file:text-xs file:font-heading file:font-black file:uppercase file:tracking-wider file:bg-[#ffe17c] file:text-black hover:file:bg-black hover:file:text-white cursor-pointer focus:outline-none neo-shadow-sm transition"
+                  />
+                  {resumeFile && (
+                    <p className="mt-1 text-xs font-mono text-black/70">
+                      Selected: {resumeFile.name} ({(resumeFile.size / 1024).toFixed(1)} KB)
+                    </p>
+                  )}
+                </div>
+
+                <div>
                   <div className="flex items-center justify-between mb-2">
                     <label htmlFor="message" className="block text-xs font-black uppercase tracking-wider text-black">
-                      Message / Portfolio <span className="text-black/50 lowercase font-normal">(optional)</span>
+                      Short Message / Primary Tech Stack <span className="text-black/50 lowercase font-normal">(optional)</span>
                     </label>
                     <span className="text-xs font-mono font-bold text-black/60">
                       {formData.message.length} / 1000
@@ -187,7 +269,7 @@ export default function BuilderApplyPage() {
                     maxLength={1000}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Tell us about your tech stack, GitHub profile, or domain expertise..."
+                    placeholder="Tell us about your background, favorite stack (e.g. Next.js, Postgres), and previous client work..."
                     className="w-full px-4 py-3 rounded-xl border-2 border-black text-base font-medium text-black placeholder-gray-400 focus:outline-none focus:bg-[#ffe17c]/20 neo-shadow-sm transition resize-none"
                   />
                 </div>
@@ -197,7 +279,7 @@ export default function BuilderApplyPage() {
                   disabled={isSubmitting}
                   className="neo-btn-lg w-full py-4 bg-black text-white font-heading font-black text-base uppercase tracking-wider rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Submitting Inquiry..." : "Submit Builder Application →"}
+                  {isSubmitting ? "Uploading Application..." : "Submit Builder Application →"}
                 </button>
               </form>
 

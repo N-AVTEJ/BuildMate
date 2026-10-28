@@ -108,6 +108,12 @@ export const disputeStatusEnum = pgEnum("dispute_status", [
   "CANCELLED",
 ]);
 
+export const builderApplicationStatusEnum = pgEnum("builder_application_status", [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+]);
+
 // ==========================================
 // ALL 14 TABLES
 // ==========================================
@@ -460,6 +466,19 @@ export const builderInquiries = pgTable("builder_inquiries", {
   email: varchar("email", { length: 255 }).notNull(),
   message: text("message"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// 20. builder_applications (Phase 14: Vetted builder applications)
+export const builderApplications = pgTable("builder_applications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  resumeUrl: text("resume_url").notNull(),
+  githubUrl: text("github_url"),
+  message: text("message"),
+  status: builderApplicationStatusEnum("status").default("PENDING").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // ==========================================
