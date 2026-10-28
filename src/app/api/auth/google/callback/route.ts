@@ -58,6 +58,8 @@ export async function GET(req: Request) {
     const normalizedEmail = profile.email.trim().toLowerCase();
 
     // 3. Find or create user in database
+    const MASTER_ADMIN_EMAIL = "madipadiganavtej@gmail.com";
+
     const [existingUser] = await db
       .select()
       .from(users)
@@ -80,21 +82,32 @@ export async function GET(req: Request) {
         })
         .where(eq(users.id, existingUser.id));
 
-      // Ensure user has CLIENT role
-      const [clientRole] = await db
-        .select()
-        .from(userRoles)
-        .where(and(eq(userRoles.userId, existingUser.id), eq(userRoles.role, "CLIENT")))
-        .limit(1);
+      // Exception, hardcoded explicitly: if the authenticated Google email exactly equals
+      // madipadiganavtej@gmail.com, and that email already has BUILDER/ADMIN rows provisioned
+      // manually (Task 3 seed script), the OAuth login simply authenticates into the existing
+      // account — it does not grant anything new via the OAuth path itself. The role still comes
+      // from the DB row seeded, not from the OAuth event.
+      if (normalizedEmail !== MASTER_ADMIN_EMAIL) {
+        // Ensure user has CLIENT role
+        const [clientRole] = await db
+          .select()
+          .from(userRoles)
+          .where(and(eq(userRoles.userId, existingUser.id), eq(userRoles.role, "CLIENT")))
+          .limit(1);
 
-      if (!clientRole) {
-        await db.insert(userRoles).values({
-          userId: existingUser.id,
-          role: "CLIENT",
-        });
+        if (!clientRole) {
+          await db.insert(userRoles).values({
+            userId: existingUser.id,
+            role: "CLIENT",
+          });
+        }
       }
     } else {
-      // Create new user with CLIENT role
+      // Create new user strictly with CLIENT role.
+      // Security Invariant (Phase 14 Lockdown):
+      // On OAuth sign-in, if the user is new, insert user_roles with role = CLIENT only.
+      // Never BUILDER, never ADMIN, regardless of email, regardless of any ?role= query param
+      // on the OAuth redirect (any ?role= param is completely ignored to prevent state tampering).
       const [newUser] = await db
         .insert(users)
         .values({
