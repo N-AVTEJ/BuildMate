@@ -19,7 +19,7 @@ async function cleanupRoles() {
     FROM user_roles ur
     INNER JOIN users u ON ur.user_id = u.id
     WHERE ur.role IN ('ADMIN', 'BUILDER')
-      AND u.email != ${ALLOWED_ADMIN_EMAIL}
+      AND LOWER(u.email) != LOWER(${ALLOWED_ADMIN_EMAIL})
   `;
 
   if (candidateRows.length === 0) {
@@ -46,7 +46,7 @@ async function cleanupRoles() {
     DELETE FROM user_roles
     WHERE role IN ('ADMIN', 'BUILDER')
       AND user_id NOT IN (
-        SELECT id FROM users WHERE email = ${ALLOWED_ADMIN_EMAIL}
+        SELECT id FROM users WHERE LOWER(email) = LOWER(${ALLOWED_ADMIN_EMAIL})
       )
     RETURNING id, user_id, role
   `;

@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db, client } from "../src/db";
 import { users, userRoles } from "../src/db/schema";
 import { hashPassword } from "../src/lib/auth/password";
@@ -17,7 +17,7 @@ async function seedAdmin() {
   const [existingUser] = await db
     .select()
     .from(users)
-    .where(eq(users.email, ADMIN_EMAIL))
+    .where(sql`LOWER(${users.email}) = LOWER(${ADMIN_EMAIL})`)
     .limit(1);
 
   let userId: string;
