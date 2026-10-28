@@ -145,4 +145,107 @@ describe("Google OAuth Integration for Client Authentication", () => {
     const data = await res.json();
     expect(data.error).toContain("Continue with Google");
   });
+
+  it("test_oauth_signin_never_grants_builder_or_admin", async () => {
+    // Brand new email signing in via Google
+    const brandNewEmail = `brand_new_oauth_${Date.now()}@example.com`;
+    const brandNewSub = `g_sub_brand_new_${Date.now()}`;
+    const validState = `state_brand_new_${Date.now()}`;
+
+    vi.spyOn(googleAuthModule, "exchangeGoogleCode").mockResolvedValueOnce({
+      access_token: "mock_token_brand_new",
+      expires_in: 3600,
+      token_type: "Bearer",
+      scope: "openid email profile",
+    });
+
+    vi.spyOn(googleAuthModule, "getGoogleUserInfo").mockResolvedValueOnce({
+      sub: brandNewSub,
+      email: brandNewEmail,
+      name: "Brand New User",
+      picture: "https://example.com/avatar.png",
+      email_verified: true,
+    });
+
+    const cookieHeader = `google_oauth_state=${JSON.stringify({ state: validState, returnTo: "/dashboard" })}`;
+    const req = new Request(
+      `http://localhost:3000/api/auth/google/callback?code=mock_code&state=${validState}`,
+      { headers: { Cookie: cookieHeader } }
+    );
+
+    const res = await googleCallbackRoute(req);
+    expect(res.status).toBe(307);
+
+    // Verify user was created
+    const [createdUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, brandNewEmail))
+      .limit(1);
+
+    expect(createdUser).toBeDefined();
+    createdUserIds.push(createdUser.id);
+
+    // Assert resulting user_roles contains ONLY CLIENT
+    const roles = await db
+      .select({ role: userRoles.role })
+      .from(userRoles)
+      .where(eq(userRoles.userId, createdUser.id));
+
+    expect(roles.length).toBe(1);
+    expect(roles[0].role).toBe("CLIENT");
+    expect(roles.some((r) => r.role === "BUILDER")).toBe(false);
+    expect(roles.some((r) => r.role === "ADMIN")).toBe(false);
+  });
+
+  it("test_role_param_on_oauth_redirect_ignored", async () => {
+    // Attacker appends ?role=ADMIN and ?role=BUILDER in state tampering attempt
+    const tamperedEmail = `tampered_oauth_${Date.now()}@example.com`;
+    const tamperedSub = `g_sub_tampered_${Date.now()}`;
+    const validState = `state_tampered_${Date.now()}`;
+
+    vi.spyOn(googleAuthModule, "exchangeGoogleCode").mockResolvedValueOnce({
+      access_token: "mock_token_tampered",
+      expires_in: 3600,
+      token_type: "Bearer",
+      scope: "openid email profile",
+    });
+
+    vi.spyOn(googleAuthModule, "getGoogleUserInfo").mockResolvedValueOnce({
+      sub: tamperedSub,
+      email: tamperedEmail,
+      name: "Tamper Attempt User",
+      picture: undefined,
+      email_verified: true,
+    });
+
+    // Pass ?role=ADMIN&role=BUILDER in query params
+    const cookieHeader = `google_oauth_state=${JSON.stringify({ state: validState, returnTo: "/admin" })}`;
+    const req = new Request(
+      `http://localhost:3000/api/auth/google/callback?code=mock_code&state=${validState}&role=ADMIN&role=BUILDER`,
+      { headers: { Cookie: cookieHeader } }
+    );
+
+    const res = await googleCallbackRoute(req);
+    expect(res.status).toBe(307);
+
+    const [createdUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, tamperedEmail))
+      .limit(1);
+
+    expect(createdUser).toBeDefined();
+    createdUserIds.push(createdUser.id);
+
+    // Assert resulting user_roles contains strictly CLIENT and ignores the ?role= parameter
+    const roles = await db
+      .select({ role: userRoles.role })
+      .from(userRoles)
+      .where(eq(userRoles.userId, createdUser.id));
+
+    expect(roles.length).toBe(1);
+    expect(roles[0].role).toBe("CLIENT");
+    expect(roles.map((r) => r.role)).toEqual(["CLIENT"]);
+  });
 });
