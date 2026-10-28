@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { builderApplications, notifications } from "@/db/schema";
+import { builderApplications, notifications, users } from "@/db/schema";
 import { requireRole } from "@/lib/auth/guards";
 
 export async function PATCH(
@@ -56,12 +56,28 @@ export async function PATCH(
       .where(eq(builderApplications.id, applicationId))
       .returning();
 
-    // 4. Send notification to admin user
+    // 4. Send notification:
+    // If APPROVED: notify admin with manual provisioning CLI instructions.
+    // If REJECTED: notify applicant (in-app if user account exists, and log notice). No account is created.
     if (action === "APPROVE") {
       await db.insert(notifications).values({
         userId: auth.user.id,
         message: `Builder application for ${app.name} (${app.email}) was APPROVED. Run "npx tsx scripts/provision-builder.ts ${app.email}" to provision account.`,
       });
+    } else {
+      const [applicantUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, app.email.toLowerCase()))
+        .limit(1);
+
+      if (applicantUser) {
+        await db.insert(notifications).values({
+          userId: applicantUser.id,
+          message: `Your builder application for BuildMate has been reviewed and was not accepted at this time.`,
+        });
+      }
+      console.log(`[Admin/BuilderApplications] Rejection notice dispatched to applicant <${app.email}> for application ${applicationId}.`);
     }
 
     return NextResponse.json({
