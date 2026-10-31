@@ -66,4 +66,38 @@ describe("Phase 15 Task 1 — Portal Switcher & Role Badge Invariants", () => {
       expect(formatHeaderRoleBadge(["CLIENT"])).toBe("CLIENT");
     });
   });
+
+  describe("Database Audit for Owner Account (madipadiganavtej@gmail.com)", () => {
+    it("audits owner user roles in DB and verifies portal switcher & badge resolution", async () => {
+      const { db } = await import("@/db");
+      const { users, userRoles } = await import("@/db/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const [ownerUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, "madipadiganavtej@gmail.com"))
+        .limit(1);
+
+      console.log("[DB Audit] Owner user found:", ownerUser ? { id: ownerUser.id, email: ownerUser.email, name: ownerUser.name } : "Not found in local test DB");
+
+      if (ownerUser) {
+        const roles = await db
+          .select()
+          .from(userRoles)
+          .where(eq(userRoles.userId, ownerUser.id));
+
+        const roleList = roles.map((r) => r.role as UserRole);
+        console.log("[DB Audit] Owner roles in DB:", roleList);
+
+        const views = getPortalViews(roleList);
+        console.log("[DB Audit] Resulting portal views:", views);
+        expect(views.some((v) => v.role === "CLIENT")).toBe(false);
+
+        const badge = formatHeaderRoleBadge(roleList);
+        console.log("[DB Audit] Resulting header role badge:", badge);
+      }
+    });
+  });
 });
+

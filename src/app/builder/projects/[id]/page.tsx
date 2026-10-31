@@ -22,8 +22,8 @@ export default async function BuilderProjectDetailPage({
     redirect("/login");
   }
 
-  // 2. Builder Role Authorization Check
-  if (!auth.roles.includes("BUILDER")) {
+  // 2. Builder / Admin Oversight Role Authorization Check
+  if (!auth.roles.includes("BUILDER") && !auth.roles.includes("ADMIN")) {
     return (
       <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4 font-body text-[#171e19]">
         <div className="max-w-md w-full bg-white rounded-2xl border-2 border-black neo-shadow-lg p-8 text-center">
@@ -32,7 +32,7 @@ export default async function BuilderProjectDetailPage({
           </div>
           <h1 className="font-heading font-black text-2xl text-black mb-2">Access Denied</h1>
           <p className="text-sm text-black/70 font-medium mb-6 leading-relaxed">
-            Only accounts with the Builder role can view builder project specifications.
+            Only accounts with the Builder or Admin role can view builder project specifications.
           </p>
           <Link
             href="/"
