@@ -9,11 +9,22 @@ import {
   notifications,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { rateLimit, getClientIp } from "@/lib/auth/rate-limit";
 import { createRazorpayOrder } from "@/lib/payments/razorpay";
 
 export async function POST(req: Request) {
   try {
     const auth = await requireAuth();
+
+    // 0. Rate limiting: protect payment order generation from abuse
+    const clientIp = getClientIp(req);
+    const rl = await rateLimit(`payments:create_order:${auth.user.id}:${clientIp}`, 30, "1 m");
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many payment requests. Please wait a minute and try again." },
+        { status: 429 }
+      );
+    }
 
     let body: any;
     try {

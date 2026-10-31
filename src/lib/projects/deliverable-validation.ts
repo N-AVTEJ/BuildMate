@@ -16,7 +16,6 @@ export interface GitHubUrlValidationResult {
 
 const ALLOWED_GITHUB_HOSTS = new Set([
   "github.com",
-  "www.github.com",
   "raw.githubusercontent.com",
 ]);
 
@@ -26,6 +25,9 @@ export function validateGitHubUrl(rawUrl: unknown): GitHubUrlValidationResult {
   }
 
   const trimmed = rawUrl.trim();
+  if (trimmed.length > 2048) {
+    return { valid: false, error: "GitHub repository URL must not exceed 2048 characters." };
+  }
 
   let parsed: URL;
   try {
@@ -42,7 +44,7 @@ export function validateGitHubUrl(rawUrl: unknown): GitHubUrlValidationResult {
     };
   }
 
-  // Hostname check: strictly allowed GitHub hosts
+  // Hostname check: strictly allowed GitHub hosts using exact string match
   const hostname = parsed.hostname.toLowerCase();
   if (!ALLOWED_GITHUB_HOSTS.has(hostname)) {
     return {
@@ -83,6 +85,10 @@ export function validateHttpsUrl(
   const trimmed = rawUrl.trim();
   if (!trimmed) {
     return { valid: true };
+  }
+
+  if (trimmed.length > 2048) {
+    return { valid: false, error: `${fieldName} must not exceed 2048 characters.` };
   }
 
   let parsed: URL;
@@ -230,10 +236,10 @@ export function validateDeliverableSubmission(
       };
     }
     for (const item of b.screenshots) {
-      if (typeof item !== "string" || !item.trim()) {
+      if (typeof item !== "string" || !item.trim() || item.trim().length > 2048) {
         return {
           valid: false,
-          error: "Each screenshot item must be a non-empty string.",
+          error: "Each screenshot item must be a non-empty string under 2048 characters.",
         };
       }
     }

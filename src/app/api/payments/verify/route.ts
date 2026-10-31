@@ -10,10 +10,22 @@ import {
   quotations,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
+import { rateLimit, getClientIp } from "@/lib/auth/rate-limit";
+import { fetchRazorpayOrder } from "@/lib/payments/razorpay";
 
 export async function POST(req: Request) {
   try {
     const auth = await requireAuth();
+
+    // 0. Rate limiting: protect payment verification from automated enumeration
+    const clientIp = getClientIp(req);
+    const rl = await rateLimit(`payments:verify:${auth.user.id}:${clientIp}`, 30, "1 m");
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many payment verification attempts. Please wait a minute and try again." },
+        { status: 429 }
+      );
+    }
 
     let body: any;
     try {
@@ -76,17 +88,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const expectedSignature = crypto
+    const expectedSignatureHex = crypto
       .createHmac("sha256", keySecret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    const expectedBuf = Buffer.from(expectedSignature, "utf8");
-    const actualBuf = Buffer.from(razorpay_signature, "utf8");
+    // Strictly check buffer lengths equality first; timingSafeEqual throws if lengths mismatch
+    let isSignatureValid = false;
+    try {
+      const expectedBuf = Buffer.from(expectedSignatureHex, "hex");
+      const actualBuf = Buffer.from(razorpay_signature, "hex");
 
-    const isSignatureValid =
-      expectedBuf.length === actualBuf.length &&
-      crypto.timingSafeEqual(expectedBuf, actualBuf);
+      if (expectedBuf.length > 0 && expectedBuf.length === actualBuf.length) {
+        isSignatureValid = crypto.timingSafeEqual(expectedBuf, actualBuf);
+      }
+    } catch {
+      isSignatureValid = false;
+    }
 
     if (!isSignatureValid) {
       // Record failed signature verification
@@ -103,6 +121,51 @@ export async function POST(req: Request) {
         {
           success: false,
           error: "Invalid payment signature. Verification failed.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // 4. Server-to-Server Confirmation: Re-fetch order from Razorpay API
+    const expectedAmountPaise = paymentRecord.expectedAmount * 100;
+    let rzpOrder: any;
+    try {
+      rzpOrder = await fetchRazorpayOrder(razorpay_order_id, expectedAmountPaise);
+    } catch (orderFetchErr: any) {
+      console.error("[Payments/Verify] Failed to re-fetch order from Razorpay API:", orderFetchErr);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unable to cross-verify payment order with payment gateway.",
+        },
+        { status: 502 }
+      );
+    }
+
+    // Cross-check order amount and status from payment gateway
+    const isAmountMatching = rzpOrder.amount === expectedAmountPaise;
+    const isStatusAcceptable = ["paid", "attempted", "created"].includes(rzpOrder.status);
+
+    if (!isAmountMatching || !isStatusAcceptable) {
+      console.error("[Payments/Verify] Razorpay gateway order mismatch:", {
+        expectedAmountPaise,
+        gatewayAmount: rzpOrder.amount,
+        gatewayStatus: rzpOrder.status,
+      });
+
+      await db
+        .update(payments)
+        .set({
+          status: "REJECTED",
+          rejectionReason: `Gateway verification mismatch (Amount: ${rzpOrder.amount} vs ${expectedAmountPaise}, Status: ${rzpOrder.status}).`,
+          updatedAt: new Date(),
+        })
+        .where(eq(payments.id, paymentRecord.id));
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Payment verification failed: Gateway amount or status discrepancy.",
         },
         { status: 400 }
       );

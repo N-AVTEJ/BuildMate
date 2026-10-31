@@ -285,7 +285,7 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
                   <a
                     href={dispute.deliverable.githubUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="font-mono text-sm text-black underline font-bold break-all"
                   >
                     {dispute.deliverable.githubUrl}

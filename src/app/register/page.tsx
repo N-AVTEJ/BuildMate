@@ -285,11 +285,11 @@ export default function RegisterPage() {
                   />
                   <span>
                     I agree to the{" "}
-                    <Link href="/terms" className="underline font-bold text-black" target="_blank">
+                    <Link href="/terms" className="underline font-bold text-black" target="_blank" rel="noopener noreferrer">
                       Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacy" className="underline font-bold text-black" target="_blank">
+                    <Link href="/privacy" className="underline font-bold text-black" target="_blank" rel="noopener noreferrer">
                       Privacy Policy
                     </Link>
                   </span>
