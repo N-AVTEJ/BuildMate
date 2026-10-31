@@ -40,6 +40,11 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
       // javascript: pseudo-protocol
       const xssRes = validateGitHubUrl("javascript:alert(1)");
       expect(xssRes.valid).toBe(false);
+
+      // Custom port rejection (prevent SSRF tricks)
+      const portRes = validateGitHubUrl("https://github.com:8080/owner/repo");
+      expect(portRes.valid).toBe(false);
+      expect(portRes.error).toMatch(/custom port/i);
     });
 
     it("enforces length caps on all submission fields", () => {
@@ -203,6 +208,96 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
       const body = await res.json();
       expect(body.success).toBe(false);
       expect(body.error).toMatch(/invalid payment signature/i);
+
+      // Signature with non-hex characters (even if length matches 64 chars)
+      const nonHexReq = new Request("http://localhost:3000/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: testOrderId,
+          razorpay_payment_id: "pay_short_123",
+          razorpay_signature: "z".repeat(64),
+        }),
+      });
+
+      const nonHexRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${clientUser.rawToken}` },
+        () => verifyPaymentRoute(nonHexReq)
+      );
+
+      expect(nonHexRes.status).toBe(400);
+      const nonHexBody = await nonHexRes.json();
+      expect(nonHexBody.success).toBe(false);
+      expect(nonHexBody.error).toMatch(/invalid payment signature/i);
+    });
+
+    it("rejects verification if server-to-server gateway order status is not paid/attempted", async () => {
+      const [proj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-P15-${(Date.now() + 2).toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "Gateway Status Mismatch Test",
+          subject: "Payment Security",
+          description: "Testing server-to-server gateway order status verification",
+          techStack: "Next.js",
+          budgetMin: 30000,
+          budgetMax: 50000,
+          totalPrice: 50000,
+          advanceAmount: 15000,
+          remainingAmount: 35000,
+          status: "AWAITING_ADVANCE",
+        })
+        .returning();
+      createdProjectIds.push(proj.id);
+
+      // Trigger test mock mismatch via "mismatch_status" in order ID
+      const testOrderId = `order_mismatch_status_${Date.now()}`;
+      const testPaymentId = `pay_valid_${Date.now()}`;
+
+      await db.insert(payments).values({
+        projectId: proj.id,
+        type: "ADVANCE",
+        expectedAmount: 15000,
+        status: "ORDER_CREATED",
+        razorpayOrderId: testOrderId,
+      });
+
+      const secret = process.env.RAZORPAY_KEY_SECRET || "WS38UDS4D5ALgaejV4Ew9YbJ";
+      const validSignature = crypto
+        .createHmac("sha256", secret)
+        .update(`${testOrderId}|${testPaymentId}`)
+        .digest("hex");
+
+      const req = new Request("http://localhost:3000/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: testOrderId,
+          razorpay_payment_id: testPaymentId,
+          razorpay_signature: validSignature,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${clientUser.rawToken}` },
+        () => verifyPaymentRoute(req)
+      );
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.success).toBe(false);
+      expect(body.error).toMatch(/gateway amount or status discrepancy/i);
+
+      // Payment row must be recorded as REJECTED in database
+      const [paymentRow] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.razorpayOrderId, testOrderId))
+        .limit(1);
+
+      expect(paymentRow.status).toBe("REJECTED");
     });
 
     it("rejects verification if server-to-server order amount cross-check fails", async () => {

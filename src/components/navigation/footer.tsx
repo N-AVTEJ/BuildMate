@@ -30,7 +30,7 @@ export function Footer() {
                   key={s.name}
                   href={s.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 bg-[#272727] border-2 border-[#b7c6c2]/40 text-xs font-bold font-heading text-white flex items-center justify-center hover:bg-[#ffe17c] hover:text-black hover:border-black transition neo-shadow-sm"
                   aria-label={s.name}
                 >

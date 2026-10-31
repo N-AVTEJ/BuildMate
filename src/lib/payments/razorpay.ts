@@ -170,6 +170,27 @@ export async function fetchRazorpayOrder(
     throw new Error("Razorpay credentials (RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET) are missing.");
   }
 
+  // Primary: Use Razorpay SDK client orders.fetch(order_id)
+  try {
+    const rzp = getRazorpayClient();
+    const order = await rzp.orders.fetch(orderId);
+    if (order && order.id) {
+      return {
+        id: order.id,
+        amount: Number(order.amount),
+        currency: order.currency || "INR",
+        status: order.status,
+        receipt: order.receipt,
+        notes: order.notes as Record<string, any> | undefined,
+      };
+    }
+  } catch (sdkErr: any) {
+    if (sdkErr?.statusCode && sdkErr.statusCode >= 400 && sdkErr.statusCode < 500) {
+      throw sdkErr;
+    }
+    // On edge runtime or network issue with SDK axios client, fall through to resilient native fetch
+  }
+
   const auth = Buffer.from(`${key_id}:${key_secret}`).toString("base64");
   const url = `https://api.razorpay.com/v1/orders/${encodeURIComponent(orderId)}`;
 

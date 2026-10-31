@@ -173,7 +173,7 @@ export function BuilderApplicationsTable({
                         <a
                           href={`/api/admin/builder-applications/${app.id}/resume?redirect=true`}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="neo-btn inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-black bg-[#ffe17c] hover:bg-black hover:text-[#ffe17c] border border-black rounded-lg transition"
                         >
                           <span>📄</span>
@@ -185,7 +185,7 @@ export function BuilderApplicationsTable({
                           <a
                             href={app.githubUrl}
                             target="_blank"
-                            rel="noreferrer"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs font-mono text-black/80 hover:text-black hover:underline"
                           >
                             <span>🔗</span>

@@ -96,11 +96,13 @@ export async function POST(req: Request) {
     // Strictly check buffer lengths equality first; timingSafeEqual throws if lengths mismatch
     let isSignatureValid = false;
     try {
-      const expectedBuf = Buffer.from(expectedSignatureHex, "hex");
-      const actualBuf = Buffer.from(razorpay_signature, "hex");
+      if (typeof razorpay_signature === "string" && /^[0-9a-fA-F]{64}$/.test(razorpay_signature)) {
+        const expectedBuf = Buffer.from(expectedSignatureHex, "hex");
+        const actualBuf = Buffer.from(razorpay_signature, "hex");
 
-      if (expectedBuf.length > 0 && expectedBuf.length === actualBuf.length) {
-        isSignatureValid = crypto.timingSafeEqual(expectedBuf, actualBuf);
+        if (expectedBuf.length > 0 && expectedBuf.length === actualBuf.length) {
+          isSignatureValid = crypto.timingSafeEqual(expectedBuf, actualBuf);
+        }
       }
     } catch {
       isSignatureValid = false;
@@ -143,8 +145,9 @@ export async function POST(req: Request) {
     }
 
     // Cross-check order amount and status from payment gateway
+    // In Razorpay's lifecycle, paid/attempted indicates actual captured/attempted funds; 'created' is unpaid
     const isAmountMatching = rzpOrder.amount === expectedAmountPaise;
-    const isStatusAcceptable = ["paid", "attempted", "created"].includes(rzpOrder.status);
+    const isStatusAcceptable = ["paid", "attempted"].includes(rzpOrder.status);
 
     if (!isAmountMatching || !isStatusAcceptable) {
       console.error("[Payments/Verify] Razorpay gateway order mismatch:", {

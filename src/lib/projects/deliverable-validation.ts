@@ -54,6 +54,14 @@ export function validateGitHubUrl(rawUrl: unknown): GitHubUrlValidationResult {
     };
   }
 
+  // Port check: disallow custom port specifications to prevent SSRF bypasses
+  if (parsed.port && parsed.port !== "443") {
+    return {
+      valid: false,
+      error: "GitHub URL must not specify custom port numbers.",
+    };
+  }
+
   // Path check: must contain at least owner and repo (e.g. /owner/repo)
   const pathSegments = parsed.pathname.split("/").filter(Boolean);
   if (pathSegments.length < 2) {

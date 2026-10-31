@@ -241,7 +241,7 @@ export default async function BuilderProjectDetailPage({
                   <a
                     href={reqItem.fileUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="neo-btn px-3 py-1 bg-[#ffe17c] text-black text-xs font-heading font-black uppercase rounded-lg border-2 border-black"
                   >
                     Download
