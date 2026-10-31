@@ -171,6 +171,7 @@ export default async function BuilderPortalPage() {
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <BuilderDashboardView
           user={auth.user}
+          roles={auth.roles}
           availableProjects={availableProjects}
           myProjects={myProjects}
           notifications={formattedNotifications}

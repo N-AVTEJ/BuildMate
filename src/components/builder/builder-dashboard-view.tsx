@@ -35,6 +35,8 @@ export interface BuilderNotificationItem {
   createdAt: string;
 }
 
+import { UserRole } from "@/lib/auth/session";
+
 interface BuilderDashboardViewProps {
   user: {
     id: string;
@@ -42,6 +44,7 @@ interface BuilderDashboardViewProps {
     name?: string | null;
     phone?: string | null;
   };
+  roles?: UserRole[];
   availableProjects: BuilderProjectCardItem[];
   myProjects: BuilderProjectCardItem[];
   notifications: BuilderNotificationItem[];
@@ -133,6 +136,7 @@ export function getBuilderNextAction(status: string, projectId: string) {
 
 export function BuilderDashboardView({
   user,
+  roles,
   availableProjects,
   myProjects,
   notifications,
@@ -151,10 +155,12 @@ export function BuilderDashboardView({
     | "profile"
     | "guidelines"
   >("overview");
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const now = new Date();
+  const userHoldsMultipleRoles = Boolean(roles && roles.includes("ADMIN"));
 
   // Metrics
   const countAvailable = availableProjects.length;
@@ -168,6 +174,21 @@ export function BuilderDashboardView({
     ["SUBMITTED_FOR_DELIVERY", "CLIENT_REVIEW", "FINAL_PAYMENT_PENDING", "FINAL_PAYMENT_PROOF_SUBMITTED"].includes(p.status)
   ).length;
   const countCompleted = myProjects.filter((p) => p.status === "COMPLETED").length;
+
+  const NAV_ITEMS = [
+    { id: "overview" as const, name: "Overview", icon: "📊" },
+    { id: "available" as const, name: "Available", icon: "⚡", badge: countAvailable },
+    { id: "my-projects" as const, name: "My Projects", icon: "💼", badge: myProjects.length },
+    { id: "quotations" as const, name: "Quotations", icon: "📝", badge: countAwaitingQuote },
+    { id: "deadlines" as const, name: "Deadlines", icon: "⏳" },
+    { id: "progress" as const, name: "Progress", icon: "📈", badge: countInDev + countOverdue },
+    { id: "deliveries" as const, name: "Deliveries", icon: "📦", badge: countAwaitingDelivery + countCompleted },
+    { id: "payments" as const, name: "Payments", icon: "💳" },
+    { id: "messages" as const, name: "Messages", icon: "💬" },
+    { id: "notifications" as const, name: "Notifications", icon: "🔔", badge: notifications.filter((n) => !n.read).length },
+    { id: "profile" as const, name: "Profile", icon: "👤" },
+    { id: "guidelines" as const, name: "Guidelines", icon: "📖" },
+  ];
 
   // Filter My Projects
   const filteredMyProjects = myProjects.filter((p) => {
@@ -224,72 +245,213 @@ export function BuilderDashboardView({
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex border-b-2 border-black overflow-x-auto gap-2 pb-2">
-        {[
-          { id: "overview", label: "📊 Overview" },
-          { id: "available", label: `⚡ Available (${countAvailable})` },
-          { id: "my-projects", label: `💼 My Projects (${myProjects.length})` },
-          { id: "quotations", label: `📝 Quotations (${countAwaitingQuote})` },
-          { id: "deadlines", label: "⏳ Deadlines" },
-          { id: "progress", label: `📈 Progress (${countInDev + countOverdue})` },
-          { id: "deliveries", label: `📦 Deliveries (${countAwaitingDelivery + countCompleted})` },
-          { id: "payments", label: "💳 Payments" },
-          { id: "messages", label: "💬 Messages" },
-          { id: "notifications", label: `🔔 Notifications (${notifications.filter((n) => !n.read).length})` },
-          { id: "profile", label: "👤 Profile" },
-          { id: "guidelines", label: "📖 Guidelines" },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`px-3.5 py-2 text-xs font-black uppercase tracking-wider border-2 whitespace-nowrap transition ${
-              activeTab === tab.id
-                ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
-                : "bg-white text-[#171e19] border-black hover:bg-[#ffe17c]"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Main Responsive Layout: Persistent Sidebar on Desktop + Content Area */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Desktop Persistent Left Sidebar (≥1024px) */}
+        <aside className="hidden lg:block w-64 shrink-0 bg-white border-2 border-black p-4 neo-shadow-md sticky top-24">
+          {userHoldsMultipleRoles && (
+            <div className="mb-4 pb-3 border-b-2 border-black/10">
+              <Link
+                href="/admin"
+                className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm hover:bg-[#171e19] hover:text-[#ffe17c] transition group"
+              >
+                <span>⚡ Admin Portal</span>
+                <span className="text-[10px] bg-black text-[#ffe17c] group-hover:bg-[#ffe17c] group-hover:text-black px-1.5 py-0.5 rounded font-black">
+                  Switch ↗
+                </span>
+              </Link>
+            </div>
+          )}
 
-      {/* TAB 1: OVERVIEW */}
-      {activeTab === "overview" && (
-        <div className="space-y-6">
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
-            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Available</span>
-              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAvailable}</span>
-            </div>
-            <div className="bg-[#ffe17c] p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Needs Quote</span>
-              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingQuote}</span>
-            </div>
-            <div className="bg-[#b7c6c2] p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Awaiting Advance</span>
-              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingAdvance}</span>
-            </div>
-            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">In Dev</span>
-              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countInDev}</span>
-            </div>
-            <div className="bg-rose-100 p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-rose-900 block">Overdue</span>
-              <span className="text-3xl font-cabinet font-black text-rose-700 mt-1 block">{countOverdue}</span>
-            </div>
-            <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Review/Delivery</span>
-              <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingDelivery}</span>
-            </div>
-            <div className="bg-emerald-100 p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-emerald-900 block">Completed</span>
-              <span className="text-3xl font-cabinet font-black text-emerald-800 mt-1 block">{countCompleted}</span>
+          <div className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 px-1">
+            Builder Navigation
+          </div>
+
+          <nav className="space-y-1" aria-label="Builder sidebar sections">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition text-left ${
+                    isActive
+                      ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
+                      : "bg-white text-[#171e19] border-transparent hover:border-black hover:bg-[#ffe17c]"
+                  }`}
+                >
+                  <span className="truncate">{item.icon} {item.name}</span>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-black shrink-0 ml-1 ${
+                        isActive ? "bg-[#ffe17c] text-[#171e19]" : "bg-black text-white"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 w-full space-y-6">
+          {/* Mobile & Tablet Navigation (<1024px): Dropdown / Hamburger Drawer */}
+          <div className="lg:hidden flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 border-2 border-black neo-shadow-sm">
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="neo-btn flex items-center justify-center gap-2 px-3.5 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black text-xs font-black uppercase tracking-wider neo-shadow-sm hover:bg-black hover:text-[#ffe17c] transition"
+              aria-label="Open navigation menu"
+            >
+              <span>☰</span>
+              <span>Menu &amp; Sections</span>
+            </button>
+
+            <div className="flex-1">
+              <label htmlFor="mobile-section-select" className="sr-only">Jump to section</label>
+              <select
+                id="mobile-section-select"
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as any)}
+                className="w-full bg-[#fffdf0] border-2 border-black px-3 py-2 text-xs font-black uppercase tracking-wider text-[#171e19] focus:outline-none focus:bg-[#ffe17c] cursor-pointer"
+              >
+                {NAV_ITEMS.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.icon} {item.name} {item.badge !== undefined && item.badge > 0 ? `(${item.badge})` : ""}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Attention Alerts */}
+          {/* Desktop Tab Strip (≥1024px): Adapts with flex-wrap and zero clipping */}
+          <div className="hidden lg:flex flex-wrap gap-2 pb-2 border-b-2 border-black">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider border-2 whitespace-nowrap transition ${
+                    isActive
+                      ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
+                      : "bg-white text-[#171e19] border-black hover:bg-[#ffe17c]"
+                  }`}
+                >
+                  {item.icon} {item.name} {item.badge !== undefined && item.badge > 0 ? `(${item.badge})` : ""}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Sliding Mobile Drawer */}
+          {mobileDrawerOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden flex">
+              <div
+                className="fixed inset-0 bg-black/60 transition-opacity"
+                onClick={() => setMobileDrawerOpen(false)}
+                aria-hidden="true"
+              />
+              <div className="relative w-72 max-w-[85vw] bg-white border-r-2 border-black h-full flex flex-col p-4 neo-shadow-lg z-10 overflow-y-auto">
+                <div className="flex items-center justify-between pb-3 mb-4 border-b-2 border-black">
+                  <span className="font-cabinet font-black text-base uppercase text-[#171e19]">
+                    Builder Navigation
+                  </span>
+                  <button
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center bg-[#ffe17c] border-2 border-black font-black text-sm"
+                    aria-label="Close menu"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {userHoldsMultipleRoles && (
+                  <div className="mb-4 pb-3 border-b-2 border-black/10">
+                    <Link
+                      href="/admin"
+                      className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm"
+                    >
+                      <span>⚡ Admin Portal</span>
+                      <span className="text-[10px]">Switch ↗</span>
+                    </Link>
+                  </div>
+                )}
+
+                <nav className="space-y-1.5 flex-1">
+                  {NAV_ITEMS.map((item) => {
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveTab(item.id);
+                          setMobileDrawerOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition text-left ${
+                          isActive
+                            ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
+                            : "bg-white text-[#171e19] border-transparent hover:border-black hover:bg-[#ffe17c]"
+                        }`}
+                      >
+                        <span>{item.icon} {item.name}</span>
+                        {item.badge !== undefined && item.badge > 0 && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
+                            isActive ? "bg-[#ffe17c] text-[#171e19]" : "bg-black text-white"
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              {/* Metrics Grid */}
+              <div
+                className="grid gap-3"
+                style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}
+              >
+                <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Available</span>
+                  <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAvailable}</span>
+                </div>
+                <div className="bg-[#ffe17c] p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Needs Quote</span>
+                  <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingQuote}</span>
+                </div>
+                <div className="bg-[#b7c6c2] p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Awaiting Advance</span>
+                  <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingAdvance}</span>
+                </div>
+                <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">In Dev</span>
+                  <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countInDev}</span>
+                </div>
+                <div className="bg-rose-100 p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-rose-900 block">Overdue</span>
+                  <span className="text-3xl font-cabinet font-black text-rose-700 mt-1 block">{countOverdue}</span>
+                </div>
+                <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-gray-600 block">Review/Delivery</span>
+                  <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingDelivery}</span>
+                </div>
+                <div className="bg-emerald-100 p-4 border-2 border-black neo-shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wider font-black text-emerald-900 block">Completed</span>
+                  <span className="text-3xl font-cabinet font-black text-emerald-800 mt-1 block">{countCompleted}</span>
+                </div>
+              </div>
+
+              {/* Attention Alerts */}
           {countAwaitingQuote > 0 && (
             <div className="p-5 bg-[#ffe17c] border-2 border-black neo-shadow flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-3">
@@ -1060,6 +1222,9 @@ export function BuilderDashboardView({
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
+
