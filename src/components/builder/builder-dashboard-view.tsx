@@ -254,10 +254,11 @@ export function BuilderDashboardView({
               <Link
                 href="/admin"
                 className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm hover:bg-[#171e19] hover:text-[#ffe17c] transition group"
+                title="Back to Portal Switcher (Admin Portal)"
               >
-                <span>⚡ Admin Portal</span>
+                <span>← Back to Portal Switcher</span>
                 <span className="text-[10px] bg-black text-[#ffe17c] group-hover:bg-[#ffe17c] group-hover:text-black px-1.5 py-0.5 rounded font-black">
-                  Switch ↗
+                  ADMIN ↗
                 </span>
               </Link>
             </div>
@@ -310,8 +311,10 @@ export function BuilderDashboardView({
               <span>Menu &amp; Sections</span>
             </button>
 
-            <div className="flex-1">
-              <label htmlFor="mobile-section-select" className="sr-only">Jump to section</label>
+            <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <label htmlFor="mobile-section-select" className="text-xs font-black uppercase tracking-wider text-black whitespace-nowrap">
+                Jump to section ▾
+              </label>
               <select
                 id="mobile-section-select"
                 value={activeTab}
@@ -373,10 +376,13 @@ export function BuilderDashboardView({
                   <div className="mb-4 pb-3 border-b-2 border-black/10">
                     <Link
                       href="/admin"
-                      className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm"
+                      className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm hover:bg-[#171e19] hover:text-[#ffe17c] transition group"
+                      title="Back to Portal Switcher (Admin Portal)"
                     >
-                      <span>⚡ Admin Portal</span>
-                      <span className="text-[10px]">Switch ↗</span>
+                      <span>← Back to Portal Switcher</span>
+                      <span className="text-[10px] bg-black text-[#ffe17c] group-hover:bg-[#ffe17c] group-hover:text-black px-1.5 py-0.5 rounded font-black">
+                        ADMIN ↗
+                      </span>
                     </Link>
                   </div>
                 )}
