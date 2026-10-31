@@ -14,6 +14,19 @@ interface PortalHeaderProps {
   currentPortalTitle: string;
 }
 
+export function formatHeaderRoleBadge(roles: UserRole[]): string {
+  if (roles.includes("ADMIN")) {
+    return "BUILDER + ADMIN";
+  }
+  if (roles.includes("BUILDER")) {
+    return "BUILDER";
+  }
+  if (roles.includes("CLIENT")) {
+    return "CLIENT";
+  }
+  return roles.join(" + ");
+}
+
 export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderProps) {
   const router = useRouter();
 
@@ -26,6 +39,8 @@ export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderPr
       router.push("/login");
     }
   }
+
+  const roleBadgeText = formatHeaderRoleBadge(roles);
 
   return (
     <header className="bg-[#ffe17c] border-b-2 border-black sticky top-0 z-50">
@@ -48,10 +63,13 @@ export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderPr
         <div className="flex items-center gap-3">
           <RoleSwitcher roles={roles} />
 
-          <div className="hidden md:flex flex-col items-end text-xs bg-white border-2 border-black px-2.5 py-1 neo-shadow-sm">
+          <div
+            className="hidden md:flex flex-col items-end text-xs bg-white border-2 border-black px-2.5 py-1 neo-shadow-sm"
+            aria-label={`${user.name || user.email} · ${roleBadgeText}`}
+          >
             <span className="font-black text-[#171e19]">{user.name || user.email}</span>
             <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">
-              {roles.join(" • ")}
+              {roleBadgeText}
             </span>
           </div>
 

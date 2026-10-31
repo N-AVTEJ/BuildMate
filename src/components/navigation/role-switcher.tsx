@@ -8,38 +8,65 @@ interface RoleSwitcherProps {
   roles: UserRole[];
 }
 
+export interface PortalView {
+  name: string;
+  href: string;
+  activePrefix: string;
+  role: UserRole;
+}
+
+/**
+ * Filter roles strictly according to portal access rules:
+ * - If roles include ADMIN: ADMIN implies builder oversight access.
+ *   Tabs: BUILDER PORTAL + ADMIN PORTAL (strictly no CLIENT PORTAL for admin staff accounts).
+ * - If roles include BUILDER but not ADMIN: BUILDER PORTAL only.
+ *   Hard check on roles.includes('ADMIN'); zero Admin UI/tabs ever.
+ * - If roles include only CLIENT: CLIENT PORTAL only (unchanged for client-only users).
+ */
+export function getPortalViews(roles: UserRole[]): PortalView[] {
+  const isAdmin = roles.includes("ADMIN");
+  const isBuilder = roles.includes("BUILDER");
+  const isClient = roles.includes("CLIENT");
+
+  if (isAdmin) {
+    return [
+      { name: "Builder Portal", href: "/builder", activePrefix: "/builder", role: "BUILDER" },
+      { name: "Admin Portal", href: "/admin", activePrefix: "/admin", role: "ADMIN" },
+    ];
+  }
+
+  if (isBuilder) {
+    return [
+      { name: "Builder Portal", href: "/builder", activePrefix: "/builder", role: "BUILDER" },
+    ];
+  }
+
+  if (isClient) {
+    return [
+      { name: "Client Portal", href: "/dashboard", activePrefix: "/dashboard", role: "CLIENT" },
+    ];
+  }
+
+  return [];
+}
+
 /**
  * Presentation-only navigation switcher for multi-role users.
  *
  * CRITICAL SECURITY INVARIANT:
  * This component NEVER creates authorization state, sets authority cookies,
  * or determines access privileges. It simply renders navigation links.
- * Every target destination (/projects, /builder, /admin) independently enforces
+ * Every target destination (/dashboard, /builder, /admin) independently enforces
  * strict server-side session authentication and database-backed role authorization.
  */
 export function RoleSwitcher({ roles }: RoleSwitcherProps) {
   const pathname = usePathname();
 
-  const isClient = roles.includes("CLIENT");
-  const isBuilder = roles.includes("BUILDER");
-  const isAdmin = roles.includes("ADMIN");
+  const views = getPortalViews(roles);
 
-  // Only render switcher if user possesses multiple roles
-  const activeRolesCount = [isClient, isBuilder, isAdmin].filter(Boolean).length;
-  if (activeRolesCount <= 1) {
+  // Only render switcher if user possesses multiple portal views to switch between
+  if (views.length <= 1) {
     return null;
-  }
-
-  const views: Array<{ name: string; href: string; activePrefix: string; role: UserRole }> = [];
-
-  if (isClient) {
-    views.push({ name: "Client Portal", href: "/dashboard", activePrefix: "/dashboard", role: "CLIENT" });
-  }
-  if (isBuilder) {
-    views.push({ name: "Builder Portal", href: "/builder", activePrefix: "/builder", role: "BUILDER" });
-  }
-  if (isAdmin) {
-    views.push({ name: "Admin Dashboard", href: "/admin", activePrefix: "/admin", role: "ADMIN" });
   }
 
   return (
