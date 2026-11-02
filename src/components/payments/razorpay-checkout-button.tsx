@@ -12,6 +12,7 @@ interface RazorpayCheckoutButtonProps {
   expectedAmount?: number;
   advancePaymentDeadline?: string | null;
   rejectionReason?: string | null;
+  onSuccess?: () => void;
 }
 
 export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
@@ -56,9 +57,11 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
 
       if (data.zeroRemaining) {
         setSuccess(true);
+        router.refresh();
+        if (props.onSuccess) props.onSuccess();
         setTimeout(() => {
-          router.refresh();
-        }, 800);
+          if (typeof window !== "undefined") window.location.reload();
+        }, 500);
         return;
       }
 
@@ -86,7 +89,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
 
           try {
             // 3. Cryptographically verify signature on server
-            const verifyRes = await fetch("/api/payments/verify", {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(response),
@@ -102,9 +105,14 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
             }
 
             setSuccess(true);
+            // Immediately re-fetch project state without requiring manual refresh
+            router.refresh();
+            if (props.onSuccess) {
+              props.onSuccess();
+            }
             setTimeout(() => {
-              router.refresh();
-            }, 1200);
+              if (typeof window !== "undefined") window.location.reload();
+            }, 500);
           } catch (vErr: any) {
             setError(vErr.message || "Payment verification failed.");
           } finally {
