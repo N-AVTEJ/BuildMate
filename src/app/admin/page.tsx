@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { desc, inArray } from "drizzle-orm";
+import { desc, inArray, count } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, users } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
@@ -82,6 +82,10 @@ export default async function AdminDashboardPage() {
     : [];
 
   const userMap = new Map(participantUsers.map((u) => [u.id, u]));
+
+  // Efficient aggregate count for user directory stats without scanning all user records into memory
+  const [userCountResult] = await db.select({ value: count() }).from(users);
+  const totalUserCount = userCountResult?.value || 0;
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
@@ -284,7 +288,7 @@ export default async function AdminDashboardPage() {
               <h3>User Directory</h3>
             </div>
             <p className="text-xs font-medium text-gray-700 leading-relaxed">
-              Total registered platform accounts: <span className="font-black text-black">{allUsers.length}</span>.
+              Total registered platform accounts: <span className="font-black text-black">{totalUserCount}</span>.
             </p>
             <div className="p-3 bg-[#b7c6c2] border-2 border-black text-xs text-[#171e19] font-black neo-shadow-sm">
               Argon2id Hash Protected Directory.
