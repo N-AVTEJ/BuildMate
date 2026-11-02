@@ -14,9 +14,15 @@ export default async function ProjectsPage() {
     redirect("/login");
   }
 
-  // 2. Client Role Verification
+  // 2. Client Role Verification & Staff Redirection
   const isClient = auth.roles.includes("CLIENT");
   if (!isClient) {
+    if (auth.roles.includes("ADMIN")) {
+      redirect("/admin");
+    }
+    if (auth.roles.includes("BUILDER")) {
+      redirect("/builder");
+    }
     return (
       <main className="min-h-screen bg-[#fffdf0] neo-dots flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white border-2 border-black p-8 text-center neo-shadow-lg">
