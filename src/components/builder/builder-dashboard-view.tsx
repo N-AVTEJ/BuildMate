@@ -1079,18 +1079,18 @@ export function BuilderDashboardView({
                 <div className="p-3.5 bg-white border-2 border-black neo-shadow-sm">
                   <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">3. Cryptographic Verification</p>
                   <p className="font-medium text-gray-800">
-                    Neither builder nor client can alter payment statuses. Verification is strictly executed server-side via Razorpay HMAC-SHA256 signature checks.
+                    Neither builder nor client can alter payment statuses. Verification is strictly executed server-side via HMAC-SHA256 signature checks.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Official Razorpay Gateway Status */}
+            {/* Secure Payment Gateway Status */}
             <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4 text-center">
               <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">
-                Official Payment Gateway
+                Secure Payment Gateway
               </span>
-              <h4 className="text-xl font-cabinet font-black text-[#171e19]">Razorpay Standard Checkout</h4>
+              <h4 className="text-xl font-cabinet font-black text-[#171e19]">Secure Gateway Checkout</h4>
               <p className="text-xs font-bold text-gray-600">Integrated automated milestone payments</p>
 
               <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm text-left space-y-2">
@@ -1111,7 +1111,7 @@ export function BuilderDashboardView({
               <div className="text-xs text-gray-800 space-y-1 text-left bg-[#ffe17c]/30 p-3.5 border-2 border-black">
                 <p className="font-black text-[#171e19] uppercase tracking-wide">Automated Workflow:</p>
                 <p className="font-bold text-[#171e19]">1. Clients initiate payments directly on the project portal.</p>
-                <p className="font-bold text-[#171e19]">2. Razorpay checkout opens in-modal for instant payment.</p>
+                <p className="font-bold text-[#171e19]">2. Gateway checkout opens in-modal for instant payment.</p>
                 <p className="font-bold text-[#171e19]">3. Milestones unlock instantly upon valid HMAC verification.</p>
               </div>
             </div>

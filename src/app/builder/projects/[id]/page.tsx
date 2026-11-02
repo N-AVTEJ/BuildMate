@@ -268,7 +268,7 @@ export default async function BuilderProjectDetailPage({
               </div>
               <h3 className="font-heading font-black text-xl text-black">Acquire this Project</h3>
               <p className="text-xs text-black/80 font-medium mt-1 max-w-lg">
-                Accepting this project locks it to your builder account and advances it to quotation preparation.
+                Accepting this project locks it to your builder account and moves it to quotation preparation.
               </p>
             </div>
             <BuilderProjectActions projectId={project.id} />
@@ -306,7 +306,7 @@ export default async function BuilderProjectDetailPage({
                     Quotation Sent — Awaiting Client Review
                   </h3>
                   <p className="text-xs text-black/80 font-medium mt-1">
-                    Your quotation has been sent to the client. Scope locking and advance deposit will proceed once accepted.
+                    Your quotation has been sent to the client. Scope locking and initial milestone payment will proceed once accepted.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm text-xs">
@@ -317,7 +317,7 @@ export default async function BuilderProjectDetailPage({
                     </span>
                   </div>
                   <div>
-                    <span className="text-black/60 font-black uppercase tracking-wider block text-[11px]">Required Advance</span>
+                    <span className="text-black/60 font-black uppercase tracking-wider block text-[11px]">Initial Milestone</span>
                     <span className="text-base font-heading font-black text-emerald-700">
                       ₹{project.advanceAmount ? project.advanceAmount.toLocaleString() : "—"}
                     </span>
@@ -341,10 +341,10 @@ export default async function BuilderProjectDetailPage({
               <div className="space-y-4 flex-1">
                 <div>
                   <h3 className="font-heading font-black text-xl text-black">
-                    Scope Locked — Awaiting Client Advance Payment
+                    Scope Locked — Awaiting Client Initial Milestone Payment
                   </h3>
                   <p className="text-xs text-black/80 font-medium mt-1">
-                    The client has accepted your quotation. Scope version 1 is locked. The project will advance to development once the client pays the required advance.
+                    The client has accepted your quotation. Scope version 1 is locked. The project will proceed to development once the client confirms the initial milestone payment.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm text-xs">
@@ -355,7 +355,7 @@ export default async function BuilderProjectDetailPage({
                     </span>
                   </div>
                   <div>
-                    <span className="text-black/60 font-black uppercase tracking-wider block text-[11px]">Advance Due</span>
+                    <span className="text-black/60 font-black uppercase tracking-wider block text-[11px]">Initial Milestone Due</span>
                     <span className="text-base font-heading font-black text-emerald-700">
                       ₹{project.advanceAmount ? project.advanceAmount.toLocaleString() : "—"}
                     </span>

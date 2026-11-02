@@ -294,7 +294,7 @@ export default async function ProjectDetailPage({
             <div>
               <h3 className="font-heading font-black text-lg text-black">Development In Progress</h3>
               <p className="text-xs text-black/80 font-medium mt-1">
-                Advance payment has been verified via Razorpay and work is actively underway.
+                Initial milestone payment has been verified and work is actively underway.
               </p>
               {project.developmentStartedAt && (
                 <div className="mt-2 text-xs font-bold text-black">
@@ -326,7 +326,7 @@ export default async function ProjectDetailPage({
                     Project Deliverables Ready!
                   </h3>
                   <p className="text-xs text-black/80 font-medium mt-1">
-                    Your advance payment covered 100% of the project total. Full source code delivery is ready to access!
+                    Your initial milestone payment covered 100% of the project total. Full source code delivery is ready to access!
                   </p>
                 </div>
               </div>

@@ -144,7 +144,7 @@ export function PaymentHistoryTable({
               <th className="p-3.5 border-r border-white/20">Amount</th>
               <th className="p-3.5 border-r border-white/20">Status</th>
               <th className="p-3.5 border-r border-white/20">Verified Date</th>
-              <th className="p-3.5">Razorpay Payment ID</th>
+              <th className="p-3.5">Gateway Payment ID</th>
             </tr>
           </thead>
           <tbody className="divide-y-2 divide-black text-xs font-medium">

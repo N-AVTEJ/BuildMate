@@ -111,7 +111,7 @@ export default async function ClientQuotationReviewPage({
                       <span className="text-[11px] text-black/60 font-semibold">Total contracted scope</span>
                     </div>
                     <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Required Advance</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Initial Milestone</span>
                       <span className="text-2xl font-heading font-black text-emerald-700 mt-1 block">
                         ₹{latestQuotation.advanceAmount.toLocaleString()}
                       </span>
@@ -133,7 +133,7 @@ export default async function ClientQuotationReviewPage({
                   </div>
                   <ul className="list-disc list-inside space-y-1 font-medium">
                     <li>Accepting this quotation will create an immutable Scope Version 1 snapshot.</li>
-                    <li>The project status will advance to <strong className="text-black font-black">Awaiting Advance</strong>.</li>
+                    <li>The project status will proceed to <strong className="text-black font-black">Awaiting Initial Milestone</strong>.</li>
                     <li>Any future changes to scope or cost will require a formal Change Request.</li>
                   </ul>
                 </div>

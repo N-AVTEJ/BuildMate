@@ -67,7 +67,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
 
       if (typeof window === "undefined" || !(window as any).Razorpay) {
         throw new Error(
-          "Razorpay Checkout SDK is still loading. Please check your internet connection and try again."
+          "Secure Checkout SDK is still loading. Please check your internet connection and try again."
         );
       }
 
@@ -171,7 +171,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black pb-4">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#ffe17c] border border-black text-[10px] font-heading font-black tracking-wider uppercase mb-1">
-              ⚡ Razorpay Secure Checkout
+              ⚡ Secure Checkout
             </div>
             <h3 className="font-heading font-black text-2xl text-black">{title}</h3>
             <p className="text-xs text-black/70 font-semibold mt-0.5">
@@ -254,7 +254,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
             <span className="text-base">💳</span>
             <div>
               <p className="font-heading font-bold text-black">Cards, UPI & Netbanking</p>
-              <p className="text-[10px] text-black/60">Standard Razorpay Gateway</p>
+              <p className="text-[10px] text-black/60">Secure Payment Gateway</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
 
         {advancePaymentDeadline && isAdvance && (
           <p className="text-xs font-bold text-black/70">
-            Payment Deadline:{" "}
+            Milestone Payment Deadline:{" "}
             <span className="text-black font-black" suppressHydrationWarning>
               {new Date(advancePaymentDeadline).toLocaleString()}
             </span>
@@ -291,7 +291,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
             ) : loading ? (
               <>
                 <span className="animate-spin text-lg">🌀</span>
-                Opening Razorpay Gateway...
+                Opening Secure Gateway...
               </>
             ) : (
               <>
@@ -301,7 +301,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
             )}
           </button>
           <p className="text-center text-[11px] text-black/50 font-bold mt-2">
-            Test mode enabled. You can use Razorpay test card or test UPI.
+            Test mode enabled. You can use test card or test UPI.
           </p>
         </div>
       </div>

@@ -104,7 +104,7 @@ export default async function AdminPaymentsPage() {
                 Payment Records & Gateway Audit
               </h1>
               <p className="text-sm text-black/70 font-semibold mt-1 max-w-xl leading-relaxed">
-                All client transactions are securely processed and verified via Razorpay Standard Checkout. This log is read-only for support and audit.
+                All client transactions are securely processed and verified via secure standard checkout. This log is read-only for support and audit.
               </p>
             </div>
 
@@ -143,8 +143,8 @@ export default async function AdminPaymentsPage() {
                     <th className="py-3 px-4">Type</th>
                     <th className="py-3 px-4">Amount</th>
                     <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Razorpay Order ID</th>
-                    <th className="py-3 px-4">Razorpay Payment ID</th>
+                    <th className="py-3 px-4">Gateway Order ID</th>
+                    <th className="py-3 px-4">Gateway Payment ID</th>
                     <th className="py-3 px-4">Verified At</th>
                   </tr>
                 </thead>

@@ -583,13 +583,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
               )}
             </div>
 
-            {/* Official Razorpay Gateway Card */}
+            {/* Secure Payment Gateway Card */}
             <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">Official Payment Gateway</span>
-                <h4 className="text-xl font-cabinet font-black text-[#171e19] mt-2">Razorpay Standard Checkout</h4>
+                <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">Secure Payment Gateway</span>
+                <h4 className="text-xl font-cabinet font-black text-[#171e19] mt-2">Secure Gateway Checkout</h4>
                 <p className="text-xs font-bold text-gray-600 mt-0.5">
-                  Instant, automated milestone payment processing via Razorpay
+                  Instant, automated milestone payment processing
                 </p>
               </div>
 
@@ -597,7 +597,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                 <div className="text-3xl">🛡️ ⚡ 💳</div>
                 <h5 className="font-heading font-black text-sm text-[#171e19]">Instant Automated Verification</h5>
                 <p className="text-xs text-gray-700 font-semibold leading-relaxed">
-                  Payments are processed directly through Razorpay Standard Checkout. No need to upload screenshots or transaction references. Milestones and code delivery unlock automatically upon cryptographic signature verification.
+                  Payments are processed directly through secure standard checkout. No need to upload screenshots or transaction references. Milestones and code delivery unlock automatically upon cryptographic signature verification.
                 </p>
               </div>
 
@@ -606,7 +606,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                 <ol className="list-decimal list-inside space-y-1 font-bold text-[#171e19]">
                   <li>Navigate to your active project from &ldquo;My Projects&rdquo;.</li>
                   <li>Click &ldquo;Pay Initial Milestone&rdquo; or &ldquo;Pay Remaining&rdquo;.</li>
-                  <li>Complete payment in the Razorpay popup using UPI, Cards, or Netbanking.</li>
+                  <li>Complete payment in the checkout window using UPI, Cards, or Netbanking.</li>
                   <li>Your project milestone will transition automatically and instantly.</li>
                 </ol>
               </div>

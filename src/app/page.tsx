@@ -324,7 +324,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="w-6 h-6 rounded-full bg-red-200 text-red-800 flex items-center justify-center font-bold shrink-0">✕</span>
-                      <span><strong>Deposit Disasters:</strong> Paying 100% upfront leads to builder ghosting; paying 0% means builders don&apos;t start.</span>
+                      <span><strong>Payment Friction:</strong> Paying 100% upfront leads to builder ghosting; uncommitted scopes mean projects never start.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="w-6 h-6 rounded-full bg-red-200 text-red-800 flex items-center justify-center font-bold shrink-0">✕</span>
@@ -371,7 +371,7 @@ export default function Home() {
                 </div>
                 <div className="mt-8 pt-6 border-t-2 border-black flex items-center justify-between">
                   <span className="font-heading font-black text-xs uppercase tracking-wider text-black">
-                    STANDARD: Guaranteed delivery or milestone refund
+                    STANDARD: Guaranteed milestone delivery verification
                   </span>
                   <Link href="/start" className="neo-btn px-4 py-2 bg-black text-white font-heading font-black text-xs uppercase rounded-lg">
                     Get Started →
@@ -395,7 +395,7 @@ export default function Home() {
                 Built Around Hard Invariants
               </h2>
               <p className="text-base sm:text-lg text-black/80 mt-3 font-medium">
-                Every feature is designed to eliminate ambiguity, safeguard milestone funds, and enforce verified delivery gates.
+                Every feature is designed to eliminate ambiguity, safeguard milestone deliverables, and enforce verified delivery gates.
               </p>
             </div>
 
@@ -573,7 +573,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2.5 text-xs text-black/90 font-bold border-t border-black/20 pt-4">
                     <li>✓ Fixed price bids with no hidden surprises</li>
-                    <li>✓ Clear deadline guarantee or refund</li>
+                    <li>✓ Clear deadline commitments and delivery gates</li>
                     <li>✓ Direct messaging with your builder</li>
                   </ul>
                 </div>
@@ -622,7 +622,7 @@ export default function Home() {
                     Never chase unpaid invoices again. Initial milestones are confirmed before you write code, and scope changes require paid amendments.
                   </p>
                   <ul className="space-y-2.5 text-xs text-[#b7c6c2] font-bold border-t border-white/20 pt-4">
-                    <li>✓ Initial milestone guaranteed before work begins</li>
+                    <li>✓ Initial milestone verified before work begins</li>
                     <li>✓ Automatic protection from scope creep</li>
                     <li>✓ Zero platform fees on first milestone</li>
                   </ul>
