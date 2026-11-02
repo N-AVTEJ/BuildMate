@@ -260,10 +260,10 @@ export default async function AdminDashboardPage() {
               <h3>Payment Verification</h3>
             </div>
             <p className="text-xs font-medium text-gray-700 leading-relaxed">
-              Review and approve advance payment proofs and QR transaction receipts.
+              Review and approve milestone payment proofs and transaction records.
             </p>
             <div className="p-3 bg-[#ffe17c] border-2 border-black text-xs text-[#171e19] font-black neo-shadow-sm">
-              Escrow Review Queue active.
+              Payment Review Queue active.
             </div>
           </div>
 

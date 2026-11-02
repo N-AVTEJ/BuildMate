@@ -125,7 +125,7 @@ export function QuotationForm({ projectId }: { projectId: string }) {
         </span>
         <h3 className="text-xl sm:text-2xl font-heading font-black text-black tracking-tight">Prepare &amp; Submit Quotation</h3>
         <p className="text-xs text-black/70 font-semibold mt-1">
-          Enter your total quotation price and estimated timeline. The advance deposit and remaining schedule are verified and locked by platform escrow rules upon submission.
+          Enter your total quotation price and estimated timeline. The initial milestone and remaining schedule are verified and locked by platform milestone rules upon submission.
         </p>
       </div>
 
@@ -213,11 +213,11 @@ export function QuotationForm({ projectId }: { projectId: string }) {
             </div>
             <div className="grid grid-cols-2 gap-4 pt-2 border-t-2 border-black/10">
               <div className="bg-white p-3.5 rounded-xl border-2 border-black">
-                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Required Advance:</span>
+                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Initial Milestone:</span>
                 <span className="text-lg font-heading font-black text-emerald-800">₹{previewAdvance.toLocaleString()}</span>
               </div>
               <div className="bg-white p-3.5 rounded-xl border-2 border-black">
-                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Remaining Balance:</span>
+                <span className="block text-[11px] font-heading font-black text-black/60 uppercase">Final Milestone:</span>
                 <span className="text-lg font-heading font-black text-black">₹{previewRemaining.toLocaleString()}</span>
               </div>
             </div>

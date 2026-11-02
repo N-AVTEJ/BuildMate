@@ -1209,7 +1209,7 @@ export function BuilderDashboardView({
             </div>
             <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
               <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">2. Accurate Quotations</h4>
-              <p className="font-medium">State fair timelines between 1 and 365 days. The 30% advance deposit is calculated automatically by the server.</p>
+              <p className="font-medium">State fair timelines between 1 and 365 days. The initial milestone breakdown is calculated automatically by the server.</p>
             </div>
             <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm">
               <h4 className="font-cabinet font-black text-[#171e19] uppercase text-sm mb-1">3. Bi-Weekly Progress Updates</h4>

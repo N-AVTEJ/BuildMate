@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BuildMate — Milestone-Managed Software Development Platform",
   description:
-    "Escrow-protected software procurement platform connecting clients with verified builders through gated code delivery, scope locking, and verified milestone payments.",
+    "Milestone-managed software procurement platform connecting clients with verified builders through gated code delivery, scope locking, and verified milestone payments.",
 };
 
 import { Footer } from "@/components/navigation/footer";

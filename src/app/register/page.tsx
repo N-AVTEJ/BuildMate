@@ -82,7 +82,7 @@ export default function RegisterPage() {
               Account Created!
             </h2>
             <p className="text-sm text-black/80 font-medium mb-8 leading-relaxed">
-              Your client account for <span className="font-black text-black">{registeredEmail}</span> is ready. You can now sign in to post software projects, review builder quotations, and manage milestone escrow.
+              Your client account for <span className="font-black text-black">{registeredEmail}</span> is ready. You can now sign in to post software projects, review builder quotations, and manage milestone payments.
             </p>
 
             <Link
@@ -139,7 +139,7 @@ export default function RegisterPage() {
               Create Client Account
             </h1>
             <p className="mt-2 text-sm text-black/80 font-medium">
-              Post projects, receive itemized quotes, and safeguard deposits in escrow.
+              Post projects, receive itemized quotes, and manage milestone payments securely.
             </p>
           </div>
 

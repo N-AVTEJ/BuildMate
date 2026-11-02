@@ -75,7 +75,7 @@ export default function Home() {
                 {/* Pill Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white border-2 border-black rounded-full text-xs font-black tracking-wider uppercase neo-shadow-sm">
                   <span className="w-2.5 h-2.5 bg-black rounded-full animate-ping" />
-                  <span>NEW: AI Content &amp; Escrow Assistant 2.0</span>
+                  <span>NEW: AI Content &amp; Milestone Assistant 2.0</span>
                 </div>
 
                 {/* Main Heading in Cabinet Grotesk with text stroke keyword */}
@@ -86,7 +86,7 @@ export default function Home() {
                 </h1>
 
                 <p className="text-lg sm:text-xl font-medium text-black/80 max-w-xl leading-relaxed">
-                  The Neo-Brutalist platform for high-trust software development. Lock project scope, escrow 30% advance deposits, and unlock code delivery only after verified reviews.
+                  The Neo-Brutalist platform for high-trust software development. Lock project scope, manage milestone-based delivery, and unlock code delivery only after verified reviews.
                 </p>
 
                 {/* Neo-Brutalist CTAs */}
@@ -123,7 +123,7 @@ export default function Home() {
                         I&apos;m a Client / Student
                       </h3>
                       <p className="text-xs text-black/70 mt-1 leading-normal">
-                        Post software requirements, receive itemized builder quotes, and escrow payments securely.
+                        Post software requirements, receive itemized builder quotes, and manage milestone payments securely.
                       </p>
                     </div>
                     <div className="mt-4 pt-3 border-t border-black/10 flex items-center justify-between">
@@ -181,7 +181,7 @@ export default function Home() {
                       <span className="w-3 h-3 rounded-full bg-[#28c840] border border-black" />
                     </div>
                     <span className="font-heading text-xs font-bold text-[#b7c6c2] tracking-wider uppercase">
-                      buildmate.internal / escrow-gate
+                      buildmate.internal / milestone-gate
                     </span>
                     <span className="text-xs text-white/40 font-mono">v1.0</span>
                   </div>
@@ -192,19 +192,19 @@ export default function Home() {
                     <div className="flex items-center justify-between bg-[#f4f4f5] border-2 border-black p-3 rounded-lg">
                       <div>
                         <span className="text-[10px] font-black uppercase text-black/60 block">Project Status</span>
-                        <span className="font-heading font-black text-sm text-black">PRJ-4091: E-Commerce Escrow</span>
+                        <span className="font-heading font-black text-sm text-black">PRJ-4091: E-Commerce Platform</span>
                       </div>
                       <span className="px-2.5 py-1 bg-[#ffe17c] border border-black font-heading font-black text-xs uppercase rounded">
-                        ADVANCE_VERIFIED
+                        MILESTONE_VERIFIED
                       </span>
                     </div>
 
                     {/* Milestone Stat Grid */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-[#b7c6c2] border-2 border-black p-3.5 rounded-lg neo-shadow-sm">
-                        <span className="text-[10px] font-black uppercase text-black/70 block">Escrow Protected</span>
+                        <span className="text-[10px] font-black uppercase text-black/70 block">Milestone Protected</span>
                         <div className="font-heading font-black text-2xl text-black mt-0.5">₹42,500</div>
-                        <span className="text-[10px] font-bold text-black/80 mt-1 block">30% advance locked</span>
+                        <span className="text-[10px] font-bold text-black/80 mt-1 block">Phase 1 milestone locked</span>
                       </div>
                       <div className="bg-[#171e19] text-white border-2 border-black p-3.5 rounded-lg neo-shadow-sm">
                         <span className="text-[10px] font-black uppercase text-[#b7c6c2] block">Delivery Gate</span>
@@ -348,7 +348,7 @@ export default function Home() {
                     <span>✓</span> The BuildMate Standard
                   </div>
                   <h3 className="font-heading font-black text-2xl sm:text-3xl text-black tracking-tight mb-6">
-                    Milestone Escrow &amp; Gated Verification
+                    Milestone-Based Delivery &amp; Gated Verification
                   </h3>
                   <ul className="space-y-4 text-sm sm:text-base text-black font-medium">
                     <li className="flex items-start gap-3">
@@ -357,7 +357,7 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="w-6 h-6 rounded-full bg-black text-[#ffe17c] flex items-center justify-center font-black shrink-0 neo-shadow-sm">✓</span>
-                      <span><strong>30% Advance Escrow:</strong> Deposit held in neutral platform escrow; work commences with financial guarantees for both sides.</span>
+                      <span><strong>Milestone-Based Delivery:</strong> Phase-wise delivery milestones ensure work commences with clear deliverable guarantees for both sides.</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="w-6 h-6 rounded-full bg-black text-[#ffe17c] flex items-center justify-center font-black shrink-0 neo-shadow-sm">✓</span>
@@ -371,7 +371,7 @@ export default function Home() {
                 </div>
                 <div className="mt-8 pt-6 border-t-2 border-black flex items-center justify-between">
                   <span className="font-heading font-black text-xs uppercase tracking-wider text-black">
-                    STANDARD: Guaranteed delivery or escrow refund
+                    STANDARD: Guaranteed delivery or milestone refund
                   </span>
                   <Link href="/start" className="neo-btn px-4 py-2 bg-black text-white font-heading font-black text-xs uppercase rounded-lg">
                     Get Started →
@@ -409,8 +409,8 @@ export default function Home() {
                 },
                 {
                   icon: "💳",
-                  title: "30% Advance Escrow",
-                  desc: "Automated deposit formulas ensure builders never work on speculative promises while keeping clients protected.",
+                  title: "Phase-Wise Milestone Payments",
+                  desc: "Structured milestone agreements ensure builders never work on speculative promises while keeping clients protected.",
                 },
                 {
                   icon: "📦",
@@ -507,13 +507,13 @@ export default function Home() {
                   </div>
                   <div className="bg-[#272727] border-2 border-black p-6 rounded-2xl w-full text-left space-y-2 neo-shadow">
                     <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-[#ffe17c] text-black rounded font-heading">
-                      Phase 2: Escrow Lock
+                      Phase 2: Milestone Agreement
                     </span>
                     <h3 className="font-heading font-black text-xl text-white">
-                      30% Advance Escrow
+                      Milestone Delivery Lock
                     </h3>
                     <p className="text-xs sm:text-sm text-[#b7c6c2] leading-relaxed">
-                      Client deposits 30% advance deposit into escrow. The contract scope locks immediately, development begins, and updates are posted.
+                      Client confirms the initial project milestone. The contract scope locks immediately, development begins, and structured progress updates are posted.
                     </p>
                   </div>
                 </div>
@@ -598,7 +598,7 @@ export default function Home() {
                   </p>
                   <ul className="space-y-2.5 text-xs text-black/90 font-bold border-t border-black/20 pt-4">
                     <li>✓ Verified modern stack implementations</li>
-                    <li>✓ Milestone-based escrow releases</li>
+                    <li>✓ Milestone-based delivery releases</li>
                     <li>✓ Clean IP and repository transfers</li>
                   </ul>
                 </div>
@@ -619,10 +619,10 @@ export default function Home() {
                     Independent Builders
                   </h3>
                   <p className="text-sm text-[#b7c6c2] font-medium leading-relaxed mb-6">
-                    Never chase unpaid invoices again. Advance escrow is funded before you write code, and scope changes require paid amendments.
+                    Never chase unpaid invoices again. Initial milestones are confirmed before you write code, and scope changes require paid amendments.
                   </p>
                   <ul className="space-y-2.5 text-xs text-[#b7c6c2] font-bold border-t border-white/20 pt-4">
-                    <li>✓ 30% advance guaranteed before work begins</li>
+                    <li>✓ Initial milestone guaranteed before work begins</li>
                     <li>✓ Automatic protection from scope creep</li>
                     <li>✓ Zero platform fees on first milestone</li>
                   </ul>
@@ -650,7 +650,7 @@ export default function Home() {
                 Trusted by Clients &amp; Builders
               </h2>
               <p className="text-base sm:text-lg text-black/80 mt-3 font-medium">
-                Here is what happens when contracts are backed by software escrow gates.
+                Here is what happens when contracts are backed by verified software milestone gates.
               </p>
             </div>
 
@@ -661,7 +661,7 @@ export default function Home() {
                 {
                   stars: 5,
                   quote:
-                    "BuildMate completely solved my fear of outsourcing. The 30% escrow gave me confidence, and having code delivery locked until review was a game changer.",
+                    "BuildMate completely solved my fear of outsourcing. Milestone-based delivery gave me confidence, and having code delivery locked until review was a game changer.",
                   author: "Rahul S.",
                   role: "Final Year CS Student",
                   avatar: "👨‍💻",
@@ -669,7 +669,7 @@ export default function Home() {
                 {
                   stars: 5,
                   quote:
-                    "As a builder, getting stiffed on final payments used to ruin my quarters. BuildMate's scope lock and advance escrow ensure I always get paid for my engineering.",
+                    "As a builder, getting stiffed on final payments used to ruin my quarters. BuildMate's scope lock and milestone protection ensure I always get paid for my engineering.",
                   author: "Elena Rostova",
                   role: "Full-Stack Builder",
                   avatar: "⚡",
@@ -725,7 +725,7 @@ export default function Home() {
             </h2>
 
             <p className="text-lg sm:text-xl font-medium text-black/80 max-w-2xl mx-auto leading-relaxed">
-              Join students, founders, and verified engineers who develop with milestone escrow protection.
+              Join students, founders, and verified engineers who develop with milestone-based delivery protection.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4">

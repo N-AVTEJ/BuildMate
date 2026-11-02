@@ -107,7 +107,7 @@ export function DeliverableSubmissionForm({
             Submit Source Code Deliverables
           </h3>
           <p className="text-xs text-black/70 font-semibold mt-1">
-            Submit your source repository URL and delivery documentation for client verification and final escrow release.
+            Submit your source repository URL and delivery documentation for client verification and final delivery release.
           </p>
         </div>
         <div>

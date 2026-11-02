@@ -54,7 +54,7 @@ export default function StartPage() {
                   I&apos;m a Client / Student
                 </h2>
                 <p className="text-sm text-black/80 font-medium leading-relaxed mb-6">
-                  Post software or academic development requirements, review builder quotations, lock deliverables, and safeguard deposits in escrow.
+                  Post software or academic development requirements, review builder quotations, lock deliverables, and manage milestone delivery verification.
                 </p>
 
                 <ul className="space-y-2.5 text-xs font-bold text-black border-t-2 border-black/10 pt-4 mb-8">
@@ -64,7 +64,7 @@ export default function StartPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-black text-[#ffe17c] flex items-center justify-center text-[10px]">✓</span>
-                    <span>Milestone escrow &amp; delivery verification</span>
+                    <span>Milestone delivery &amp; release verification</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-black text-[#ffe17c] flex items-center justify-center text-[10px]">✓</span>
@@ -117,7 +117,7 @@ export default function StartPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-black text-[#ffe17c] flex items-center justify-center text-[10px]">✓</span>
-                    <span>Guaranteed payment escrow protection</span>
+                    <span>Guaranteed milestone payment protection</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full bg-black text-[#ffe17c] flex items-center justify-center text-[10px]">✓</span>

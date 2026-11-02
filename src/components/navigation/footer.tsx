@@ -16,7 +16,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-[#b7c6c2]/80">
-              The high-trust escrow development platform. Milestone-gated deposits, verified code releases, and strict scope locking for modern software engineering.
+              The high-trust software development platform. Milestone-based delivery, verified code releases, and strict scope locking for modern software engineering.
             </p>
             {/* Social Icons */}
             <div className="flex items-center gap-3 pt-2">
@@ -79,15 +79,15 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Platform & Escrow */}
+          {/* Column 3: Platform & Milestones */}
           <div>
             <h3 className="font-heading font-black text-sm tracking-wider uppercase text-white mb-4">
-              Escrow Architecture
+              Milestone Architecture
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <span className="text-white font-medium">30% Advance Escrow</span>
-                <span className="block text-xs text-[#b7c6c2]/60">Released on formal scope lock</span>
+                <span className="text-white font-medium">Phase-Wise Milestones</span>
+                <span className="block text-xs text-[#b7c6c2]/60">Structured around verified deliverables</span>
               </li>
               <li>
                 <span className="text-white font-medium">Code Delivery Gate</span>
@@ -137,7 +137,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t-2 border-black flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#b7c6c2]/60">
           <div>
-            &copy; {new Date().getFullYear()} BuildMate Platform. Built with Neo-Brutalist Escrow Security.
+            &copy; {new Date().getFullYear()} BuildMate Platform. Built with Neo-Brutalist Milestone Security.
           </div>
           <div className="flex items-center gap-6">
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
