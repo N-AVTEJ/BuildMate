@@ -1,4 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// Mock next/headers for route testing
+vi.mock("next/headers", () => {
+  const cookieMap = new Map<string, any>();
+  return {
+    cookies: vi.fn(async () => ({
+      get: vi.fn((name: string) => cookieMap.get(name)),
+      set: vi.fn((name: string, val: any, opts: any) => cookieMap.set(name, { value: val, ...opts })),
+      delete: vi.fn((name: string) => cookieMap.delete(name)),
+    })),
+    headers: vi.fn(async () => new Headers()),
+  };
+});
+
 import { POST as loginRoute } from "@/app/api/auth/login/route";
 import { db } from "@/db";
 import { users, userRoles } from "@/db/schema";
