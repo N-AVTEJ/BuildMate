@@ -77,7 +77,8 @@ export default async function AdminDisputesPage() {
     .from(disputes)
     .innerJoin(projects, eq(disputes.projectId, projects.id))
     .innerJoin(users, eq(disputes.raisedBy, users.id))
-    .orderBy(desc(disputes.createdAt));
+    .orderBy(desc(disputes.createdAt))
+    .limit(50);
 
   // 2. Hydrate full project context for each dispute
   const fullDisputes: DisputeWithContext[] = [];

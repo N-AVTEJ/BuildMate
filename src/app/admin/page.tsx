@@ -58,18 +58,30 @@ export default async function AdminDashboardPage() {
       builderId: projects.builderId,
     })
     .from(projects)
-    .orderBy(desc(projects.createdAt));
+    .orderBy(desc(projects.createdAt))
+    .limit(50);
 
-  // Fetch sanitized users map for client & builder names
-  const allUsers = await db
-    .select({
-      id: users.id,
-      email: users.email,
-      name: users.name,
-    })
-    .from(users);
+  // Fetch only participants for the displayed projects rather than unbounded full table scan
+  const participantUserIds = Array.from(
+    new Set(
+      allProjects
+        .flatMap((p) => [p.clientId, p.builderId])
+        .filter((id): id is string => Boolean(id))
+    )
+  );
 
-  const userMap = new Map(allUsers.map((u) => [u.id, u]));
+  const participantUsers = participantUserIds.length > 0
+    ? await db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+        })
+        .from(users)
+        .where(inArray(users.id, participantUserIds))
+    : [];
+
+  const userMap = new Map(participantUsers.map((u) => [u.id, u]));
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
