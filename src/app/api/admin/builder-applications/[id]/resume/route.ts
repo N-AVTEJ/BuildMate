@@ -33,13 +33,20 @@ export async function GET(
     }
 
     // 2. Generate signed short-TTL download URL (300 seconds / 5 mins)
-    const downloadUrl = await getDownloadUrl(app.resumeUrl, 300);
+    let downloadUrl: string;
+    try {
+      downloadUrl = await getDownloadUrl(app.resumeUrl, 300);
+    } catch {
+      // Fallback for local / temp storage
+      const safeKey = app.resumeUrl.replace(/^\/api\/files\//, "");
+      downloadUrl = `/api/files/download?key=${encodeURIComponent(safeKey)}`;
+    }
 
     const url = new URL(req.url);
     const redirectParam = url.searchParams.get("redirect");
 
     if (redirectParam === "true") {
-      return NextResponse.redirect(downloadUrl);
+      return NextResponse.redirect(new URL(downloadUrl, req.url).toString());
     }
 
     return NextResponse.json({
