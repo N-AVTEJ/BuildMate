@@ -135,7 +135,7 @@ export default function StartPage() {
                 </Link>
                 <p className="mt-3 text-xs text-center text-black/60 font-bold">
                   Already approved?{" "}
-                  <Link href="/login" className="font-black text-black underline">
+                  <Link href="/builder/login" className="font-black text-black underline">
                     Sign in to Builder Portal
                   </Link>
                 </p>

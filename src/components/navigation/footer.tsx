@@ -52,8 +52,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/builder/login" className="hover:text-[#ffe17c] transition">
+                  Builder Portal Sign In ⚡
+                </Link>
+              </li>
+              <li>
                 <Link href="/builder/apply" className="hover:text-[#ffe17c] transition">
-                  Builder Network (Invite-Only) →
+                  Apply for Builder Access →
                 </Link>
               </li>
               <li>
