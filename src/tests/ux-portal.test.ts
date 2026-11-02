@@ -222,12 +222,44 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(data.error).toMatch(/totalPrice must be a positive integer/i);
     });
 
+    it("test_quotation_below_300_rejected: rejects totalPrice below 300 with 400 and preserves database state", async () => {
+      const req = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalPrice: 15,
+          estimatedDurationDays: 14,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => quotationRoute(req, { params: Promise.resolve({ id: testProject.id }) })
+      );
+
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+
+      const quotes = await db
+        .select()
+        .from(quotations)
+        .where(eq(quotations.projectId, testProject.id));
+      expect(quotes.length).toBe(0);
+
+      const [proj] = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.id, testProject.id));
+      expect(proj.totalPrice).toBeNull();
+    });
+
     it("rejects estimatedDurationDays outside 1-365 range", async () => {
       const reqZero = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          totalPrice: 2000,
+          totalPrice: 1500,
           estimatedDurationDays: 0,
         }),
       });
@@ -247,7 +279,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          totalPrice: 2000,
+          totalPrice: 1500,
           estimatedDurationDays: 21,
         }),
       });
@@ -261,9 +293,9 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       const data = await res.json();
       expect(data.success).toBe(true);
       expect(data.quotation).toBeDefined();
-      expect(data.quotation.totalPrice).toBe(2000);
-      expect(data.quotation.advanceAmount).toBe(600); // 30% of 2000
-      expect(data.quotation.remainingAmount).toBe(1400); // 70% of 2000
+      expect(data.quotation.totalPrice).toBe(1500);
+      expect(data.quotation.advanceAmount).toBe(450); // 30% of 1500
+      expect(data.quotation.remainingAmount).toBe(1050); // 70% of 1500
       expect(data.quotation.estimatedDurationDays).toBe(21);
     });
   });

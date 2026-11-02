@@ -27,8 +27,8 @@ export function QuotationForm({ projectId }: { projectId: string }) {
       priceError = "Total price must be a whole number in rupees (no decimals, negatives, or symbols).";
     } else {
       const parsed = parseInt(trimmedPrice, 10);
-      if (isNaN(parsed) || parsed <= 0) {
-        priceError = "Total price must be greater than zero.";
+      if (isNaN(parsed) || parsed < 300 || parsed > 1500) {
+        priceError = "Total price must be between ₹300 and ₹1500.";
       } else {
         numericTotal = parsed;
       }
@@ -169,7 +169,7 @@ export function QuotationForm({ projectId }: { projectId: string }) {
           {priceError ? (
             <p className="text-xs text-rose-700 mt-1 font-bold">{priceError}</p>
           ) : (
-            <p className="text-xs text-black/50 font-semibold mt-1">Whole numbers only (e.g. 500, 1500).</p>
+            <p className="text-xs text-black/50 font-semibold mt-1">Whole numbers between ₹300 and ₹1500 (e.g. 500, 1500).</p>
           )}
         </div>
 

@@ -39,6 +39,13 @@ export async function POST(
       );
     }
 
+    if (rawTotalPrice < 300 || rawTotalPrice > 1500) {
+      return NextResponse.json(
+        { error: "Total price must be between ₹300 and ₹1500" },
+        { status: 400 }
+      );
+    }
+
     if (
       typeof rawDuration !== "number" ||
       !Number.isInteger(rawDuration) ||

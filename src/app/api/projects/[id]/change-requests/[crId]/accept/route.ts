@@ -93,6 +93,14 @@ export async function POST(
       }
       const currentTotal = project.totalPrice;
       const newTotalPrice = currentTotal + cr.additionalCost;
+
+      if (newTotalPrice < 300 || newTotalPrice > 1500) {
+        return {
+          type: "VALIDATION_ERROR" as const,
+          message: "Total price must be between ₹300 and ₹1500",
+        };
+      }
+
       const { advanceAmount: newAdvance, remainingAmount: newRemaining } =
         computeAdvanceBreakdown(newTotalPrice);
 
@@ -192,6 +200,10 @@ export async function POST(
 
     if (result.type === "NOT_FOUND" || result.type === "CR_NOT_FOUND") {
       return NextResponse.json({ error: "Project or Change Request not found." }, { status: 404 });
+    }
+
+    if (result.type === "VALIDATION_ERROR") {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
     if (result.type === "CONFLICT") {

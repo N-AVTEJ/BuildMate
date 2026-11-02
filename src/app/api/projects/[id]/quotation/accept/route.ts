@@ -65,6 +65,13 @@ export async function POST(
         };
       }
 
+      if (quotation.totalPrice < 300 || quotation.totalPrice > 1500) {
+        return {
+          type: "VALIDATION_ERROR" as const,
+          message: "Total price must be between ₹300 and ₹1500",
+        };
+      }
+
       // 5. Fetch requirements for snapshot
       const requirementsList = await tx
         .select()
@@ -148,6 +155,10 @@ export async function POST(
 
     if (result.type === "NOT_FOUND") {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
+    if (result.type === "VALIDATION_ERROR") {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
     if (result.type === "CONFLICT") {

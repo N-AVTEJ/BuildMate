@@ -102,6 +102,17 @@ export async function POST(
         };
       }
 
+      // 4.5 Validate that resulting total price remains within ₹300-₹1500 band
+      if (project.totalPrice !== null) {
+        const resultingTotal = project.totalPrice + additionalCost;
+        if (resultingTotal < 300 || resultingTotal > 1500) {
+          return {
+            type: "VALIDATION_ERROR" as const,
+            message: "Total price must be between ₹300 and ₹1500",
+          };
+        }
+      }
+
       // 5. Insert change request
       const [newChangeRequest] = await tx
         .insert(changeRequests)
@@ -129,6 +140,10 @@ export async function POST(
 
     if (result.type === "NOT_FOUND") {
       return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+
+    if (result.type === "VALIDATION_ERROR") {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
     if (result.type === "CONFLICT") {
