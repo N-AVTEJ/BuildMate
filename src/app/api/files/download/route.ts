@@ -15,6 +15,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Missing key parameter." }, { status: 400 });
     }
 
+    const safeKey = path.basename(key);
+
     // Verify HMAC signature if provided
     if (sig && expires) {
       const expiresNum = parseInt(expires, 10);
@@ -28,17 +30,25 @@ export async function GET(req: Request) {
         .update(`${key}:${expiresNum}`)
         .digest("hex");
 
+      const expectedSigSafeKeyWithTime = crypto
+        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
+        .update(`${safeKey}:${expiresNum}`)
+        .digest("hex");
+
       const expectedSigWithoutTime = crypto
         .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
         .update(key)
         .digest("hex");
 
-      if (sig !== expectedSigWithTime && sig !== expectedSigWithoutTime) {
+      if (
+        sig !== expectedSigWithTime &&
+        sig !== expectedSigSafeKeyWithTime &&
+        sig !== expectedSigWithoutTime
+      ) {
         return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
       }
     }
 
-    const safeKey = path.basename(key);
     const localDir = path.join(process.cwd(), "storage", "uploads");
     const tmpDir = path.join(os.tmpdir(), "buildmate-uploads");
 
@@ -54,6 +64,40 @@ export async function GET(req: Request) {
         fileBuffer = await fs.readFile(foundPath);
       } catch {
         // Not found locally
+      }
+    }
+
+    if (!fileBuffer) {
+      // Check Cloudflare R2 if configured
+      const r2Account = process.env.R2_ACCOUNT_ID;
+      const r2Key = process.env.R2_ACCESS_KEY_ID;
+      const r2Secret = process.env.R2_SECRET_ACCESS_KEY;
+      const r2Bucket = process.env.R2_BUCKET_NAME;
+
+      if (r2Account && r2Key && r2Secret && r2Bucket) {
+        try {
+          const { S3Client, GetObjectCommand } = await import("@aws-sdk/client-s3");
+          const s3 = new S3Client({
+            region: "auto",
+            endpoint: process.env.R2_ENDPOINT || `https://${r2Account}.r2.cloudflarestorage.com`,
+            credentials: { accessKeyId: r2Key, secretAccessKey: r2Secret },
+          });
+
+          for (const testKey of [key, `resumes/${safeKey}`, safeKey]) {
+            try {
+              const res = await s3.send(new GetObjectCommand({ Bucket: r2Bucket, Key: testKey }));
+              if (res.Body) {
+                const bytes = await res.Body.transformToByteArray();
+                fileBuffer = Buffer.from(bytes);
+                break;
+              }
+            } catch {
+              // Try next test key
+            }
+          }
+        } catch (r2Err) {
+          console.warn("[Files/Download] R2 retrieval attempt failed:", r2Err);
+        }
       }
     }
 

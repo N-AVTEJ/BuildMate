@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 import { db } from "@/db";
 import { builderApplications } from "@/db/schema";
 import { requireRole } from "@/lib/auth/guards";
@@ -39,7 +40,12 @@ export async function GET(
     } catch {
       // Fallback for local / temp storage
       const safeKey = app.resumeUrl.replace(/^\/api\/files\//, "");
-      downloadUrl = `/api/files/download?key=${encodeURIComponent(safeKey)}`;
+      const expiresTimestamp = Date.now() + 300 * 1000;
+      const hmac = crypto
+        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
+        .update(`${safeKey}:${expiresTimestamp}`)
+        .digest("hex");
+      downloadUrl = `/api/files/download?key=${encodeURIComponent(safeKey)}&sig=${hmac}&expires=${expiresTimestamp}`;
     }
 
     const url = new URL(req.url);

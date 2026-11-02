@@ -46,7 +46,15 @@ export class LocalStorageProvider implements StorageProvider {
     this.fallbackDir = path.join(os.tmpdir(), "buildmate-uploads");
   }
 
+  private isServerless(): boolean {
+    return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+  }
+
   private async ensureDir(): Promise<string> {
+    if (this.isServerless()) {
+      await fs.mkdir(this.fallbackDir, { recursive: true });
+      return this.fallbackDir;
+    }
     try {
       await fs.mkdir(this.uploadDir, { recursive: true });
       return this.uploadDir;

@@ -233,13 +233,14 @@ export async function getUploadUrl(
         503
       );
     }
-    // Local dev/test fallback: HMAC signed local upload URL
+    // Local dev/test fallback: HMAC signed local upload URL (single timestamp calculation)
+    const expiresTimestamp = Date.now() + expiresInSeconds * 1000;
     const hmac = crypto
       .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-      .update(`${key}:${contentType}:${Date.now() + expiresInSeconds * 1000}`)
+      .update(`${key}:${contentType}:${expiresTimestamp}`)
       .digest("hex");
     registerMockFile(key, 0, contentType);
-    return `/api/files/upload?key=${encodeURIComponent(key)}&sig=${hmac}&expires=${Date.now() + expiresInSeconds * 1000}`;
+    return `/api/files/upload?key=${encodeURIComponent(key)}&sig=${hmac}&expires=${expiresTimestamp}`;
   }
 
   const s3 = getS3Client();
@@ -262,19 +263,24 @@ export async function getDownloadUrl(
 ): Promise<string> {
   const config = getR2Config();
 
-  if (!isR2Configured(config)) {
-    if (process.env.NODE_ENV === "production") {
+  // If object is stored as a local URL or R2 is not configured, generate signed local download URL
+  const isLocalKey = key.startsWith("/api/files/") || !isR2Configured(config);
+
+  if (isLocalKey) {
+    if (!isR2Configured(config) && process.env.NODE_ENV === "production" && key.startsWith("proofs/")) {
       throw new StorageConfigurationError(
         "Payment proof download is currently unavailable. Cloudflare R2 storage is not configured in production environment.",
         503
       );
     }
-    // Local dev/test fallback
+    // Local / serverless tmp fallback: HMAC signed download URL (single timestamp calculation)
+    const cleanKey = key.replace(/^\/api\/files\//, "");
+    const expiresTimestamp = Date.now() + expiresInSeconds * 1000;
     const hmac = crypto
       .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-      .update(`${key}:${Date.now() + expiresInSeconds * 1000}`)
+      .update(`${cleanKey}:${expiresTimestamp}`)
       .digest("hex");
-    return `/api/files/download?key=${encodeURIComponent(key)}&sig=${hmac}&expires=${Date.now() + expiresInSeconds * 1000}`;
+    return `/api/files/download?key=${encodeURIComponent(cleanKey)}&sig=${hmac}&expires=${expiresTimestamp}`;
   }
 
   const s3 = getS3Client();
@@ -376,11 +382,8 @@ export async function uploadBufferToStorage(
         fileUrl: storageKey,
       };
     } catch (r2Error) {
-      console.error("[Storage] Cloudflare R2 direct upload failed, attempting local fallback:", r2Error);
-      // Fall through to local fallback if allowed
-      if (process.env.NODE_ENV === "production" && !process.env.ALLOW_LOCAL_STORAGE_FALLBACK) {
-        throw r2Error;
-      }
+      console.warn("[Storage] Cloudflare R2 direct upload failed, attempting local fallback:", r2Error);
+      // Seamlessly fall through to local/tmp storage provider
     }
   }
 

@@ -6,6 +6,7 @@ import { getClientIp, rateLimit } from "@/lib/auth/rate-limit";
 import { validateResumeFile } from "@/lib/storage/resume-validation";
 import { uploadBufferToStorage } from "@/lib/storage";
 import { sendEmailFireAndForget } from "@/lib/email/resend";
+import { captureServerError } from "@/lib/observability/error-logger";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -195,6 +196,11 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
+    captureServerError(error, {
+      path: "/api/builder-applications",
+      method: "POST",
+      metadata: { error: error?.message },
+    });
     console.error("[BuilderApplications] Unexpected error:", error);
     return NextResponse.json(
       { error: error?.message && process.env.NODE_ENV !== "production" ? error.message : "An unexpected error occurred while processing your application." },

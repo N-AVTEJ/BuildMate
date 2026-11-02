@@ -147,4 +147,77 @@ describe("Phase 16 — Builder Application Flow & Admin Verification", () => {
     const downloadedArrayBuffer = await downloadRes.arrayBuffer();
     expect(downloadedArrayBuffer.byteLength).toBeGreaterThan(0);
   });
+
+  it("4. Download route rejects tampered or invalid signatures with 403", async () => {
+    const appId = createdAppIds[0];
+    const req = new Request(`http://localhost:3000/api/admin/builder-applications/${appId}/resume`, {
+      method: "GET",
+    });
+
+    const res = await testRequestContext.run(
+      { cookie: `buildmate_session=${adminToken}` },
+      () => getResumeRoute(req, { params: Promise.resolve({ id: appId }) })
+    );
+
+    const data = await res.json();
+    const validUrl = data.downloadUrl;
+
+    // Tamper with the signature
+    const tamperedUrl = validUrl.replace(/sig=[a-f0-9]{64}/, "sig=0000000000000000000000000000000000000000000000000000000000000000");
+    const downloadReq = new Request(`http://localhost:3000${tamperedUrl}`, {
+      method: "GET",
+    });
+
+    const downloadRes = await downloadFileRoute(downloadReq);
+    expect(downloadRes.status).toBe(403);
+    const errJson = await downloadRes.json();
+    expect(errJson.error).toBe("Invalid signature.");
+  });
+
+  it("5. Download route rejects expired signatures with 410", async () => {
+    // Generate URL with expired timestamp
+    const expiredTimestamp = Date.now() - 10000; // 10s in the past
+    const expiredReq = new Request(
+      `http://localhost:3000/api/files/download?key=test.pdf&sig=irrelevant&expires=${expiredTimestamp}`,
+      { method: "GET" }
+    );
+
+    const downloadRes = await downloadFileRoute(expiredReq);
+    expect(downloadRes.status).toBe(410);
+    const errJson = await downloadRes.json();
+    expect(errJson.error).toBe("Download link has expired.");
+  });
+
+  it("6. Applicant can submit application with valid DOCX resume", async () => {
+    // Construct minimal valid DOCX buffer (PK zip header + Content_Types + word/)
+    const docxBuffer = Buffer.concat([
+      Buffer.from([0x50, 0x4b, 0x03, 0x04]),
+      Buffer.from("[Content_Types].xml"),
+      Buffer.from("word/document.xml"),
+    ]);
+
+    const formData = new FormData();
+    formData.append("name", "Docx Applicant");
+    formData.append("email", `docx_${Date.now()}@example.com`);
+    formData.append("message", "Full-stack engineer submitting DOCX format.");
+    formData.append("githubUrl", "https://github.com/docxapplicant");
+    formData.append(
+      "resume",
+      new Blob([docxBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      }),
+      "resume_sample.docx"
+    );
+
+    const req = new Request("http://localhost:3000/api/builder-applications", {
+      method: "POST",
+      body: formData,
+    });
+
+    const res = await submitApplicationRoute(req);
+    expect(res.status).toBe(201);
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    createdAppIds.push(data.id);
+  });
 });
