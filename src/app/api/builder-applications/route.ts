@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { builderApplications } from "@/db/schema";
+import { builderApplications, notifications, userRoles } from "@/db/schema";
 import { getClientIp, rateLimit } from "@/lib/auth/rate-limit";
 import { validateResumeFile } from "@/lib/storage/resume-validation";
-import { storageProvider } from "@/lib/storage";
+import { uploadBufferToStorage } from "@/lib/storage";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -62,11 +63,12 @@ export async function POST(req: Request) {
         );
       }
 
-      // Upload file via server storage provider
-      const uploadResult = await storageProvider.upload(
+      // Upload file via resilient storage provider (Cloudflare R2 or local/tmp fallback)
+      const uploadResult = await uploadBufferToStorage(
         buffer,
         validation.sanitizedFilename,
-        validation.detectedMime
+        validation.detectedMime,
+        "resumes"
       );
 
       resumeUrl = uploadResult.storageKey || uploadResult.fileUrl;
@@ -124,6 +126,9 @@ export async function POST(req: Request) {
     }
 
     if (githubUrl) {
+      if (!/^https?:\/\//i.test(githubUrl)) {
+        githubUrl = `https://${githubUrl}`;
+      }
       if (githubUrl.length > 500) {
         return NextResponse.json({ error: "GitHub link must not exceed 500 characters." }, { status: 400 });
       }
@@ -158,6 +163,23 @@ export async function POST(req: Request) {
         createdAt: builderApplications.createdAt,
       });
 
+    // 4. Notify Administrators via In-App Notification (best-effort, non-blocking)
+    try {
+      const adminUsers = await db
+        .select({ userId: userRoles.userId })
+        .from(userRoles)
+        .where(eq(userRoles.role, "ADMIN"));
+
+      for (const admin of adminUsers) {
+        await db.insert(notifications).values({
+          userId: admin.userId,
+          message: `New builder application received from ${name} (${normalizedEmail}). Review in Admin Portal.`,
+        });
+      }
+    } catch (notifErr) {
+      console.warn("[BuilderApplications] Non-fatal notification error:", notifErr);
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -166,10 +188,10 @@ export async function POST(req: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("[BuilderApplications] Unexpected error:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred while processing your application." },
+      { error: error?.message && process.env.NODE_ENV !== "production" ? error.message : "An unexpected error occurred while processing your application." },
       { status: 500 }
     );
   }

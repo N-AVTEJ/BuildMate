@@ -73,8 +73,12 @@ export default function BuilderApplyPage() {
       const data = new FormData();
       data.append("name", formData.name.trim());
       data.append("email", formData.email.trim());
-      if (formData.githubUrl.trim()) {
-        data.append("githubUrl", formData.githubUrl.trim());
+      let formattedGithub = formData.githubUrl.trim();
+      if (formattedGithub && !/^https?:\/\//i.test(formattedGithub)) {
+        formattedGithub = `https://${formattedGithub}`;
+      }
+      if (formattedGithub) {
+        data.append("githubUrl", formattedGithub);
       }
       if (formData.message.trim()) {
         data.append("message", formData.message.trim());
@@ -86,10 +90,10 @@ export default function BuilderApplyPage() {
         body: data,
       });
 
-      const json = await res.json();
+      const json = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(json.error || "Failed to submit builder application.");
+        throw new Error(json.error || `Failed to submit builder application (Status ${res.status}).`);
       }
 
       setSubmitted(true);

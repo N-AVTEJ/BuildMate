@@ -39,16 +39,22 @@ export interface StorageProvider {
  */
 export class LocalStorageProvider implements StorageProvider {
   private uploadDir: string;
+  private fallbackDir: string;
 
   constructor(customUploadDir?: string) {
     this.uploadDir = customUploadDir || path.join(process.cwd(), "storage", "uploads");
+    this.fallbackDir = path.join(require("os").tmpdir(), "buildmate-uploads");
   }
 
-  private async ensureDir(): Promise<void> {
+  private async ensureDir(): Promise<string> {
     try {
       await fs.mkdir(this.uploadDir, { recursive: true });
+      return this.uploadDir;
     } catch {
-      // Directory already exists
+      // In serverless environments (e.g. Vercel), process.cwd() is read-only.
+      // Gracefully fall back to os.tmpdir() which is always writable.
+      await fs.mkdir(this.fallbackDir, { recursive: true });
+      return this.fallbackDir;
     }
   }
 
@@ -57,7 +63,7 @@ export class LocalStorageProvider implements StorageProvider {
     originalFilename: string,
     _mimeType: string
   ): Promise<StorageResult> {
-    await this.ensureDir();
+    const activeDir = await this.ensureDir();
 
     // Extract safe extension
     const extMatch = originalFilename.match(/\.([a-zA-Z0-9]+)$/);
@@ -65,10 +71,15 @@ export class LocalStorageProvider implements StorageProvider {
 
     // Generate random UUID key (unpredictable and path-traversal free)
     const storageKey = `${crypto.randomUUID()}${ext}`;
-    const targetFilePath = path.join(this.uploadDir, storageKey);
+    const targetFilePath = path.join(activeDir, storageKey);
 
-    // Write file to disk
-    await fs.writeFile(targetFilePath, fileBuffer);
+    // Write file to disk (try activeDir, fallback to fallbackDir if write fails)
+    try {
+      await fs.writeFile(targetFilePath, fileBuffer);
+    } catch {
+      await fs.mkdir(this.fallbackDir, { recursive: true });
+      await fs.writeFile(path.join(this.fallbackDir, storageKey), fileBuffer);
+    }
 
     // In local development, return reference URL
     const fileUrl = `/api/files/${encodeURIComponent(storageKey)}`;
@@ -83,11 +94,17 @@ export class LocalStorageProvider implements StorageProvider {
     // Sanitize key before unlinking to prevent path traversal
     const safeKey = path.basename(storageKey);
     const targetFilePath = path.join(this.uploadDir, safeKey);
+    const fallbackPath = path.join(this.fallbackDir, safeKey);
 
     try {
       await fs.unlink(targetFilePath);
     } catch {
-      // File may already be absent
+      // Try fallback directory
+      try {
+        await fs.unlink(fallbackPath);
+      } catch {
+        // File may already be absent
+      }
     }
   }
 }

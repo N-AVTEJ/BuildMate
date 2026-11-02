@@ -74,19 +74,24 @@ export async function rateLimit(
   window: `${number} ${"s" | "m" | "h" | "d"}`
 ): Promise<RateLimitResult> {
   if (redis) {
-    const ratelimit = new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(limit, window),
-      analytics: true,
-      prefix: "buildmate:ratelimit",
-    });
-    const res = await ratelimit.limit(key);
-    return {
-      success: res.success,
-      limit: res.limit,
-      remaining: res.remaining,
-      reset: res.reset,
-    };
+    try {
+      const ratelimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(limit, window),
+        analytics: true,
+        prefix: "buildmate:ratelimit",
+      });
+      const res = await ratelimit.limit(key);
+      return {
+        success: res.success,
+        limit: res.limit,
+        remaining: res.remaining,
+        reset: res.reset,
+      };
+    } catch (redisErr) {
+      console.warn("[RateLimit] Upstash Redis error, falling back to memory store:", redisErr);
+      // Fall through to memory store below
+    }
   }
 
   // Graceful fallback for local development / test environments without Redis

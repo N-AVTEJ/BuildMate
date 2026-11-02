@@ -10,6 +10,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Re-export storageProvider for existing routes (e.g. project requirements upload)
+import { storageProvider } from "./storage/index";
 export {
   storageProvider,
   LocalStorageProvider,
@@ -308,11 +309,17 @@ export async function verifyStorageObjectExists(
     }
     // Also check local uploads dir if present
     const localPath = path.join(process.cwd(), "storage", "uploads", path.basename(key));
+    const fallbackPath = path.join(require("os").tmpdir(), "buildmate-uploads", path.basename(key));
     try {
       const stat = await fs.stat(localPath);
       return { exists: true, size: stat.size };
     } catch {
-      return { exists: false };
+      try {
+        const stat = await fs.stat(fallbackPath);
+        return { exists: true, size: stat.size };
+      } catch {
+        return { exists: false };
+      }
     }
   }
 
@@ -335,4 +342,55 @@ export async function verifyStorageObjectExists(
     }
     throw error;
   }
+}
+
+/**
+ * Resilient upload function that uploads directly to Cloudflare R2 when configured,
+ * or gracefully falls back to local storage (with /tmp safety) when not configured.
+ */
+export async function uploadBufferToStorage(
+  buffer: Buffer,
+  filename: string,
+  contentType: string,
+  prefix: string = "uploads"
+): Promise<{ storageKey: string; fileUrl: string }> {
+  const config = getR2Config();
+  const extMatch = filename.match(/\.([a-zA-Z0-9]+)$/);
+  const ext = extMatch ? `.${extMatch[1].toLowerCase()}` : "";
+  const randomUuid = crypto.randomUUID();
+  const storageKey = `${prefix}/${randomUuid}${ext}`;
+
+  if (isR2Configured(config)) {
+    try {
+      const s3 = getS3Client();
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: config.bucketName,
+          Key: storageKey,
+          Body: buffer,
+          ContentType: contentType,
+        })
+      );
+      return {
+        storageKey,
+        fileUrl: storageKey,
+      };
+    } catch (r2Error) {
+      console.error("[Storage] Cloudflare R2 direct upload failed, attempting local fallback:", r2Error);
+      // Fall through to local fallback if allowed
+      if (process.env.NODE_ENV === "production" && !process.env.ALLOW_LOCAL_STORAGE_FALLBACK) {
+        throw r2Error;
+      }
+    }
+  }
+
+  // Fallback to local storage provider
+  const uploadResult = await storageProvider.upload(buffer, filename, contentType);
+  registerMockFile(uploadResult.storageKey, buffer.length, contentType);
+  registerMockFile(storageKey, buffer.length, contentType);
+
+  return {
+    storageKey: uploadResult.storageKey,
+    fileUrl: uploadResult.fileUrl,
+  };
 }
