@@ -408,7 +408,7 @@ export function BuilderDashboardView({
                   <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingQuote}</span>
                 </div>
                 <div className="bg-[#b7c6c2] p-4 border-2 border-black neo-shadow-sm">
-                  <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Awaiting Advance</span>
+                  <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Awaiting Milestone 1</span>
                   <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{countAwaitingAdvance}</span>
                 </div>
                 <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
@@ -717,7 +717,7 @@ export function BuilderDashboardView({
                       <div>
                         <span className="text-[10px] uppercase font-black text-gray-600 block">Official Dev Deadline</span>
                         <span className="font-black text-[#171e19]">
-                          {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending quote & advance"}
+                          {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending quote & initial milestone"}
                         </span>
                       </div>
                       <div>
@@ -801,7 +801,7 @@ export function BuilderDashboardView({
 
           {myProjects.filter((p) => ["ADVANCE_VERIFIED", "IN_PROGRESS", "OVERDUE"].includes(p.status)).length === 0 ? (
             <div className="bg-white p-10 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
-              No projects currently in active development. Accept projects and await verified advance to start development.
+              No projects currently in active development. Accept projects and await verified initial milestone payment to start development.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -1005,7 +1005,7 @@ export function BuilderDashboardView({
                     <div className="flex justify-between pt-1">
                       <span className="text-gray-700 font-bold">Official Development Deadline:</span>
                       <span className="font-black text-[#171e19]">
-                        {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending advance"}
+                        {p.developmentDeadline ? new Date(p.developmentDeadline).toLocaleDateString() : "Pending initial milestone"}
                       </span>
                     </div>
 

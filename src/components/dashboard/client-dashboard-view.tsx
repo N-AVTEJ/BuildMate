@@ -208,7 +208,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                 <div>
                   <h4 className="text-base font-cabinet font-black text-[#171e19] uppercase tracking-wide">Payment Action Required</h4>
                   <p className="text-xs font-bold text-gray-800 mt-0.5">
-                    You have accepted quotation(s) awaiting advance payment deposit. Please deposit advance payment to unlock development.
+                    You have accepted quotation(s) awaiting initial milestone confirmation. Please complete the initial milestone payment to unlock development.
                   </p>
                 </div>
               </div>

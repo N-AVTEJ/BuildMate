@@ -195,7 +195,7 @@ export function PaymentHistoryTable({
                             : "bg-[#ffe17c] text-[#171e19]"
                         }`}
                       >
-                        {p.type}
+                        {p.type === "ADVANCE" ? "INITIAL" : "FINAL"}
                       </span>
                     </td>
 
