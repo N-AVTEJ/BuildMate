@@ -5,6 +5,7 @@ import { builderApplications, notifications, userRoles } from "@/db/schema";
 import { getClientIp, rateLimit } from "@/lib/auth/rate-limit";
 import { validateResumeFile } from "@/lib/storage/resume-validation";
 import { uploadBufferToStorage } from "@/lib/storage";
+import { sendEmailFireAndForget } from "@/lib/email/resend";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -176,6 +177,14 @@ export async function POST(req: Request) {
     } catch (notifErr) {
       console.warn("[BuilderApplications] Non-fatal notification error:", notifErr);
     }
+
+    // 5. Asynchronous fire-and-forget notification email to Admin (non-blocking)
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || "madipadiganavtej@gmail.com";
+    sendEmailFireAndForget(
+      adminEmail,
+      `New Builder Application: ${name}`,
+      `<p>A new builder application has been submitted by <strong>${name}</strong> (${normalizedEmail}).</p><p>Review in Admin Portal: <a href="${process.env.APP_URL || "http://localhost:3000"}/admin/builder-applications">View Queue</a></p>`
+    );
 
     return NextResponse.json(
       {
