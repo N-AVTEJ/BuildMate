@@ -126,9 +126,6 @@ export async function POST(req: Request) {
     }
 
     if (githubUrl) {
-      if (!/^https?:\/\//i.test(githubUrl)) {
-        githubUrl = `https://${githubUrl}`;
-      }
       if (githubUrl.length > 500) {
         return NextResponse.json({ error: "GitHub link must not exceed 500 characters." }, { status: 400 });
       }

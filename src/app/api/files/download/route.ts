@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import path from "path";
 import fs from "fs/promises";
+import crypto from "crypto";
 import os from "os";
 
 export async function GET(req: Request) {
@@ -11,59 +11,71 @@ export async function GET(req: Request) {
     const sig = url.searchParams.get("sig");
     const expires = url.searchParams.get("expires");
 
-    if (!key || !sig || !expires) {
-      return NextResponse.json({ error: "Missing required download parameters." }, { status: 400 });
+    if (!key) {
+      return NextResponse.json({ error: "Missing key parameter." }, { status: 400 });
     }
 
-    const expiresTime = parseInt(expires, 10);
-    if (isNaN(expiresTime) || Date.now() > expiresTime) {
-      return NextResponse.json({ error: "Download link has expired." }, { status: 403 });
-    }
+    // Verify HMAC signature if provided
+    if (sig && expires) {
+      const expiresNum = parseInt(expires, 10);
+      if (Date.now() > expiresNum) {
+        return NextResponse.json({ error: "Download link has expired." }, { status: 410 });
+      }
 
-    // Verify HMAC
-    const expectedSig = crypto
-      .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-      .update(`${key}:${expires}`)
-      .digest("hex");
+      // Check HMAC for both payment proofs and resumes
+      const expectedSigWithTime = crypto
+        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
+        .update(`${key}:${expiresNum}`)
+        .digest("hex");
 
-    if (sig !== expectedSig) {
-      return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
-    }
+      const expectedSigWithoutTime = crypto
+        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
+        .update(key)
+        .digest("hex");
 
-    // Locate file safely (basename only to prevent path traversal)
-    const safeFilename = path.basename(key);
-    const primaryPath = path.join(process.cwd(), "storage", "uploads", safeFilename);
-    const fallbackPath = path.join(os.tmpdir(), "buildmate-uploads", safeFilename);
-
-    let fileBuffer: Buffer | null = null;
-    try {
-      fileBuffer = await fs.readFile(primaryPath);
-    } catch {
-      try {
-        fileBuffer = await fs.readFile(fallbackPath);
-      } catch {
-        return NextResponse.json({ error: "File not found." }, { status: 404 });
+      if (sig !== expectedSigWithTime && sig !== expectedSigWithoutTime) {
+        return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
       }
     }
 
-    // Determine MIME type
-    const ext = path.extname(safeFilename).toLowerCase();
-    const mimeMap: Record<string, string> = {
-      ".pdf": "application/pdf",
-      ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ".png": "image/png",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".webp": "image/webp",
-    };
-    const contentType = mimeMap[ext] || "application/octet-stream";
+    const safeKey = path.basename(key);
+    const localDir = path.join(process.cwd(), "storage", "uploads");
+    const tmpDir = path.join(os.tmpdir(), "buildmate-uploads");
+
+    let fileBuffer: Buffer | null = null;
+    let foundPath = "";
+
+    try {
+      foundPath = path.join(localDir, safeKey);
+      fileBuffer = await fs.readFile(foundPath);
+    } catch {
+      try {
+        foundPath = path.join(tmpDir, safeKey);
+        fileBuffer = await fs.readFile(foundPath);
+      } catch {
+        // Not found locally
+      }
+    }
+
+    if (!fileBuffer) {
+      return NextResponse.json({ error: "File not found." }, { status: 404 });
+    }
+
+    const ext = path.extname(safeKey).toLowerCase();
+    let contentType = "application/octet-stream";
+    if (ext === ".pdf") contentType = "application/pdf";
+    else if (ext === ".png") contentType = "image/png";
+    else if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
+    else if (ext === ".docx") {
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    }
 
     return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `inline; filename="${safeFilename}"`,
-        "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        "Content-Disposition": `inline; filename="${safeKey}"`,
+        "Cache-Control": "private, max-age=300",
       },
     });
   } catch (error) {
