@@ -1053,27 +1053,27 @@ export function BuilderDashboardView({
       {activeTab === "payments" && (
         <div className="space-y-6">
           <div className="bg-white p-6 border-2 border-black neo-shadow">
-            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Payment &amp; Escrow Instructions</h3>
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Builder Payment &amp; Milestone Instructions</h3>
             <p className="text-xs font-bold text-gray-600 mt-0.5">
-              Reference guide for platform escrow deposits, client advance schedules, and proof verification.
+              Reference guide for project milestone delivery, payment schedules, and verification.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Escrow Rules */}
+            {/* Milestone Rules */}
             <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4">
-              <h4 className="text-sm font-cabinet font-black text-[#171e19] uppercase tracking-wider">Platform Escrow Breakdown</h4>
+              <h4 className="text-sm font-cabinet font-black text-[#171e19] uppercase tracking-wider">Milestone Delivery &amp; Payment Breakdown</h4>
               <div className="space-y-3 text-xs text-gray-800">
                 <div className="p-3.5 bg-[#ffe17c] border-2 border-black neo-shadow-sm">
-                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">1. 30% Required Advance Deposit</p>
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">1. Initial Milestone Commitment</p>
                   <p className="font-medium text-gray-900">
-                    Subject to a ₹300 minimum and total price cap. Client pays this deposit into platform escrow to start development.
+                    Subject to a ₹300 minimum and total price cap. Client confirms this initial milestone payment to initiate project development.
                   </p>
                 </div>
                 <div className="p-3.5 bg-[#b7c6c2] border-2 border-black neo-shadow-sm">
-                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">2. 70% Milestone Release</p>
+                  <p className="font-black text-[#171e19] mb-1 uppercase tracking-wide">2. Final Milestone Completion</p>
                   <p className="font-medium text-gray-900">
-                    Remaining balance is unlocked once the deliverable passes the 7-condition delivery security gate and client review.
+                    Final milestone balance is unlocked once the deliverable passes the 7-condition delivery verification gate and client review.
                   </p>
                 </div>
                 <div className="p-3.5 bg-white border-2 border-black neo-shadow-sm">
@@ -1091,7 +1091,7 @@ export function BuilderDashboardView({
                 Official Payment Gateway
               </span>
               <h4 className="text-xl font-cabinet font-black text-[#171e19]">Razorpay Standard Checkout</h4>
-              <p className="text-xs font-bold text-gray-600">Integrated automated milestone escrow</p>
+              <p className="text-xs font-bold text-gray-600">Integrated automated milestone payments</p>
 
               <div className="p-4 bg-[#fffdf0] border-2 border-black neo-shadow-sm text-left space-y-2">
                 <div className="flex items-center justify-between border-b border-black/10 pb-2">

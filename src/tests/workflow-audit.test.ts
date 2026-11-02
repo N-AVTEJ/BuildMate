@@ -655,7 +655,7 @@ describe("Workflow Audit & Production UX Invariant Regression Suite (20 Requirem
     const builderAuth = { user: { id: builder.id, name: "Builder", email: builder.email, emailVerified: true, createdAt: new Date(), updatedAt: new Date() }, roles: ["BUILDER" as const] };
     const adminAuth = { user: { id: admin.id, name: "Admin", email: admin.email, emailVerified: true, createdAt: new Date(), updatedAt: new Date() }, roles: ["ADMIN" as const] };
 
-    // Admin payments/escrow controls check
+    // Admin payments/milestone controls check
     expect(can(clientAuth, "ADMIN_PAYMENT_VERIFY").allowed).toBe(false);
     expect(can(builderAuth, "ADMIN_PAYMENT_VERIFY").allowed).toBe(false);
     expect(can(adminAuth, "ADMIN_PAYMENT_VERIFY").allowed).toBe(true);
