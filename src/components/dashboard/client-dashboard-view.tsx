@@ -116,7 +116,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
             Welcome back, {user.name || user.email}!
           </h1>
           <p className="text-gray-800 font-medium text-sm mt-1 max-w-xl">
-            Track and manage your software projects, review builder proposals, monitor escrow milestones, and inspect delivery progress.
+            Track and manage your software projects, review builder proposals, monitor project milestones, and inspect delivery progress.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -477,7 +477,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                         <span className="font-black text-gray-900">
                           {p.developmentDeadline
                             ? new Date(p.developmentDeadline).toLocaleDateString()
-                            : "Pending advance verification"}
+                            : "Pending initial milestone verification"}
                         </span>
                         {devUrgency && (
                           <span className={`px-2 py-0.5 text-[10px] font-black border border-black uppercase ${devUrgency.color}`}>
@@ -490,7 +490,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                     {/* Advance Payment Deadline */}
                     {p.status === "AWAITING_ADVANCE" && p.advancePaymentDeadline && (
                       <div className="flex items-center justify-between pt-1">
-                        <span className="text-gray-700 font-bold">Advance Payment Window:</span>
+                        <span className="text-gray-700 font-bold">Initial Milestone Window:</span>
                         <div className="flex items-center gap-2">
                           <span className="font-black text-[#171e19]">
                             {new Date(p.advancePaymentDeadline).toLocaleString()}
@@ -520,13 +520,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
         </div>
       )}
 
-      {/* TAB 4: PAYMENTS & ESCROW */}
+      {/* TAB 4: PAYMENTS & MILESTONES */}
       {activeTab === "payments" && (
         <div className="space-y-6">
           <div className="bg-white p-6 border-2 border-black neo-shadow">
-            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Payment &amp; Escrow Summary</h3>
+            <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">Payment &amp; Milestone Summary</h3>
             <p className="text-xs font-bold text-gray-600 mt-0.5">
-              BuildMate protects clients with strict 30% advance escrow and milestone release. Exact figures are verified and locked by the server upon submission.
+              BuildMate protects clients with structured phase-wise milestone releases. Exact figures are verified and locked by the server upon quotation agreement.
             </p>
           </div>
 
@@ -553,11 +553,11 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                         <span className="font-cabinet font-black text-gray-900 text-base">₹{p.totalPrice?.toLocaleString() || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-black text-[#171e19] block">Advance (30%)</span>
+                        <span className="text-[10px] uppercase font-black text-[#171e19] block">Initial Milestone</span>
                         <span className="font-cabinet font-black text-[#171e19] text-base">₹{p.advanceAmount?.toLocaleString() || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-black text-gray-600 block">Remaining (70%)</span>
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Final Milestone</span>
                         <span className="font-cabinet font-black text-gray-900 text-base">₹{p.remainingAmount?.toLocaleString() || "—"}</span>
                       </div>
                     </div>
@@ -583,13 +583,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
               )}
             </div>
 
-            {/* Official Razorpay Escrow Gateway Card */}
+            {/* Official Razorpay Gateway Card */}
             <div className="bg-white p-6 border-2 border-black neo-shadow space-y-4">
               <div className="text-center">
                 <span className="text-xs font-black uppercase tracking-wider text-[#171e19] bg-[#ffe17c] border border-black px-2 py-0.5 inline-block">Official Payment Gateway</span>
-                <h4 className="text-xl font-cabinet font-black text-[#171e19] mt-2">Razorpay Standard Escrow</h4>
+                <h4 className="text-xl font-cabinet font-black text-[#171e19] mt-2">Razorpay Standard Checkout</h4>
                 <p className="text-xs font-bold text-gray-600 mt-0.5">
-                  Instant, automated escrow payment processing via Razorpay
+                  Instant, automated milestone payment processing via Razorpay
                 </p>
               </div>
 
@@ -605,7 +605,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                 <p className="font-black text-[#171e19] uppercase tracking-wide">How to Pay:</p>
                 <ol className="list-decimal list-inside space-y-1 font-bold text-[#171e19]">
                   <li>Navigate to your active project from &ldquo;My Projects&rdquo;.</li>
-                  <li>Click &ldquo;Pay Advance&rdquo; or &ldquo;Pay Remaining&rdquo;.</li>
+                  <li>Click &ldquo;Pay Initial Milestone&rdquo; or &ldquo;Pay Remaining&rdquo;.</li>
                   <li>Complete payment in the Razorpay popup using UPI, Cards, or Netbanking.</li>
                   <li>Your project milestone will transition automatically and instantly.</li>
                 </ol>

@@ -68,12 +68,12 @@ export function getBuilderNextAction(status: string, projectId: string) {
     case "ADVANCE_PROOF_SUBMITTED":
     case "ADVANCE_VERIFICATION":
       return {
-        label: "Waiting for Client Advance",
+        label: "Waiting for Milestone Payment",
         actionText: "View Project →",
         href: `/builder/projects/${projectId}`,
         badgeClass: "bg-[#b7c6c2] text-[#171e19] border-2 border-black font-black",
         icon: "⏳",
-        description: "Waiting for client advance payment deposit and verification",
+        description: "Waiting for client milestone payment verification",
       };
     case "ADVANCE_VERIFIED":
     case "IN_PROGRESS":

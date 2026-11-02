@@ -81,7 +81,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="pt-6 border-t-2 border-black/10 flex justify-between items-center text-xs font-bold text-black/60">
-            <span>&copy; {new Date().getFullYear()} BuildMate Escrow Platform</span>
+            <span>&copy; {new Date().getFullYear()} BuildMate Platform</span>
             <Link href="/terms" className="text-black underline font-black">
               View Terms of Service →
             </Link>

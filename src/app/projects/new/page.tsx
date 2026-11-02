@@ -234,7 +234,7 @@ export default function NewProjectPage() {
                   Project Integrity Statement (Required) *
                 </label>
                 <p className="text-gray-800 font-medium text-xs mt-0.5">
-                  I confirm that this project specification represents genuine work requirements, does not violate any academic or commercial integrity rules, and that I agree to abide by the BuildMate platform milestones and escrow terms.
+                  I confirm that this project specification represents genuine work requirements, does not violate any academic or commercial integrity rules, and that I agree to abide by the BuildMate platform milestones and terms.
                 </p>
               </div>
             </div>

@@ -153,9 +153,9 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
   };
 
   const isAdvance = paymentType === "ADVANCE";
-  const title = isAdvance ? "Advance Milestone Deposit" : "Final Delivery Payment";
+  const title = isAdvance ? "Initial Milestone Payment" : "Final Delivery Payment";
   const buttonLabel = isAdvance
-    ? `Pay Advance ₹${amount.toLocaleString()}`
+    ? `Pay Initial Milestone ₹${amount.toLocaleString()}`
     : `Pay Remaining ₹${amount.toLocaleString()}`;
 
   return (
@@ -171,12 +171,12 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-black pb-4">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#ffe17c] border border-black text-[10px] font-heading font-black tracking-wider uppercase mb-1">
-              ⚡ Razorpay Instant Escrow
+              ⚡ Razorpay Secure Checkout
             </div>
             <h3 className="font-heading font-black text-2xl text-black">{title}</h3>
             <p className="text-xs text-black/70 font-semibold mt-0.5">
               {isAdvance
-                ? "Secure milestone escrow to lock development scope and initiate project."
+                ? "Confirm initial milestone payment to lock development scope and initiate project."
                 : "Final milestone payment to unlock full GitHub repository delivery."}
             </p>
           </div>
@@ -246,8 +246,8 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
           <div className="flex items-center gap-2">
             <span className="text-base">🛡️</span>
             <div>
-              <p className="font-heading font-bold text-black">Escrow Protected</p>
-              <p className="text-[10px] text-black/60">Released only on gates</p>
+              <p className="font-heading font-bold text-black">Milestone Protected</p>
+              <p className="text-[10px] text-black/60">Released upon verified milestones</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

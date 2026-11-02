@@ -41,7 +41,7 @@ export default function TermsPage() {
               Terms of Service
             </h1>
             <p className="text-xs font-bold text-black/60 mt-1 uppercase tracking-wider">
-              Effective Date: September 2026 • Version 1.0 Escrow Standard
+              Effective Date: September 2026 • Version 1.0 Milestone Platform Standard
             </p>
           </div>
 
@@ -54,13 +54,13 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="font-heading font-black text-xl text-black mb-2">2. Non-Refundable Advance Payment Clause</h2>
+              <h2 className="font-heading font-black text-xl text-black mb-2">2. Milestone Commitments &amp; Initial Phase Policy</h2>
               <div className="rounded-2xl bg-[#ffe17c]/40 border-2 border-black p-5 neo-shadow-sm">
                 <p className="font-heading font-black text-sm uppercase text-black mb-1">
-                  Advance Payment Non-Refundability Policy:
+                  Initial Milestone Policy:
                 </p>
                 <p className="text-sm text-black/90">
-                  Advance payments (typically 30% to 50% of the agreed total project quotation) are collected to secure builder resource allocation and cover initial design, architecture, and milestone setup. Once verified and the project transitions to <strong className="font-mono font-bold bg-white px-1.5 py-0.5 border border-black rounded">IN_PROGRESS</strong> status, advance payments are strictly non-refundable, except where an administrator explicitly orders a refund following formal dispute adjudication.
+                  Initial milestone commitments are collected to secure builder resource allocation and cover initial design, architecture, and phase setup. Once verified and the project transitions to <strong className="font-mono font-bold bg-white px-1.5 py-0.5 border border-black rounded">IN_PROGRESS</strong> status, phase payments are non-refundable for completed milestones, except where an administrator explicitly orders a refund following formal dispute adjudication.
                 </p>
               </div>
             </section>
@@ -87,13 +87,13 @@ export default function TermsPage() {
             <section>
               <h2 className="font-heading font-black text-xl text-black mb-2">5. User Conduct and Integrity</h2>
               <p>
-                Users agree not to bypass the platform for off-platform payment avoidance, submit fraudulent proof receipts, or harass counter-parties. Violations result in immediate account suspension and escrow forfeiture.
+                Users agree not to bypass the platform for off-platform payment avoidance, submit fraudulent proof receipts, or harass counter-parties. Violations result in immediate account suspension and platform remedies.
               </p>
             </section>
           </div>
 
           <div className="pt-6 border-t-2 border-black/10 flex justify-between items-center text-xs font-bold text-black/60">
-            <span>&copy; {new Date().getFullYear()} BuildMate Escrow Platform</span>
+            <span>&copy; {new Date().getFullYear()} BuildMate Platform</span>
             <Link href="/privacy" className="text-black underline font-black">
               View Privacy Policy →
             </Link>
