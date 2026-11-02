@@ -110,6 +110,11 @@ export default async function BuilderProjectDetailPage({
         .limit(1)
     : [null];
 
+  const durationMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/BuilderProjectDetail] Loaded in ${durationMs}ms`);
+  }
+
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white">
       <PortalHeader

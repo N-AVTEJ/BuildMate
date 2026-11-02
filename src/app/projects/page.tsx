@@ -8,6 +8,8 @@ import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/projec
 import { PortalHeader } from "@/components/navigation/portal-header";
 
 export default async function ProjectsPage() {
+  const startTime = performance.now();
+
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {
@@ -66,6 +68,11 @@ export default async function ProjectsPage() {
       return { ...p, status: effective.status };
     })
   );
+
+  const durationMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/ProjectsList] Loaded in ${durationMs}ms`);
+  }
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
