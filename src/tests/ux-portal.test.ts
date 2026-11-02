@@ -5,6 +5,7 @@ import {
   userRoles,
   projects,
   quotations,
+  changeRequests,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { createSession, testRequestContext } from "@/lib/auth/session";
@@ -13,6 +14,7 @@ import { computeAdvanceBreakdown } from "@/lib/projects/pricing";
 
 import { POST as createProjectRoute } from "@/app/api/projects/route";
 import { POST as quotationRoute } from "@/app/api/projects/[id]/quotation/route";
+import { POST as changeRequestRoute } from "@/app/api/projects/[id]/change-requests/route";
 import { POST as registerRoute } from "@/app/api/auth/register/route";
 
 describe("UX + Portal Completion — Validation & Invariants", () => {
@@ -58,8 +60,10 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
   });
 
   afterAll(async () => {
-    // Cleanup projects and users
+    // Cleanup projects, quotations, change requests, and users
     for (const pid of createdProjectIds) {
+      await db.delete(changeRequests).where(eq(changeRequests.projectId, pid)).catch(() => {});
+      await db.delete(quotations).where(eq(quotations.projectId, pid)).catch(() => {});
       await db.delete(projects).where(eq(projects.id, pid)).catch(() => {});
     }
     for (const uid of createdUserIds) {
@@ -254,6 +258,52 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(proj.totalPrice).toBeNull();
     });
 
+    it("rejects totalPrice above 1500 with 400 and preserves database state", async () => {
+      const req = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalPrice: 2000,
+          estimatedDurationDays: 14,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => quotationRoute(req, { params: Promise.resolve({ id: testProject.id }) })
+      );
+
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+
+      const quotes = await db
+        .select()
+        .from(quotations)
+        .where(eq(quotations.projectId, testProject.id));
+      expect(quotes.length).toBe(0);
+    });
+
+    it("rejects totalPrice 299 (boundary below 300) with 400", async () => {
+      const req = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalPrice: 299,
+          estimatedDurationDays: 14,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => quotationRoute(req, { params: Promise.resolve({ id: testProject.id }) })
+      );
+
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+    });
+
     it("rejects estimatedDurationDays outside 1-365 range", async () => {
       const reqZero = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
         method: "POST",
@@ -297,6 +347,84 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(data.quotation.advanceAmount).toBe(450); // 30% of 1500
       expect(data.quotation.remainingAmount).toBe(1050); // 70% of 1500
       expect(data.quotation.estimatedDurationDays).toBe(21);
+    });
+  });
+
+  describe("2.5 Change Request Price Band Hardening (₹300 - ₹1500)", () => {
+    let crTestProject: any;
+
+    beforeAll(async () => {
+      const [proj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-CR-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "Change Request Band Project",
+          subject: "Full-Stack Web",
+          description: "Testing CR price band limits",
+          techStack: "Next.js",
+          budgetMin: 1000,
+          budgetMax: 2000,
+          totalPrice: 1200,
+          advanceAmount: 360,
+          remainingAmount: 840,
+          status: "IN_PROGRESS",
+          integrityAck: true,
+        })
+        .returning();
+      crTestProject = proj;
+      createdProjectIds.push(proj.id);
+    });
+
+    it("rejects change request pushing resulting total above 1500", async () => {
+      const req = new Request(`http://localhost:3000/api/projects/${crTestProject.id}/change-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: "Large additional scope that exceeds ₹1500 cap",
+          additionalCost: 400, // 1200 + 400 = 1600 (> 1500)
+          additionalTimeDays: 7,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => changeRequestRoute(req, { params: Promise.resolve({ id: crTestProject.id }) })
+      );
+
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+
+      const crs = await db
+        .select()
+        .from(changeRequests)
+        .where(eq(changeRequests.projectId, crTestProject.id));
+      expect(crs.length).toBe(0);
+    });
+
+    it("accepts change request within the ₹300-₹1500 band", async () => {
+      const req = new Request(`http://localhost:3000/api/projects/${crTestProject.id}/change-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: "Scope addition within band",
+          additionalCost: 100, // 1200 + 100 = 1300 (<= 1500)
+          additionalTimeDays: 3,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => changeRequestRoute(req, { params: Promise.resolve({ id: crTestProject.id }) })
+      );
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.changeRequest).toBeDefined();
+      expect(data.changeRequest.additionalCost).toBe(100);
     });
   });
 

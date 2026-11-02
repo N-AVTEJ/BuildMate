@@ -103,14 +103,18 @@ export async function POST(
       }
 
       // 4.5 Validate that resulting total price remains within ₹300-₹1500 band
-      if (project.totalPrice !== null) {
-        const resultingTotal = project.totalPrice + additionalCost;
-        if (resultingTotal < 300 || resultingTotal > 1500) {
-          return {
-            type: "VALIDATION_ERROR" as const,
-            message: "Total price must be between ₹300 and ₹1500",
-          };
-        }
+      if (project.totalPrice === null) {
+        return {
+          type: "CONFLICT" as const,
+          message: "Project total price is not set. Cannot create change request.",
+        };
+      }
+      const resultingTotal = project.totalPrice + additionalCost;
+      if (resultingTotal < 300 || resultingTotal > 1500) {
+        return {
+          type: "VALIDATION_ERROR" as const,
+          message: "Total price must be between ₹300 and ₹1500",
+        };
       }
 
       // 5. Insert change request
