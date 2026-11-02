@@ -11,11 +11,10 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const statusParam = url.searchParams.get("status")?.toUpperCase();
-
-    let query = db
-      .select()
-      .from(builderApplications)
-      .orderBy(desc(builderApplications.createdAt));
+    const rawLimit = parseInt(url.searchParams.get("limit") || "50", 10);
+    const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? rawLimit : 50, 1), 100);
+    const rawOffset = parseInt(url.searchParams.get("offset") || "0", 10);
+    const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
 
     const applications = statusParam && ["PENDING", "APPROVED", "REJECTED"].includes(statusParam)
       ? await db
@@ -23,7 +22,14 @@ export async function GET(req: Request) {
           .from(builderApplications)
           .where(eq(builderApplications.status, statusParam as "PENDING" | "APPROVED" | "REJECTED"))
           .orderBy(desc(builderApplications.createdAt))
-      : await query;
+          .limit(limit)
+          .offset(offset)
+      : await db
+          .select()
+          .from(builderApplications)
+          .orderBy(desc(builderApplications.createdAt))
+          .limit(limit)
+          .offset(offset);
 
     return NextResponse.json({
       success: true,

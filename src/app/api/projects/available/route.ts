@@ -6,7 +6,7 @@ import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     // 1. Authenticate Session
     const auth = await requireAuth();
@@ -14,7 +14,14 @@ export async function GET() {
     // 2. Centralized Authorization: BUILDER or ADMIN
     authorize(auth, "PROJECT_LIST_AVAILABLE");
 
-    // 3. Query Candidate Available Projects
+    // 3. Parse Pagination Parameters (Phase 16 Hardening: Default 50, Max 100)
+    const url = new URL(req.url);
+    const rawLimit = parseInt(url.searchParams.get("limit") || "50", 10);
+    const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? rawLimit : 50, 1), 100);
+    const rawOffset = parseInt(url.searchParams.get("offset") || "0", 10);
+    const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
+
+    // 4. Query Candidate Available Projects
     const candidateProjects = await db
       .select({
         id: projects.id,
@@ -32,7 +39,9 @@ export async function GET() {
       })
       .from(projects)
       .where(eq(projects.status, "AVAILABLE"))
-      .orderBy(desc(projects.submittedAt));
+      .orderBy(desc(projects.submittedAt))
+      .limit(limit)
+      .offset(offset);
 
     // 4. Reconcile Lazy Expiry and Filter Authoritative Effective Status
     const now = new Date();
