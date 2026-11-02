@@ -116,10 +116,10 @@ export default function BuilderApplyPage() {
           <div className="flex items-center gap-4 text-sm font-bold">
             <span className="text-black/60 hidden sm:inline">Already approved?</span>
             <Link
-              href="/login"
+              href="/builder/login"
               className="text-black hover:underline transition"
             >
-              Sign In →
+              Builder Sign In →
             </Link>
           </div>
         </div>
@@ -152,10 +152,10 @@ export default function BuilderApplyPage() {
                   Return Home
                 </Link>
                 <Link
-                  href="/login"
+                  href="/builder/login"
                   className="neo-btn-lg w-full sm:w-auto px-6 py-3 rounded-xl text-sm font-black font-heading uppercase text-white bg-black"
                 >
-                  Sign In
+                  Builder Sign In
                 </Link>
               </div>
             </div>

@@ -20,23 +20,39 @@ export interface GoogleUserInfo {
 }
 
 export function getAppBaseUrl(req?: Request): string {
+  // If request is from localhost / local development, always normalize to http://localhost:<port>
+  if (req) {
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    if (host && (host.includes("localhost") || host.includes("127.0.0.1") || host.includes("::1"))) {
+      const portMatch = host.match(/:(\d+)$/);
+      const port = portMatch ? portMatch[1] : "3000";
+      return `http://localhost:${port}`;
+    }
+  }
+
+  // In production, if canonical APP_URL is explicitly configured with https, prefer it to prevent preview URL mismatches
+  if (process.env.APP_URL && process.env.APP_URL.trim().startsWith("https://")) {
+    return process.env.APP_URL.trim().replace(/\/$/, "");
+  }
+
+  // Otherwise, use request headers if present
   if (req) {
     const proto = req.headers.get("x-forwarded-proto") || "https";
     const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
     if (host) {
-      const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-      const scheme = isLocal ? "http" : proto;
-      return `${scheme}://${host}`;
+      return `${proto}://${host}`;
     }
   }
+
+  // Fallbacks for environment variables
   if (process.env.APP_URL) {
     return process.env.APP_URL.trim().replace(/\/$/, "");
   }
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`;
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/$/, "")}`;
   }
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL.trim()}`;
+    return `https://${process.env.VERCEL_URL.trim().replace(/\/$/, "")}`;
   }
   return "http://localhost:3000";
 }

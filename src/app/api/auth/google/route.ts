@@ -14,6 +14,7 @@ export async function GET(req: Request) {
     const state = generateOAuthState();
     const authUrl = getGoogleAuthUrl(state, req);
     const redirectUri = new URL(authUrl).searchParams.get("redirect_uri") || "";
+    console.log("[Auth/Google] Initiating OAuth redirect with redirect_uri:", redirectUri);
 
     const response = NextResponse.redirect(authUrl);
 

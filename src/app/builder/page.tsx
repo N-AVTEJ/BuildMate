@@ -17,7 +17,7 @@ export default async function BuilderPortalPage() {
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {
-    redirect("/login");
+    redirect("/builder/login");
   }
 
   // 2. Centralized Authorization: BUILDER Role Verification
