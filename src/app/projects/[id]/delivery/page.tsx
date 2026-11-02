@@ -6,6 +6,7 @@ import { projects, deliverables, payments } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { DeliveryAcceptButton } from "@/components/projects/delivery-accept-button";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export const dynamic = "force-dynamic";
 
@@ -155,7 +156,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
               </p>
             ) : (
               <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
-                This project is currently in {project.status} status. Final payment verification is required.
+                This project is currently in {formatProjectStatus(project.status)} status. Final payment verification is required.
               </p>
             )}
 

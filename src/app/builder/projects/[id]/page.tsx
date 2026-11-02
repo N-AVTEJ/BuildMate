@@ -10,6 +10,7 @@ import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown"
 import { BuilderProjectActions } from "@/components/builder/builder-project-actions";
 import { QuotationForm } from "@/components/builder/quotation-form";
 import { DeliverableSubmissionForm } from "@/components/builder/deliverable-submission-form";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export default async function BuilderProjectDetailPage({
   params,
@@ -140,7 +141,7 @@ export default async function BuilderProjectDetailPage({
                 : "bg-white text-black"
             }`}
           >
-            {project.status}
+            {formatProjectStatus(project.status)}
           </span>
         </div>
 

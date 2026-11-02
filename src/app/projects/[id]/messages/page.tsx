@@ -7,6 +7,7 @@ import { getOptionalAuth } from "@/lib/auth/guards";
 import { isProjectParticipant } from "@/lib/authorization";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { ProjectChat, MessageItem } from "@/components/projects/project-chat";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +126,7 @@ export default async function ProjectMessagesPage({ params }: ProjectMessagesPag
                 {project.projectCode}
               </span>
               <span className="text-xs font-heading font-black uppercase px-2.5 py-0.5 rounded-full bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
-                {project.status}
+                {formatProjectStatus(project.status)}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">

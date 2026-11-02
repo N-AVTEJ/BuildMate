@@ -6,6 +6,7 @@ import { projects } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 import { PortalHeader } from "@/components/navigation/portal-header";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export default async function ProjectsPage() {
   const startTime = performance.now();
@@ -172,7 +173,7 @@ export default async function ProjectsPage() {
                               : "bg-gray-200 text-[#171e19]"
                           }`}
                         >
-                          {project.status}
+                          {formatProjectStatus(project.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-black font-bold">

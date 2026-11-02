@@ -11,6 +11,7 @@ import {
   BUILDER_DISPUTE_STATUS_ALLOWLIST,
 } from "@/lib/projects/dispute-validation";
 import { ProjectStatus } from "@/lib/project-status";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export const dynamic = "force-dynamic";
 
@@ -120,7 +121,7 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
               {project.projectCode}
             </span>
             <span className="text-xs font-heading font-black uppercase px-2.5 py-0.5 rounded-full bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
-              Status: {project.status}
+              Status: {formatProjectStatus(project.status)}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
@@ -142,7 +143,7 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
             </h2>
             <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
               Disputes can only be opened during active development, delivery review, or settlement phases. This project is currently in{" "}
-              <span className="font-heading font-black text-black font-mono">{project.status}</span>.
+              <span className="font-heading font-black text-black font-mono">{formatProjectStatus(project.status)}</span>.
             </p>
             <Link
               href={backLink}

@@ -10,6 +10,7 @@ import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown"
 import { RequirementUploadForm } from "@/components/projects/requirement-upload-form";
 import { RazorpayCheckoutButton } from "@/components/payments/razorpay-checkout-button";
 import { PortalHeader } from "@/components/navigation/portal-header";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export default async function ProjectDetailPage({
   params,
@@ -115,7 +116,7 @@ export default async function ProjectDetailPage({
                 : "bg-white text-black"
             }`}
           >
-            {project.status}
+            {formatProjectStatus(project.status)}
           </span>
         </div>
 

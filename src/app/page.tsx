@@ -40,13 +40,6 @@ export default function Home() {
           {/* Right: CTA Group */}
           <div className="flex items-center gap-3">
             <Link
-              href="/builder/login"
-              className="px-3 py-1.5 text-xs font-heading font-black uppercase bg-black text-[#ffe17c] border-2 border-black rounded-lg hover:bg-black/90 transition hidden sm:inline-flex items-center gap-1 neo-shadow-sm"
-            >
-              <span>⚡</span>
-              <span>Builder</span>
-            </Link>
-            <Link
               href="/login"
               className="px-4 py-2 text-sm font-bold text-black hover:bg-black/5 rounded-lg transition"
             >

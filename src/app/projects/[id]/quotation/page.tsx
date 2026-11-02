@@ -6,6 +6,7 @@ import { projects, quotations } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { QuotationResponseActions } from "@/components/projects/quotation-response-actions";
 import { PortalHeader } from "@/components/navigation/portal-header";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export default async function ClientQuotationReviewPage({
   params,
@@ -85,7 +86,7 @@ export default async function ClientQuotationReviewPage({
                 </h1>
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-black bg-white self-start sm:self-auto neo-shadow-sm">
-                {project.status}
+                {formatProjectStatus(project.status)}
               </span>
             </div>
             <p className="text-xs text-black/70 mt-1 font-mono font-bold">{project.projectCode}</p>
@@ -147,7 +148,7 @@ export default async function ClientQuotationReviewPage({
                 {project.status !== "QUOTATION_SENT" && (
                   <div className="p-4 bg-[#fffdf0] rounded-xl border-2 border-black text-sm text-black flex items-center justify-between">
                     <span className="font-medium">
-                      Quotation status: <strong className="font-heading font-black">{latestQuotation.status}</strong> (Project is {project.status})
+                      Quotation status: <strong className="font-heading font-black">{latestQuotation.status}</strong> (Project is {formatProjectStatus(project.status)})
                     </span>
                     <Link
                       href={`/projects/${project.id}`}

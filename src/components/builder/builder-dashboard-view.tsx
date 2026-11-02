@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { PaymentHistoryTable, PaymentHistoryRow } from "@/components/payments/payment-history-table";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export interface BuilderProjectCardItem {
   id: string;
@@ -664,7 +665,7 @@ export function BuilderDashboardView({
                               ? "bg-emerald-200 text-emerald-950"
                               : "bg-gray-200 text-[#171e19]"
                           }`}>
-                            {p.status}
+                            {formatProjectStatus(p.status)}
                           </span>
                         </div>
                         <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-2">
@@ -819,7 +820,7 @@ export function BuilderDashboardView({
                           p.status === "OVERDUE" ? "bg-rose-200 text-rose-950" : "bg-white text-[#171e19]"
                         }`}
                       >
-                        {p.status}
+                        {formatProjectStatus(p.status)}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs bg-[#fffdf0] border-2 border-black p-3">
@@ -949,7 +950,7 @@ export function BuilderDashboardView({
                       <h4 className="text-base font-cabinet font-black text-[#171e19]">{p.title}</h4>
                     </div>
                     <p className="text-xs font-bold text-gray-700 mt-1">
-                      Status: <span className="font-black text-black">{p.status}</span>
+                      Status: <span className="font-black text-black">{formatProjectStatus(p.status)}</span>
                     </p>
                   </div>
                   <Link
@@ -992,7 +993,7 @@ export function BuilderDashboardView({
                         isOverdue ? "bg-rose-200 text-rose-950" : "bg-white text-[#171e19]"
                       }`}
                     >
-                      {isOverdue ? "OVERDUE" : p.status}
+                      {isOverdue ? "OVERDUE" : formatProjectStatus(p.status)}
                     </span>
                   </div>
 

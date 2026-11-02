@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { formatProjectStatus } from "@/lib/project-status-format";
 
 export interface ClientProjectItem {
   id: string;
@@ -270,7 +271,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                               : "bg-gray-200 text-[#171e19]"
                           }`}
                         >
-                          {project.status}
+                          {formatProjectStatus(project.status)}
                         </span>
                       </div>
                       <h4 className="text-lg font-cabinet font-black text-[#171e19]">
@@ -395,7 +396,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                                 : "bg-gray-200 text-[#171e19]"
                             }`}
                           >
-                            {p.status}
+                            {formatProjectStatus(p.status)}
                           </span>
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">
@@ -457,7 +458,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                       <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                     </div>
                     <span className="px-2.5 py-0.5 bg-gray-200 text-black border border-black text-xs font-black uppercase">
-                      {p.status}
+                      {formatProjectStatus(p.status)}
                     </span>
                   </div>
 
@@ -543,7 +544,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                         <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                       </div>
                       <span className="px-2.5 py-1 text-xs font-black uppercase border border-black bg-[#ffe17c] text-[#171e19]">
-                        {p.status}
+                        {formatProjectStatus(p.status)}
                       </span>
                     </div>
 
