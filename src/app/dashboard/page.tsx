@@ -60,7 +60,8 @@ export default async function ClientDashboardPage() {
     .from(projects)
     .leftJoin(users, eq(projects.builderId, users.id))
     .where(eq(projects.clientId, auth.user.id))
-    .orderBy(desc(projects.createdAt));
+    .orderBy(desc(projects.createdAt))
+    .limit(50);
 
   // 4. Reconcile Effective Status for Any Expired / Overdue Projects
   const now = new Date();

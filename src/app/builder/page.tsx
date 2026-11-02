@@ -53,7 +53,8 @@ export default async function BuilderPortalPage() {
     .select()
     .from(projects)
     .where(eq(projects.status, "AVAILABLE"))
-    .orderBy(desc(projects.submittedAt));
+    .orderBy(desc(projects.submittedAt))
+    .limit(50);
 
   // 4. Reconcile Lazy Expiry for Available Projects
   const availableProjects: BuilderProjectCardItem[] = [];
@@ -103,7 +104,8 @@ export default async function BuilderPortalPage() {
     .select()
     .from(projects)
     .where(eq(projects.builderId, auth.user.id))
-    .orderBy(desc(projects.updatedAt));
+    .orderBy(desc(projects.updatedAt))
+    .limit(50);
 
   const myProjects: BuilderProjectCardItem[] = [];
 
