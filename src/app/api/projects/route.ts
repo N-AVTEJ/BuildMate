@@ -154,18 +154,27 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     // 1. Authenticate Session & Central Authorization
     const auth = await requireAuth();
     authorize(auth, "PROJECT_LIST_OWN");
 
-    // 2. Query Strictly by Authenticated Client's User ID (Ignores any client_id overrides)
+    // 2. Parse Pagination Parameters (Phase 16 Hardening: Default 50, Max 100)
+    const url = new URL(req.url);
+    const rawLimit = parseInt(url.searchParams.get("limit") || "50", 10);
+    const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? rawLimit : 50, 1), 100);
+    const rawOffset = parseInt(url.searchParams.get("offset") || "0", 10);
+    const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
+
+    // 3. Query Strictly by Authenticated Client's User ID (Ignores any client_id overrides)
     const clientProjects = await db
       .select()
       .from(projects)
       .where(eq(projects.clientId, auth.user.id))
-      .orderBy(desc(projects.createdAt));
+      .orderBy(desc(projects.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     // 3. Reconcile Effective Status for Any Expired/Overdue Projects
     const now = new Date();
