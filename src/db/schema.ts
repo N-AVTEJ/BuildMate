@@ -215,20 +215,26 @@ export const projects = pgTable(
 );
 
 // 4. project_requirements
-export const projectRequirements = pgTable("project_requirements", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  fileUrl: text("file_url").notNull(),
-  fileType: text("file_type").notNull(),
-  fileSize: integer("file_size").notNull(),
-  uploadedAt: timestamp("uploaded_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const projectRequirements = pgTable(
+  "project_requirements",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    fileUrl: text("file_url").notNull(),
+    fileType: text("file_type").notNull(),
+    fileSize: integer("file_size").notNull(),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("project_requirements_project_id_idx").on(table.projectId),
+  ]
+);
 
 // 5. quotations
 export const quotations = pgTable(
@@ -248,6 +254,7 @@ export const quotations = pgTable(
   },
   (table) => [
     index("quotations_project_id_idx").on(table.projectId),
+    index("quotations_status_idx").on(table.status),
   ]
 );
 
@@ -271,6 +278,7 @@ export const scopeVersions = pgTable(
       table.projectId,
       table.versionNumber
     ),
+    index("scope_versions_project_id_idx").on(table.projectId),
   ]
 );
 
@@ -303,77 +311,103 @@ export const payments = pgTable(
     unique("payments_project_id_type_unique").on(table.projectId, table.type),
     index("payments_project_id_idx").on(table.projectId),
     index("payments_status_idx").on(table.status),
+    index("payments_razorpay_order_id_idx").on(table.razorpayOrderId),
   ]
 );
 
 // 8. payment_proofs
-export const paymentProofs = pgTable("payment_proofs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  paymentId: uuid("payment_id")
-    .notNull()
-    .references(() => payments.id, { onDelete: "cascade" }),
-  fileUrl: text("file_url").notNull(),
-  fileType: text("file_type").notNull(),
-  fileSize: integer("file_size").notNull(),
-  uploadedAt: timestamp("uploaded_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const paymentProofs = pgTable(
+  "payment_proofs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    paymentId: uuid("payment_id")
+      .notNull()
+      .references(() => payments.id, { onDelete: "cascade" }),
+    fileUrl: text("file_url").notNull(),
+    fileType: text("file_type").notNull(),
+    fileSize: integer("file_size").notNull(),
+    uploadedAt: timestamp("uploaded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("payment_proofs_payment_id_idx").on(table.paymentId),
+  ]
+);
 
 // 9. deliverables
-export const deliverables = pgTable("deliverables", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  githubUrl: text("github_url").notNull(),
-  repoType: text("repo_type").notNull(),
-  branch: text("branch").notNull(),
-  commitRef: text("commit_ref").notNull(),
-  description: text("description").notNull(),
-  implementedFeatures: text("implemented_features").notNull(),
-  documentationUrl: text("documentation_url"),
-  pptUrl: text("ppt_url"),
-  screenshots: jsonb("screenshots").$type<string[]>(),
-  demoUrl: text("demo_url"),
-  deploymentUrl: text("deployment_url"),
-  submittedAt: timestamp("submitted_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const deliverables = pgTable(
+  "deliverables",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    githubUrl: text("github_url").notNull(),
+    repoType: text("repo_type").notNull(),
+    branch: text("branch").notNull(),
+    commitRef: text("commit_ref").notNull(),
+    description: text("description").notNull(),
+    implementedFeatures: text("implemented_features").notNull(),
+    documentationUrl: text("documentation_url"),
+    pptUrl: text("ppt_url"),
+    screenshots: jsonb("screenshots").$type<string[]>(),
+    demoUrl: text("demo_url"),
+    deploymentUrl: text("deployment_url"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("deliverables_project_id_idx").on(table.projectId),
+  ]
+);
 
 // 10. project_status_history
-export const projectStatusHistory = pgTable("project_status_history", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  fromStatus: projectStatusEnum("from_status"),
-  toStatus: projectStatusEnum("to_status").notNull(),
-  changedBy: uuid("changed_by")
-    .references(() => users.id, { onDelete: "restrict" }),
-  reason: text("reason"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const projectStatusHistory = pgTable(
+  "project_status_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    fromStatus: projectStatusEnum("from_status"),
+    toStatus: projectStatusEnum("to_status").notNull(),
+    changedBy: uuid("changed_by")
+      .references(() => users.id, { onDelete: "restrict" }),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("project_status_history_project_id_idx").on(table.projectId),
+  ]
+);
 
 // 11. change_requests
-export const changeRequests = pgTable("change_requests", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  description: text("description").notNull(),
-  additionalCost: integer("additional_cost").notNull(),
-  additionalTimeDays: integer("additional_time_days").notNull(),
-  status: changeRequestStatusEnum("status").default("PENDING").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const changeRequests = pgTable(
+  "change_requests",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    description: text("description").notNull(),
+    additionalCost: integer("additional_cost").notNull(),
+    additionalTimeDays: integer("additional_time_days").notNull(),
+    status: changeRequestStatusEnum("status").default("PENDING").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("change_requests_project_id_idx").on(table.projectId),
+    index("change_requests_status_idx").on(table.status),
+  ]
+);
 
 // 12. notifications
 export const notifications = pgTable(
@@ -421,6 +455,7 @@ export const disputes = pgTable(
   (table) => [
     index("disputes_project_id_idx").on(table.projectId),
     index("disputes_status_idx").on(table.status),
+    index("disputes_raised_by_idx").on(table.raisedBy),
   ]
 );
 
@@ -441,6 +476,7 @@ export const messages = pgTable(
   },
   (table) => [
     index("messages_project_id_idx").on(table.projectId),
+    index("messages_sender_id_idx").on(table.senderId),
   ]
 );
 
@@ -459,6 +495,7 @@ export const sessions = pgTable(
   },
   (table) => [
     index("sessions_user_id_idx").on(table.userId),
+    index("sessions_expires_at_idx").on(table.expiresAt),
   ]
 );
 
@@ -494,17 +531,24 @@ export const projectBuilderRejections = pgTable(
 );
 
 // 18. progress_updates
-export const progressUpdates = pgTable("progress_updates", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  builderId: uuid("builder_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "restrict" }),
-  note: text("note").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const progressUpdates = pgTable(
+  "progress_updates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    builderId: uuid("builder_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    note: text("note").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("progress_updates_project_id_idx").on(table.projectId),
+    index("progress_updates_builder_id_idx").on(table.builderId),
+  ]
+);
 
 // 19. builder_inquiries (Phase 13: Lead capture for invite-only builder applications)
 export const builderInquiries = pgTable("builder_inquiries", {
