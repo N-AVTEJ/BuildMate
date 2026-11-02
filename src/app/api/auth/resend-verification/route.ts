@@ -79,6 +79,10 @@ export async function POST(req: Request) {
     });
 
     // 5. Deliver Verification Email
+    // Architectural Invariant (Phase 16 Hardening):
+    // The DB transaction above committed at line 79, releasing the database connection back to the pool.
+    // Per scalability requirements: Where the response DOES need the result (verification link requested
+    // explicitly by the user), the email call is kept awaited outside the DB connection critical path.
     await sendVerificationEmail(normalizedEmail, rawToken);
 
     return NextResponse.json(GENERIC_RESEND_RESPONSE, { status: 200 });
