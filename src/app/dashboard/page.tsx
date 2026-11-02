@@ -94,9 +94,10 @@ export default async function ClientDashboardPage() {
   );
 
   // 5. Query Payments for Client's Projects (if any projects exist)
+  let paymentRows: any[] = [];
   const projectPaymentsMap = new Map<string, any>();
   if (projectIds.length > 0) {
-    const paymentRows = await db
+    paymentRows = await db
       .select()
       .from(payments)
       .where(inArray(payments.projectId, projectIds))
@@ -156,6 +157,23 @@ export default async function ClientDashboardPage() {
     };
   });
 
+  const formattedPaymentHistory = paymentRows.map((pay) => {
+    const proj = reconciledProjects.find((rp) => rp.project.id === pay.projectId)?.project;
+    return {
+      id: pay.id,
+      projectId: pay.projectId,
+      projectCode: proj?.projectCode || "—",
+      projectTitle: proj?.title || "—",
+      type: pay.type,
+      amount: pay.submittedAmount ?? pay.expectedAmount,
+      status: pay.status,
+      verifiedAt: pay.verifiedAt ? pay.verifiedAt.toISOString() : null,
+      createdAt: pay.createdAt.toISOString(),
+      razorpayPaymentId: pay.razorpayPaymentId,
+      rejectionReason: pay.rejectionReason,
+    };
+  });
+
   const formattedNotifications: ClientNotificationItem[] = userNotifications.map((n) => ({
     id: n.id,
     message: n.message,
@@ -176,6 +194,7 @@ export default async function ClientDashboardPage() {
           user={auth.user}
           projects={formattedProjects}
           notifications={formattedNotifications}
+          paymentHistory={formattedPaymentHistory}
         />
       </main>
     </div>

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc, count, and, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { projects, projectRequirements, notifications } from "@/db/schema";
+import { projects, projectRequirements, notifications, payments } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { can } from "@/lib/authorization";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
@@ -162,6 +162,47 @@ export default async function BuilderPortalPage() {
     createdAt: n.createdAt.toISOString(),
   }));
 
+  // 7. Query Builder Payment History (VERIFIED or REJECTED)
+  const builderPayments = await db
+    .select({
+      id: payments.id,
+      projectId: payments.projectId,
+      projectCode: projects.projectCode,
+      projectTitle: projects.title,
+      type: payments.type,
+      expectedAmount: payments.expectedAmount,
+      submittedAmount: payments.submittedAmount,
+      status: payments.status,
+      verifiedAt: payments.verifiedAt,
+      createdAt: payments.createdAt,
+      razorpayPaymentId: payments.razorpayPaymentId,
+      rejectionReason: payments.rejectionReason,
+    })
+    .from(payments)
+    .innerJoin(projects, eq(payments.projectId, projects.id))
+    .where(
+      and(
+        eq(projects.builderId, auth.user.id),
+        inArray(payments.status, ["VERIFIED", "REJECTED"])
+      )
+    )
+    .orderBy(desc(payments.createdAt))
+    .limit(20);
+
+  const formattedPaymentHistory = builderPayments.map((p) => ({
+    id: p.id,
+    projectId: p.projectId,
+    projectCode: p.projectCode,
+    projectTitle: p.projectTitle,
+    type: p.type,
+    amount: p.submittedAmount ?? p.expectedAmount,
+    status: p.status,
+    verifiedAt: p.verifiedAt ? p.verifiedAt.toISOString() : null,
+    createdAt: p.createdAt.toISOString(),
+    razorpayPaymentId: p.razorpayPaymentId,
+    rejectionReason: p.rejectionReason,
+  }));
+
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
       <PortalHeader
@@ -177,6 +218,7 @@ export default async function BuilderPortalPage() {
           availableProjects={availableProjects}
           myProjects={myProjects}
           notifications={formattedNotifications}
+          paymentHistory={formattedPaymentHistory}
         />
       </main>
     </div>

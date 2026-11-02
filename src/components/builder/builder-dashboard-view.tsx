@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
+import { PaymentHistoryTable, PaymentHistoryRow } from "@/components/payments/payment-history-table";
 
 export interface BuilderProjectCardItem {
   id: string;
@@ -48,6 +49,7 @@ interface BuilderDashboardViewProps {
   availableProjects: BuilderProjectCardItem[];
   myProjects: BuilderProjectCardItem[];
   notifications: BuilderNotificationItem[];
+  paymentHistory?: PaymentHistoryRow[];
 }
 
 export function getBuilderNextAction(status: string, projectId: string) {
@@ -140,6 +142,7 @@ export function BuilderDashboardView({
   availableProjects,
   myProjects,
   notifications,
+  paymentHistory,
 }: BuilderDashboardViewProps) {
   const [activeTab, setActiveTab] = useState<
     | "overview"
@@ -150,6 +153,7 @@ export function BuilderDashboardView({
     | "progress"
     | "deliveries"
     | "payments"
+    | "payment-history"
     | "messages"
     | "notifications"
     | "profile"
@@ -184,6 +188,7 @@ export function BuilderDashboardView({
     { id: "progress" as const, name: "Progress", icon: "📈", badge: countInDev + countOverdue },
     { id: "deliveries" as const, name: "Deliveries", icon: "📦", badge: countAwaitingDelivery + countCompleted },
     { id: "payments" as const, name: "Payments", icon: "💳" },
+    { id: "payment-history" as const, name: "Payment History", icon: "🧾", badge: paymentHistory?.length },
     { id: "messages" as const, name: "Messages", icon: "💬" },
     { id: "notifications" as const, name: "Notifications", icon: "🔔", badge: notifications.filter((n) => !n.read).length },
     { id: "profile" as const, name: "Profile", icon: "👤" },
@@ -1111,6 +1116,28 @@ export function BuilderDashboardView({
               </div>
             </div>
           </div>
+
+          {/* Builder Payment History Table */}
+          <div className="mt-8">
+            <PaymentHistoryTable
+              initialPayments={paymentHistory || []}
+              role="BUILDER"
+              totalCount={paymentHistory?.length || 0}
+              baseProjectHrefPrefix="/builder/projects"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* TAB: PAYMENT HISTORY */}
+      {activeTab === "payment-history" && (
+        <div className="space-y-6">
+          <PaymentHistoryTable
+            initialPayments={paymentHistory || []}
+            role="BUILDER"
+            totalCount={paymentHistory?.length || 0}
+            baseProjectHrefPrefix="/builder/projects"
+          />
         </div>
       )}
 

@@ -46,6 +46,8 @@ export interface ClientNotificationItem {
   createdAt: string;
 }
 
+import { PaymentHistoryTable, PaymentHistoryRow } from "@/components/payments/payment-history-table";
+
 interface ClientDashboardViewProps {
   user: {
     id: string;
@@ -55,10 +57,11 @@ interface ClientDashboardViewProps {
   };
   projects: ClientProjectItem[];
   notifications: ClientNotificationItem[];
+  paymentHistory?: PaymentHistoryRow[];
 }
 
-export function ClientDashboardView({ user, projects, notifications }: ClientDashboardViewProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "projects" | "deadlines" | "payments" | "messages" | "notifications" | "profile">("overview");
+export function ClientDashboardView({ user, projects, notifications, paymentHistory }: ClientDashboardViewProps) {
+  const [activeTab, setActiveTab] = useState<"overview" | "projects" | "deadlines" | "payments" | "payment-history" | "messages" | "notifications" | "profile">("overview");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -134,6 +137,7 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
           { id: "create", label: "➕ Create Project", href: "/projects/new" },
           { id: "deadlines", label: "⏳ Deadlines" },
           { id: "payments", label: "💳 Payments" },
+          { id: "payment-history", label: "🧾 Payment History" },
           { id: "messages", label: "💬 Messages" },
           { id: "notifications", label: `🔔 Notifications (${notifications.filter((n) => !n.read).length})` },
           { id: "profile", label: "👤 Profile" },
@@ -608,6 +612,28 @@ export function ClientDashboardView({ user, projects, notifications }: ClientDas
               </div>
             </div>
           </div>
+
+          {/* Client Payment History Section */}
+          <div className="mt-8">
+            <PaymentHistoryTable
+              initialPayments={paymentHistory || []}
+              role="CLIENT"
+              totalCount={paymentHistory?.length || 0}
+              baseProjectHrefPrefix="/projects"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* TAB: PAYMENT HISTORY */}
+      {activeTab === "payment-history" && (
+        <div className="space-y-6">
+          <PaymentHistoryTable
+            initialPayments={paymentHistory || []}
+            role="CLIENT"
+            totalCount={paymentHistory?.length || 0}
+            baseProjectHrefPrefix="/projects"
+          />
         </div>
       )}
 
