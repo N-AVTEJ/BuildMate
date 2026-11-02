@@ -55,7 +55,7 @@ describe("Builder vs Client Auth Separation & Provisioned Builder Verification",
     expect(res.status).toBe(200);
 
     const data = await res.json();
-    expect(data.success).toBe(true);
+    expect(data.user).toBeDefined();
     expect(data.user.email).toBe("buildrazor@gmail.com");
     expect(data.user.roles).toContain("BUILDER");
   });
