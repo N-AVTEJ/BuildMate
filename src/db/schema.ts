@@ -12,6 +12,7 @@ import {
   unique,
   pgSequence,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -146,61 +147,72 @@ export const userRoles = pgTable(
   },
   (table) => [
     unique("user_roles_user_id_role_unique").on(table.userId, table.role),
+    index("user_roles_user_id_idx").on(table.userId),
+    index("user_roles_role_idx").on(table.role),
   ]
 );
 
 // 3. projects
-export const projects = pgTable("projects", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectCode: varchar("project_code", { length: 64 }).unique().notNull(),
-  clientId: uuid("client_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "restrict" }),
-  builderId: uuid("builder_id").references(() => users.id, {
-    onDelete: "restrict",
-  }),
-  title: text("title").notNull(),
-  subject: text("subject").notNull(),
-  description: text("description").notNull(),
-  techStack: text("tech_stack").notNull(),
-  budgetMin: integer("budget_min").notNull(),
-  budgetMax: integer("budget_max").notNull(),
-  totalPrice: integer("total_price"),
-  advanceAmount: integer("advance_amount"),
-  remainingAmount: integer("remaining_amount"),
-  status: projectStatusEnum("status").default("DRAFT").notNull(),
-  integrityAck: boolean("integrity_ack").default(false).notNull(),
-  integrityAckAt: timestamp("integrity_ack_at", { withTimezone: true }),
-  acceptanceDeadline: timestamp("acceptance_deadline", { withTimezone: true }),
-  builderAcceptedAt: timestamp("builder_accepted_at", { withTimezone: true }),
-  advancePaymentDeadline: timestamp("advance_payment_deadline", {
-    withTimezone: true,
-  }),
-  advanceVerifiedAt: timestamp("advance_verified_at", { withTimezone: true }),
-  developmentStartedAt: timestamp("development_started_at", {
-    withTimezone: true,
-  }),
-  developmentDeadline: timestamp("development_deadline", {
-    withTimezone: true,
-  }),
-  requestedCompletionDate: date("requested_completion_date", { mode: "string" }),
-  advanceReminderSentAt: timestamp("advance_reminder_sent_at", {
-    withTimezone: true,
-  }),
-  finalAdvanceReminderSentAt: timestamp("final_advance_reminder_sent_at", {
-    withTimezone: true,
-  }),
-  lastProgressUpdateAt: timestamp("last_progress_update_at", {
-    withTimezone: true,
-  }),
-  overdueNotificationSentAt: timestamp("overdue_notification_sent_at", {
-    withTimezone: true,
-  }),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectCode: varchar("project_code", { length: 64 }).unique().notNull(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    builderId: uuid("builder_id").references(() => users.id, {
+      onDelete: "restrict",
+    }),
+    title: text("title").notNull(),
+    subject: text("subject").notNull(),
+    description: text("description").notNull(),
+    techStack: text("tech_stack").notNull(),
+    budgetMin: integer("budget_min").notNull(),
+    budgetMax: integer("budget_max").notNull(),
+    totalPrice: integer("total_price"),
+    advanceAmount: integer("advance_amount"),
+    remainingAmount: integer("remaining_amount"),
+    status: projectStatusEnum("status").default("DRAFT").notNull(),
+    integrityAck: boolean("integrity_ack").default(false).notNull(),
+    integrityAckAt: timestamp("integrity_ack_at", { withTimezone: true }),
+    acceptanceDeadline: timestamp("acceptance_deadline", { withTimezone: true }),
+    builderAcceptedAt: timestamp("builder_accepted_at", { withTimezone: true }),
+    advancePaymentDeadline: timestamp("advance_payment_deadline", {
+      withTimezone: true,
+    }),
+    advanceVerifiedAt: timestamp("advance_verified_at", { withTimezone: true }),
+    developmentStartedAt: timestamp("development_started_at", {
+      withTimezone: true,
+    }),
+    developmentDeadline: timestamp("development_deadline", {
+      withTimezone: true,
+    }),
+    requestedCompletionDate: date("requested_completion_date", { mode: "string" }),
+    advanceReminderSentAt: timestamp("advance_reminder_sent_at", {
+      withTimezone: true,
+    }),
+    finalAdvanceReminderSentAt: timestamp("final_advance_reminder_sent_at", {
+      withTimezone: true,
+    }),
+    lastProgressUpdateAt: timestamp("last_progress_update_at", {
+      withTimezone: true,
+    }),
+    overdueNotificationSentAt: timestamp("overdue_notification_sent_at", {
+      withTimezone: true,
+    }),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("projects_client_id_idx").on(table.clientId),
+    index("projects_builder_id_idx").on(table.builderId),
+    index("projects_status_idx").on(table.status),
+    index("projects_project_code_idx").on(table.projectCode),
+  ]
+);
 
 // 4. project_requirements
 export const projectRequirements = pgTable("project_requirements", {
@@ -219,19 +231,25 @@ export const projectRequirements = pgTable("project_requirements", {
 });
 
 // 5. quotations
-export const quotations = pgTable("quotations", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  totalPrice: integer("total_price").notNull(),
-  advanceAmount: integer("advance_amount").notNull(),
-  remainingAmount: integer("remaining_amount").notNull(),
-  estimatedDurationDays: integer("estimated_duration_days").notNull(),
-  status: quotationStatusEnum("status").default("PENDING").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const quotations = pgTable(
+  "quotations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    totalPrice: integer("total_price").notNull(),
+    advanceAmount: integer("advance_amount").notNull(),
+    remainingAmount: integer("remaining_amount").notNull(),
+    estimatedDurationDays: integer("estimated_duration_days").notNull(),
+    status: quotationStatusEnum("status").default("PENDING").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("quotations_project_id_idx").on(table.projectId),
+  ]
+);
 
 // 6. scope_versions
 export const scopeVersions = pgTable(
@@ -283,6 +301,8 @@ export const payments = pgTable(
   },
   (table) => [
     unique("payments_project_id_type_unique").on(table.projectId, table.type),
+    index("payments_project_id_idx").on(table.projectId),
+    index("payments_status_idx").on(table.status),
   ]
 );
 
@@ -356,64 +376,91 @@ export const changeRequests = pgTable("change_requests", {
 });
 
 // 12. notifications
-export const notifications = pgTable("notifications", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  message: text("message").notNull(),
-  read: boolean("read").default(false).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    read: boolean("read").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("notifications_user_id_idx").on(table.userId),
+    index("notifications_read_idx").on(table.read),
+    index("notifications_user_id_read_idx").on(table.userId, table.read),
+  ]
+);
 
 // 13. disputes
-export const disputes = pgTable("disputes", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  raisedBy: uuid("raised_by")
-    .notNull()
-    .references(() => users.id, { onDelete: "restrict" }),
-  reason: disputeReasonEnum("reason").notNull(),
-  description: text("description").notNull(),
-  status: disputeStatusEnum("status").default("OPEN").notNull(),
-  preDisputeStatus: projectStatusEnum("pre_dispute_status"),
-  resolvedBy: uuid("resolved_by").references(() => users.id, {
-    onDelete: "restrict",
-  }),
-  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
-  resolutionNote: text("resolution_note"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const disputes = pgTable(
+  "disputes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    raisedBy: uuid("raised_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    reason: disputeReasonEnum("reason").notNull(),
+    description: text("description").notNull(),
+    status: disputeStatusEnum("status").default("OPEN").notNull(),
+    preDisputeStatus: projectStatusEnum("pre_dispute_status"),
+    resolvedBy: uuid("resolved_by").references(() => users.id, {
+      onDelete: "restrict",
+    }),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    resolutionNote: text("resolution_note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("disputes_project_id_idx").on(table.projectId),
+    index("disputes_status_idx").on(table.status),
+  ]
+);
 
 // 14. messages
-export const messages = pgTable("messages", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  projectId: uuid("project_id")
-    .notNull()
-    .references(() => projects.id, { onDelete: "cascade" }),
-  senderId: uuid("sender_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "restrict" }),
-  body: text("body").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    senderId: uuid("sender_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("messages_project_id_idx").on(table.projectId),
+  ]
+);
 
 // 15. sessions
-export const sessions = pgTable("sessions", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  tokenHash: varchar("token_hash", { length: 64 }).unique().notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: varchar("token_hash", { length: 64 }).unique().notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("sessions_user_id_idx").on(table.userId),
+  ]
+);
 
 // 16. email_verification_tokens
 export const emailVerificationTokens = pgTable("email_verification_tokens", {
@@ -469,17 +516,25 @@ export const builderInquiries = pgTable("builder_inquiries", {
 });
 
 // 20. builder_applications (Phase 14: Vetted builder applications)
-export const builderApplications = pgTable("builder_applications", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  resumeUrl: text("resume_url").notNull(),
-  githubUrl: text("github_url"),
-  message: text("message"),
-  status: builderApplicationStatusEnum("status").default("PENDING").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const builderApplications = pgTable(
+  "builder_applications",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name").notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    resumeUrl: text("resume_url").notNull(),
+    githubUrl: text("github_url"),
+    message: text("message"),
+    status: builderApplicationStatusEnum("status").default("PENDING").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("builder_applications_status_idx").on(table.status),
+    index("builder_applications_email_idx").on(table.email),
+    index("builder_applications_created_at_idx").on(table.createdAt),
+  ]
+);
 
 // ==========================================
 // DRIZZLE RELATIONS
