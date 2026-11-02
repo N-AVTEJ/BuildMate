@@ -88,10 +88,17 @@ function LoginForm() {
           </Link>
           <div className="flex items-center gap-4 text-sm font-bold">
             <Link
-              href="/"
-              className="text-black hover:underline transition"
+              href="/builder/login"
+              className="px-3 py-1.5 bg-black text-[#ffe17c] border-2 border-black rounded-lg hover:bg-black/80 transition font-heading font-black text-xs uppercase neo-shadow-sm flex items-center gap-1.5"
             >
-              ← Return Home
+              <span>⚡</span>
+              <span>Builder Sign In</span>
+            </Link>
+            <Link
+              href="/"
+              className="text-black hover:underline transition hidden sm:inline"
+            >
+              ← Home
             </Link>
           </div>
         </div>
@@ -123,7 +130,7 @@ function LoginForm() {
 
             {/* Google Sign In for Client */}
             <div className="mb-6 space-y-4">
-              <GoogleSignInButton label="Continue with Google" returnTo="/dashboard" />
+              <GoogleSignInButton label="Continue with Google (Client)" returnTo="/dashboard" />
               <div className="relative flex items-center justify-center">
                 <div className="border-t-2 border-black/10 w-full absolute"></div>
                 <span className="bg-white px-3 text-[11px] font-heading font-black text-black/50 uppercase tracking-wider relative">
@@ -204,9 +211,15 @@ function LoginForm() {
                 </Link>
               </p>
               <p className="text-xs font-bold text-black/70">
-                Want to build?{" "}
+                Are you an authorized builder?{" "}
+                <Link href="/builder/login" className="font-black text-black underline">
+                  Builder Sign In →
+                </Link>
+              </p>
+              <p className="text-xs font-bold text-black/70">
+                Want to build on BuildMate?{" "}
                 <Link href="/builder/apply" className="font-black text-black underline">
-                  Apply for Builder Access (Invite-Only)
+                  Apply for Builder Access
                 </Link>
               </p>
             </div>

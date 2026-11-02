@@ -112,8 +112,15 @@ export default function RegisterPage() {
           </Link>
           <div className="flex items-center gap-4 text-sm font-bold">
             <Link
+              href="/builder/login"
+              className="px-3 py-1.5 bg-black text-[#ffe17c] border-2 border-black rounded-lg hover:bg-black/80 transition font-heading font-black text-xs uppercase neo-shadow-sm flex items-center gap-1.5"
+            >
+              <span>⚡</span>
+              <span>Builder Sign In</span>
+            </Link>
+            <Link
               href="/login"
-              className="text-black hover:underline transition"
+              className="text-black hover:underline transition hidden sm:inline"
             >
               Sign In →
             </Link>
@@ -146,7 +153,7 @@ export default function RegisterPage() {
 
             {/* Google Sign Up for Clients */}
             <div className="mb-6 space-y-4">
-              <GoogleSignInButton label="Sign Up with Google" returnTo="/dashboard" />
+              <GoogleSignInButton label="Sign Up with Google (Client)" returnTo="/dashboard" />
               <div className="relative flex items-center justify-center">
                 <div className="border-t-2 border-black/10 w-full absolute"></div>
                 <span className="bg-white px-3 text-[11px] font-heading font-black text-black/50 uppercase tracking-wider relative">
@@ -309,13 +316,19 @@ export default function RegisterPage() {
 
             <div className="mt-8 pt-6 border-t-2 border-black/10 text-center space-y-2">
               <p className="text-xs font-bold text-black/70">
-                Already have an account?{" "}
+                Already have a client account?{" "}
                 <Link href="/login" className="font-black text-black underline">
                   Sign In
                 </Link>
               </p>
               <p className="text-xs font-bold text-black/70">
-                Are you an engineer?{" "}
+                Are you an authorized builder?{" "}
+                <Link href="/builder/login" className="font-black text-black underline">
+                  Builder Sign In →
+                </Link>
+              </p>
+              <p className="text-xs font-bold text-black/70">
+                Want to join as a builder?{" "}
                 <Link href="/builder/apply" className="font-black text-black underline">
                   Apply for Builder Access
                 </Link>
