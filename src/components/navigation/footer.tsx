@@ -121,6 +121,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/cancellation-refund" className="hover:text-[#ffe17c] transition">
+                  Cancellation &amp; Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-[#ffe17c] transition">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
                 <Link href="/builder/apply" className="hover:text-[#ffe17c] transition">
                   Apply for Builder Access
                 </Link>
@@ -139,9 +149,11 @@ export function Footer() {
           <div>
             &copy; {new Date().getFullYear()} BuildMate Platform. Built with Neo-Brutalist Milestone Security.
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
+            <Link href="/cancellation-refund" className="hover:text-white transition">Refunds</Link>
+            <Link href="/contact" className="hover:text-white transition">Contact</Link>
             <Link href="/login" className="hover:text-white transition">Sign In</Link>
           </div>
         </div>
