@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { POST as loginRoute } from "@/app/api/auth/login";
+import { POST as loginRoute } from "@/app/api/auth/login/route";
 import { db } from "@/db";
 import { users, userRoles } from "@/db/schema";
 import { eq } from "drizzle-orm";
