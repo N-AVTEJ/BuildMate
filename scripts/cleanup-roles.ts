@@ -1,10 +1,10 @@
 import { client } from "../src/db";
 
-const ALLOWED_ADMIN_EMAIL = "madipadiganavtej@gmail.com";
+const ALLOWED_EMAILS = ["madipadiganavtej@gmail.com", "buildrazor@gmail.com"];
 
 async function cleanupRoles() {
   console.log(`[Cleanup Roles] Scanning for unauthorized ADMIN and BUILDER roles...`);
-  console.log(`[Cleanup Roles] Allowed privileged email: ${ALLOWED_ADMIN_EMAIL}`);
+  console.log(`[Cleanup Roles] Allowed privileged emails: ${ALLOWED_EMAILS.join(", ")}`);
 
   // 1. Audit and log which rows are targeted for deletion
   const candidateRows = await client<
@@ -19,12 +19,12 @@ async function cleanupRoles() {
     FROM user_roles ur
     INNER JOIN users u ON ur.user_id = u.id
     WHERE ur.role IN ('ADMIN', 'BUILDER')
-      AND LOWER(u.email) != LOWER(${ALLOWED_ADMIN_EMAIL})
+      AND LOWER(u.email) NOT IN (${ALLOWED_EMAILS[0]}, ${ALLOWED_EMAILS[1]})
   `;
 
   if (candidateRows.length === 0) {
     console.log(`[Cleanup Roles] No unauthorized ADMIN or BUILDER roles found in database.`);
-    console.log(`[Cleanup Roles] Confirmation: ONLY '${ALLOWED_ADMIN_EMAIL}' holds privileged access.`);
+    console.log(`[Cleanup Roles] Confirmation: ONLY [${ALLOWED_EMAILS.join(", ")}] hold privileged access.`);
     await client.end();
     process.exit(0);
   }
@@ -46,13 +46,13 @@ async function cleanupRoles() {
     DELETE FROM user_roles
     WHERE role IN ('ADMIN', 'BUILDER')
       AND user_id NOT IN (
-        SELECT id FROM users WHERE LOWER(email) = LOWER(${ALLOWED_ADMIN_EMAIL})
+        SELECT id FROM users WHERE LOWER(email) IN (${ALLOWED_EMAILS[0]}, ${ALLOWED_EMAILS[1]})
       )
     RETURNING id, user_id, role
   `;
 
   console.log(`[Cleanup Roles] Successfully deleted ${deletedRows.length} unauthorized role assignment(s).`);
-  console.log(`[Cleanup Roles] Confirmation: Only '${ALLOWED_ADMIN_EMAIL}' possesses ADMIN/BUILDER roles.`);
+  console.log(`[Cleanup Roles] Confirmation: Only [${ALLOWED_EMAILS.join(", ")}] possess ADMIN/BUILDER roles.`);
 
   await client.end();
   process.exit(0);
