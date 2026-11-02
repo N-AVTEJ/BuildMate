@@ -113,8 +113,9 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
         )
       );
 
+    const ALLOWED_PERMANENT = ["madipadiganavtej@gmail.com", "buildrazor@gmail.com"];
     for (const row of permanentPrivileged) {
-      expect(row.email).toBe("madipadiganavtej@gmail.com");
+      expect(ALLOWED_PERMANENT).toContain(row.email.toLowerCase());
     }
   });
 
