@@ -16,6 +16,8 @@ export default async function BuilderProjectDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const startTime = performance.now();
+
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {

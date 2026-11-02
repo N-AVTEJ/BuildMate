@@ -9,6 +9,8 @@ import { PortalHeader } from "@/components/navigation/portal-header";
 import { ClientDashboardView, ClientProjectItem, ClientNotificationItem } from "@/components/dashboard/client-dashboard-view";
 
 export default async function ClientDashboardPage() {
+  const startTime = performance.now();
+
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {
@@ -180,6 +182,11 @@ export default async function ClientDashboardPage() {
     read: n.read,
     createdAt: n.createdAt.toISOString(),
   }));
+
+  const durationMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/ClientDashboard] Loaded in ${durationMs}ms`);
+  }
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">

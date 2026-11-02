@@ -1,0 +1,44 @@
+export default function ProjectsLoading() {
+  return (
+    <div className="min-h-screen bg-[#fffdf0] neo-dots">
+      {/* Skeleton Header */}
+      <header className="bg-[#ffe17c] border-b-2 border-black sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#171e19] border-2 border-black animate-pulse" />
+            <div className="h-6 w-32 bg-black/20 rounded animate-pulse" />
+          </div>
+          <div className="h-8 w-24 bg-white border-2 border-black rounded animate-pulse" />
+        </div>
+      </header>
+
+      {/* Main Content Skeleton */}
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="h-8 w-48 bg-gray-300 rounded animate-pulse" />
+          <div className="h-10 w-36 bg-[#171e19] rounded-xl animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-white border-2 border-black rounded-2xl p-6 neo-shadow-sm animate-pulse space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="h-5 w-24 bg-gray-300 rounded" />
+                <div className="h-5 w-20 bg-gray-200 rounded-full" />
+              </div>
+              <div className="h-6 w-3/4 bg-gray-300 rounded" />
+              <div className="h-14 w-full bg-gray-100 rounded" />
+              <div className="pt-4 border-t-2 border-black/10 flex justify-between items-center">
+                <div className="h-5 w-28 bg-gray-200 rounded" />
+                <div className="h-8 w-24 bg-gray-300 rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}

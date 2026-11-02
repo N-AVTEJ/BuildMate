@@ -16,6 +16,8 @@ export default async function ProjectDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const startTime = performance.now();
+
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {
@@ -80,6 +82,11 @@ export default async function ProjectDetailPage({
     .where(eq(payments.projectId, project.id))
     .orderBy(desc(payments.createdAt))
     .limit(1);
+
+  const durationMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/ProjectDetail] Loaded in ${durationMs}ms`);
+  }
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19] selection:bg-black selection:text-white">

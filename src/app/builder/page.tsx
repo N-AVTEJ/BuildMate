@@ -14,6 +14,8 @@ import {
 } from "@/components/builder/builder-dashboard-view";
 
 export default async function BuilderPortalPage() {
+  const startTime = performance.now();
+
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
   if (!auth) {
@@ -56,7 +58,36 @@ export default async function BuilderPortalPage() {
     .orderBy(desc(projects.submittedAt))
     .limit(50);
 
-  // 4. Reconcile Lazy Expiry for Available Projects
+  // 4. Query Builder's Assigned Projects (Strictly isolated by session builder ID)
+  const assignedCandidateProjects = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.builderId, auth.user.id))
+    .orderBy(desc(projects.updatedAt))
+    .limit(50);
+
+  // 5. Batch Query Requirement Counts for all candidate projects (eliminates N+1 query lag)
+  const allProjectIds = [
+    ...candidateProjects.map((p) => p.id),
+    ...assignedCandidateProjects.map((p) => p.id),
+  ];
+  const reqCountMap = new Map<string, number>();
+  if (allProjectIds.length > 0) {
+    const reqCounts = await db
+      .select({
+        projectId: projectRequirements.projectId,
+        count: count(),
+      })
+      .from(projectRequirements)
+      .where(inArray(projectRequirements.projectId, allProjectIds))
+      .groupBy(projectRequirements.projectId);
+
+    for (const rc of reqCounts) {
+      reqCountMap.set(rc.projectId, Number(rc.count));
+    }
+  }
+
+  // 6. Reconcile Lazy Expiry for Available Projects
   const availableProjects: BuilderProjectCardItem[] = [];
 
   for (const proj of candidateProjects) {
@@ -68,11 +99,6 @@ export default async function BuilderPortalPage() {
     }
 
     if (effective.status === "AVAILABLE") {
-      const [reqs] = await db
-        .select({ count: count() })
-        .from(projectRequirements)
-        .where(eq(projectRequirements.projectId, proj.id));
-
       availableProjects.push({
         id: proj.id,
         projectCode: proj.projectCode,
@@ -91,21 +117,13 @@ export default async function BuilderPortalPage() {
         advancePaymentDeadline: proj.advancePaymentDeadline ? proj.advancePaymentDeadline.toISOString() : null,
         acceptanceDeadline: proj.acceptanceDeadline ? proj.acceptanceDeadline.toISOString() : null,
         lastProgressUpdateAt: proj.lastProgressUpdateAt ? proj.lastProgressUpdateAt.toISOString() : null,
-        requirementCount: reqs ? Number(reqs.count) : 0,
+        requirementCount: reqCountMap.get(proj.id) ?? 0,
         isAssignedToMe: false,
         submittedAt: proj.submittedAt ? proj.submittedAt.toISOString() : null,
         createdAt: proj.createdAt.toISOString(),
       });
     }
   }
-
-  // 5. Query Builder's Assigned Projects (Strictly isolated by session builder ID)
-  const assignedCandidateProjects = await db
-    .select()
-    .from(projects)
-    .where(eq(projects.builderId, auth.user.id))
-    .orderBy(desc(projects.updatedAt))
-    .limit(50);
 
   const myProjects: BuilderProjectCardItem[] = [];
 
@@ -116,11 +134,6 @@ export default async function BuilderPortalPage() {
     if (effective.changed) {
       finalStatus = await reconcileProjectStatusInDb(proj.id, now);
     }
-
-    const [reqs] = await db
-      .select({ count: count() })
-      .from(projectRequirements)
-      .where(eq(projectRequirements.projectId, proj.id));
 
     myProjects.push({
       id: proj.id,
@@ -140,7 +153,7 @@ export default async function BuilderPortalPage() {
       advancePaymentDeadline: proj.advancePaymentDeadline ? proj.advancePaymentDeadline.toISOString() : null,
       acceptanceDeadline: proj.acceptanceDeadline ? proj.acceptanceDeadline.toISOString() : null,
       lastProgressUpdateAt: proj.lastProgressUpdateAt ? proj.lastProgressUpdateAt.toISOString() : null,
-      requirementCount: reqs ? Number(reqs.count) : 0,
+      requirementCount: reqCountMap.get(proj.id) ?? 0,
       isAssignedToMe: true,
       submittedAt: proj.submittedAt ? proj.submittedAt.toISOString() : null,
       createdAt: proj.createdAt.toISOString(),
@@ -202,6 +215,11 @@ export default async function BuilderPortalPage() {
     razorpayPaymentId: p.razorpayPaymentId,
     rejectionReason: p.rejectionReason,
   }));
+
+  const durationMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/BuilderPortal] Loaded in ${durationMs}ms`);
+  }
 
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
