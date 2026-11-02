@@ -54,7 +54,8 @@ export default async function AdminBuilderApplicationsPage() {
       createdAt: builderApplications.createdAt,
     })
     .from(builderApplications)
-    .orderBy(desc(builderApplications.createdAt));
+    .orderBy(desc(builderApplications.createdAt))
+    .limit(50);
 
   const applications: BuilderApplicationItem[] = rows.map((r) => ({
     id: r.id,

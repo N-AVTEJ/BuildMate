@@ -51,7 +51,8 @@ export default async function AdminPaymentsPage() {
       createdAt: payments.createdAt,
     })
     .from(payments)
-    .orderBy(desc(payments.createdAt));
+    .orderBy(desc(payments.createdAt))
+    .limit(50);
 
   // Fetch associated projects
   const projectIds = Array.from(new Set(allPayments.map((p) => p.projectId)));
