@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { projects, changeRequests, notifications } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize, isProjectParticipant } from "@/lib/authorization";
+import { sendWebPushForUser } from "@/lib/notify";
 
 const CR_ELIGIBLE_STATUSES = [
   "AWAITING_ADVANCE",
@@ -130,15 +131,22 @@ export async function POST(
         .returning();
 
       // 6. Insert Client Notification in the SAME transaction
+      const notifMsg = `New change request submitted for project "${project.title}" (${project.projectCode}): additional cost ₹${newChangeRequest.additionalCost}, +${newChangeRequest.additionalTimeDays} days.`;
       await tx.insert(notifications).values({
         userId: project.clientId,
-        message: `New change request submitted for project "${project.title}" (ID: ${project.id}): Change Request ${newChangeRequest.id} - additional cost ₹${newChangeRequest.additionalCost}, +${newChangeRequest.additionalTimeDays} days. Description: ${newChangeRequest.description.slice(0, 100)}`,
+        type: "CHANGE_REQUEST_CREATED",
+        title: "New change request",
+        body: notifMsg,
+        message: notifMsg,
+        projectId: project.id,
+        url: `/projects/${project.id}`,
         read: false,
       });
 
       return {
         type: "SUCCESS" as const,
         changeRequest: newChangeRequest,
+        project,
       };
     });
 
@@ -153,6 +161,13 @@ export async function POST(
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
+
+    // Backend authority: Dispatch push to project's clientId
+    sendWebPushForUser(result.project.clientId, "CHANGE_REQUEST_CREATED", {
+      title: "New change request",
+      body: `New change request submitted for project "${result.project.title}".`,
+      url: `/projects/${result.project.id}`,
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

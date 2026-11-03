@@ -6,6 +6,7 @@ import { builderApplications, notifications, users, userRoles, emailVerification
 import { requireRole } from "@/lib/auth/guards";
 import { hashToken } from "@/lib/auth/session";
 import { sendBuilderSetupEmail } from "@/lib/email/resend";
+import { notify } from "@/lib/notify";
 
 export async function PATCH(
   req: Request,
@@ -140,6 +141,13 @@ export async function PATCH(
     if (action === "APPROVE") {
       const provisioned = await provisionAndSendSetup();
       setupToken = provisioned.rawToken;
+
+      // Backend authority: Notify newly provisioned builder
+      await notify(provisioned.userRecord.id, "BUILDER_APPROVED", {
+        title: "Builder Application Approved",
+        body: "Congratulations! Your builder application has been approved. Please set up your password.",
+        url: "/builder/login",
+      });
 
       await db.insert(notifications).values({
         userId: auth.user.id,

@@ -1,6 +1,7 @@
 import { eq, and, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { projects, notifications } from "@/db/schema";
+import { sendWebPushForUser } from "@/lib/notify";
 
 export interface ProjectReminderInput {
   id: string;
@@ -89,11 +90,23 @@ export async function reconcilePaymentReminders(
       .returning({ id: projects.id });
 
     if (updated) {
+      const msg = `Urgent: Less than 2 hours remaining to submit advance payment for project "${project.title}" (${project.projectCode}).`;
       await db.insert(notifications).values({
         userId: project.clientId,
-        message: `Urgent: Less than 2 hours remaining to submit advance payment for project "${project.title}" (${project.projectCode}).`,
+        type: "DEADLINE_APPROACHING",
+        title: "Payment deadline approaching",
+        body: msg,
+        message: msg,
+        url: `/projects/${project.id}`,
+        projectId: project.id,
         read: false,
       });
+
+      sendWebPushForUser(project.clientId, "DEADLINE_APPROACHING", {
+        title: "Payment deadline approaching",
+        body: msg,
+        url: `/projects/${project.id}`,
+      }).catch(() => {});
     }
   } else if (decision.level === "12H") {
     // Atomic check-and-set for <12h reminder
@@ -112,11 +125,23 @@ export async function reconcilePaymentReminders(
       .returning({ id: projects.id });
 
     if (updated) {
+      const msg = `Reminder: Advance payment deadline is approaching (less than 12 hours remaining) for project "${project.title}" (${project.projectCode}).`;
       await db.insert(notifications).values({
         userId: project.clientId,
-        message: `Reminder: Advance payment deadline is approaching (less than 12 hours remaining) for project "${project.title}" (${project.projectCode}).`,
+        type: "DEADLINE_APPROACHING",
+        title: "Payment deadline approaching",
+        body: msg,
+        message: msg,
+        url: `/projects/${project.id}`,
+        projectId: project.id,
         read: false,
       });
+
+      sendWebPushForUser(project.clientId, "DEADLINE_APPROACHING", {
+        title: "Payment deadline approaching",
+        body: msg,
+        url: `/projects/${project.id}`,
+      }).catch(() => {});
     }
   }
 }

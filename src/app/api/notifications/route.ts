@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { eq, and, desc, count } from "drizzle-orm";
+import { eq, and, desc, lt, count, or, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
@@ -11,34 +11,83 @@ export async function GET(req: Request) {
 
     const rawLimit = parseInt(url.searchParams.get("limit") || "20", 10);
     const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? rawLimit : 20, 1), 50);
+    const cursor = url.searchParams.get("cursor");
     const rawOffset = parseInt(url.searchParams.get("offset") || "0", 10);
     const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
     const unreadOnly = url.searchParams.get("unreadOnly") === "true";
 
-    const whereClause = unreadOnly
-      ? and(eq(notifications.userId, auth.user.id), eq(notifications.read, false))
+    // Unread condition checks both `read === false` and `readAt IS NULL` for backward compatibility
+    const unreadCondition = or(eq(notifications.read, false), isNull(notifications.readAt));
+
+    const baseFilter = unreadOnly
+      ? and(eq(notifications.userId, auth.user.id), unreadCondition)
       : eq(notifications.userId, auth.user.id);
 
-    // Get total count
-    const [countResult] = await db
-      .select({ value: count() })
-      .from(notifications)
-      .where(whereClause);
+    // Total and unread count queries
+    const [[countResult], [unreadResult]] = await Promise.all([
+      db
+        .select({ value: count() })
+        .from(notifications)
+        .where(baseFilter),
+      db
+        .select({ value: count() })
+        .from(notifications)
+        .where(and(eq(notifications.userId, auth.user.id), unreadCondition)),
+    ]);
 
     const total = countResult?.value || 0;
+    const unreadCount = unreadResult?.value || 0;
 
-    // Fetch paginated notifications
-    const rows = await db
-      .select()
-      .from(notifications)
-      .where(whereClause)
-      .orderBy(desc(notifications.createdAt))
-      .limit(limit)
-      .offset(offset);
+    let rows: (typeof notifications.$inferSelect)[];
+    let nextCursor: string | null = null;
+    let hasMore = false;
+
+    if (cursor) {
+      // Cursor-based pagination using createdAt timestamp
+      const cursorDate = new Date(cursor);
+      const cursorFilter = and(baseFilter, lt(notifications.createdAt, cursorDate));
+
+      const fetched = await db
+        .select()
+        .from(notifications)
+        .where(cursorFilter)
+        .orderBy(desc(notifications.createdAt))
+        .limit(limit + 1);
+
+      if (fetched.length > limit) {
+        hasMore = true;
+        rows = fetched.slice(0, limit);
+        nextCursor = rows[rows.length - 1].createdAt.toISOString();
+      } else {
+        rows = fetched;
+        nextCursor = null;
+      }
+    } else {
+      // Offset-based pagination with lookahead
+      const fetched = await db
+        .select()
+        .from(notifications)
+        .where(baseFilter)
+        .orderBy(desc(notifications.createdAt))
+        .limit(limit + 1)
+        .offset(offset);
+
+      if (fetched.length > limit) {
+        hasMore = true;
+        rows = fetched.slice(0, limit);
+        nextCursor = rows[rows.length - 1].createdAt.toISOString();
+      } else {
+        rows = fetched;
+        nextCursor = null;
+      }
+    }
 
     return NextResponse.json({
       success: true,
       notifications: rows,
+      unreadCount,
+      hasMore,
+      nextCursor,
       pagination: {
         total,
         limit,
@@ -61,11 +110,12 @@ export async function PATCH(req: Request) {
   try {
     const auth = await requireAuth();
     const body = await req.json().catch(() => ({}));
+    const now = new Date();
 
     if (body.all) {
       await db
         .update(notifications)
-        .set({ read: true, updatedAt: new Date() })
+        .set({ read: true, readAt: now, updatedAt: now })
         .where(eq(notifications.userId, auth.user.id));
 
       return NextResponse.json({ success: true, message: "All notifications marked as read." });
@@ -74,7 +124,7 @@ export async function PATCH(req: Request) {
     if (body.id) {
       await db
         .update(notifications)
-        .set({ read: true, updatedAt: new Date() })
+        .set({ read: true, readAt: now, updatedAt: now })
         .where(
           and(
             eq(notifications.id, body.id),

@@ -11,6 +11,7 @@ import {
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 import { validateDeliverableSubmission } from "@/lib/projects/deliverable-validation";
+import { notify } from "@/lib/notify";
 
 export async function POST(
   req: Request,
@@ -193,6 +194,7 @@ export async function POST(
       return {
         type: "SUCCESS" as const,
         deliverable: newDeliverable,
+        project,
         updated: false,
       };
     });
@@ -208,6 +210,14 @@ export async function POST(
     if (result.type === "BAD_REQUEST") {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
+
+    // Backend authority: recipient clientId derived from DB project row
+    await notify(result.project.clientId, "DELIVERY_UPLOADED", {
+      title: "Delivery uploaded",
+      body: `Builder has submitted deliverables for "${result.project.title}". Please review.`,
+      url: `/projects/${projectId}/delivery`,
+      projectId,
+    });
 
     return NextResponse.json(
       {

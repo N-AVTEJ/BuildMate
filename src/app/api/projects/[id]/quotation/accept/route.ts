@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
+import { notify } from "@/lib/notify";
 
 export async function POST(
   _req: Request,
@@ -163,6 +164,16 @@ export async function POST(
 
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    // Backend authority: notify assigned builder using project's builderId
+    if (result.project.builderId) {
+      await notify(result.project.builderId, "QUOTATION_ACCEPTED", {
+        title: "Quotation accepted",
+        body: `Your quotation for "${result.project.title}" has been accepted!`,
+        url: `/builder/projects/${projectId}`,
+        projectId,
+      });
     }
 
     return NextResponse.json({

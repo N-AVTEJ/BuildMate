@@ -11,6 +11,7 @@ import {
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { validateDisputeSubmission } from "@/lib/projects/dispute-validation";
 import { ProjectStatus } from "@/lib/project-status";
+import { sendWebPushForUser } from "@/lib/notify";
 
 export async function POST(
   req: Request,
@@ -143,17 +144,32 @@ export async function POST(
       }
 
       // Notify the other party
+      let otherPartyId: string | null = null;
       if (isClient && project.builderId) {
+        otherPartyId = project.builderId;
+        const msg = `Client opened a formal dispute on "${project.title}". Project is in DISPUTE_OPEN status pending administrator review.`;
         await tx.insert(notifications).values({
           userId: project.builderId,
-          message: `Client opened a formal dispute on "${project.title}". Project is in DISPUTE_OPEN status pending administrator review.`,
+          type: "DISPUTE_OPENED",
+          title: "Dispute opened",
+          body: msg,
+          message: msg,
+          projectId: project.id,
+          url: `/builder/projects/${project.id}`,
           createdAt: now,
           updatedAt: now,
         });
       } else if (isBuilder) {
+        otherPartyId = project.clientId;
+        const msg = `Builder opened a formal dispute on "${project.title}". Project is in DISPUTE_OPEN status pending administrator review.`;
         await tx.insert(notifications).values({
           userId: project.clientId,
-          message: `Builder opened a formal dispute on "${project.title}". Project is in DISPUTE_OPEN status pending administrator review.`,
+          type: "DISPUTE_OPENED",
+          title: "Dispute opened",
+          body: msg,
+          message: msg,
+          projectId: project.id,
+          url: `/projects/${project.id}`,
           createdAt: now,
           updatedAt: now,
         });
@@ -163,6 +179,7 @@ export async function POST(
         type: "SUCCESS" as const,
         dispute: newDispute,
         project: updatedProject,
+        otherPartyId,
       };
     });
 
@@ -176,6 +193,15 @@ export async function POST(
 
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    // Backend authority: dispatch push to other party
+    if (result.otherPartyId) {
+      sendWebPushForUser(result.otherPartyId, "DISPUTE_OPENED", {
+        title: "Dispute opened",
+        body: `A formal dispute was opened on "${result.project.title}".`,
+        url: `/projects/${result.project.id}`,
+      }).catch(() => {});
     }
 
     if (result.type === "BAD_REQUEST") {

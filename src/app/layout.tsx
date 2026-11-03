@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   title: "BuildMate — Milestone-Managed Software Development Platform",
   description:
     "Milestone-managed software procurement platform connecting clients with verified builders through gated code delivery, scope locking, and verified milestone payments.",
+  manifest: "/manifest.json",
 };
 
 import { Footer } from "@/components/navigation/footer";

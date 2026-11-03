@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { projects, quotations, projectStatusHistory } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
+import { notify } from "@/lib/notify";
 
 export async function POST(
   _req: Request,
@@ -102,6 +103,16 @@ export async function POST(
 
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    // Backend authority: notify assigned builder using project's builderId
+    if (result.project.builderId) {
+      await notify(result.project.builderId, "QUOTATION_REJECTED", {
+        title: "Quotation rejected",
+        body: `Your quotation for "${result.project.title}" was not accepted. You may submit a revised quotation.`,
+        url: `/builder/projects/${projectId}`,
+        projectId,
+      });
     }
 
     return NextResponse.json({

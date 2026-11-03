@@ -11,6 +11,7 @@ import {
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 import { computeAdvanceBreakdown } from "@/lib/projects/pricing";
+import { notify } from "@/lib/notify";
 
 const CR_ELIGIBLE_STATUSES = [
   "AWAITING_ADVANCE",
@@ -208,6 +209,16 @@ export async function POST(
 
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    // Backend authority: notify builder
+    if (result.project.builderId) {
+      await notify(result.project.builderId, "CHANGE_REQUEST_ACCEPTED", {
+        title: "Change request accepted",
+        body: `Your change request for "${result.project.title}" has been accepted.`,
+        url: `/builder/projects/${projectId}`,
+        projectId,
+      });
     }
 
     return NextResponse.json({

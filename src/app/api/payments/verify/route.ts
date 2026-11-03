@@ -12,6 +12,7 @@ import {
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { rateLimit, getClientIp } from "@/lib/auth/rate-limit";
 import { fetchRazorpayOrder } from "@/lib/payments/razorpay";
+import { notify, sendWebPushForUser } from "@/lib/notify";
 
 export async function POST(req: Request) {
   try {
@@ -118,6 +119,13 @@ export async function POST(req: Request) {
           updatedAt: new Date(),
         })
         .where(eq(payments.id, paymentRecord.id));
+
+      await notify(project.clientId, "PAYMENT_REJECTED", {
+        title: "Payment rejected",
+        body: `Payment verification failed for project ${project.projectCode}.`,
+        url: `/projects/${project.id}`,
+        projectId: project.id,
+      });
 
       return NextResponse.json(
         {
@@ -236,12 +244,22 @@ export async function POST(req: Request) {
         if (project.builderId) {
           await tx.insert(notifications).values({
             userId: project.builderId,
+            type: "PAYMENT_VERIFIED",
+            title: "Payment verified",
+            body: `Advance payment verified for project ${project.projectCode}. Development is officially started!`,
             message: `Advance payment verified for project ${project.projectCode}. Development is officially started!`,
+            projectId: project.id,
+            url: `/builder/projects/${project.id}`,
           });
         }
         await tx.insert(notifications).values({
           userId: project.clientId,
+          type: "PAYMENT_VERIFIED",
+          title: "Payment verified",
+          body: `Advance payment verified for project ${project.projectCode}. Development has begun.`,
           message: `Advance payment verified for project ${project.projectCode}. Development has begun.`,
+          projectId: project.id,
+          url: `/projects/${project.id}`,
         });
       } else if (paymentRecord.type === "FINAL") {
         newProjectStatus = "DELIVERY_UNLOCKED";
@@ -268,17 +286,41 @@ export async function POST(req: Request) {
         // Notifications
         await tx.insert(notifications).values({
           userId: project.clientId,
+          type: "PAYMENT_VERIFIED",
+          title: "Payment verified",
+          body: `Final payment verified for project ${project.projectCode}. Code repository delivery is now unlocked!`,
           message: `Final payment verified for project ${project.projectCode}. Code repository delivery is now unlocked!`,
+          projectId: project.id,
+          url: `/projects/${project.id}/delivery`,
         });
 
         if (project.builderId) {
           await tx.insert(notifications).values({
             userId: project.builderId,
+            type: "PAYMENT_VERIFIED",
+            title: "Payment verified",
+            body: `Final payment received and verified for project ${project.projectCode}.`,
             message: `Final payment received and verified for project ${project.projectCode}.`,
+            projectId: project.id,
+            url: `/builder/projects/${project.id}`,
           });
         }
       }
     });
+
+    // Non-blocking push notification dispatch outside the transaction
+    if (project.builderId) {
+      sendWebPushForUser(project.builderId, "PAYMENT_VERIFIED", {
+        title: "Payment verified",
+        body: `Payment verified for project ${project.projectCode}.`,
+        url: `/builder/projects/${project.id}`,
+      }).catch(() => {});
+    }
+    sendWebPushForUser(project.clientId, "PAYMENT_VERIFIED", {
+      title: "Payment verified",
+      body: `Payment verified for project ${project.projectCode}.`,
+      url: `/projects/${project.id}`,
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

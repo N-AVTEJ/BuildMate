@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { projects, changeRequests } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
+import { notify } from "@/lib/notify";
 
 const CR_ELIGIBLE_STATUSES = [
   "AWAITING_ADVANCE",
@@ -88,6 +89,7 @@ export async function POST(
       return {
         type: "SUCCESS" as const,
         changeRequest: updatedCR,
+        project,
       };
     });
 
@@ -97,6 +99,16 @@ export async function POST(
 
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
+    // Backend authority: notify builder
+    if (result.project.builderId) {
+      await notify(result.project.builderId, "CHANGE_REQUEST_REJECTED", {
+        title: "Change request declined",
+        body: `Your change request for "${result.project.title}" was declined.`,
+        url: `/builder/projects/${projectId}`,
+        projectId,
+      });
     }
 
     return NextResponse.json({

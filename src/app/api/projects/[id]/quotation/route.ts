@@ -5,6 +5,7 @@ import { projects, quotations, projectStatusHistory } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 import { computeAdvanceBreakdown } from "@/lib/projects/pricing";
+import { notify } from "@/lib/notify";
 
 export async function POST(
   req: Request,
@@ -133,6 +134,14 @@ export async function POST(
     if (result.type === "CONFLICT") {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
+
+    // Backend authority: recipient clientId is derived strictly from DB project record
+    await notify(result.project.clientId, "QUOTATION_RECEIVED", {
+      title: "New quotation received",
+      body: `You received a new quotation for "${result.project.title}".`,
+      url: `/projects/${projectId}/quotation`,
+      projectId,
+    });
 
     return NextResponse.json({
       success: true,

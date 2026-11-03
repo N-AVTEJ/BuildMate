@@ -7,10 +7,12 @@ import {
   quotations,
   projectStatusHistory,
   notifications,
+  userRoles,
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { rateLimit, getClientIp } from "@/lib/auth/rate-limit";
 import { createRazorpayOrder } from "@/lib/payments/razorpay";
+import { notify } from "@/lib/notify";
 
 export async function POST(req: Request) {
   try {
@@ -273,6 +275,25 @@ export async function POST(req: Request) {
         razorpayOrderId: order.id,
         status: "ORDER_CREATED",
       });
+    }
+
+    // Backend authority: Notify Admins that payment order was initiated
+    try {
+      const admins = await db
+        .select({ userId: userRoles.userId })
+        .from(userRoles)
+        .where(eq(userRoles.role, "ADMIN"));
+
+      for (const admin of admins) {
+        notify(admin.userId, "PAYMENT_SUBMITTED", {
+          title: "Payment order initiated",
+          body: `Payment order initiated for project ${project.projectCode} (${paymentType}).`,
+          url: `/admin/payments`,
+          projectId: project.id,
+        }).catch(() => {});
+      }
+    } catch (adminNotifyErr) {
+      console.warn("[Payments/CreateOrder] Failed to notify admins:", adminNotifyErr);
     }
 
     const keyId =

@@ -8,6 +8,7 @@ import {
   userRoles,
   notifications,
 } from "@/db/schema";
+import { sendWebPushForUser } from "@/lib/notify";
 
 export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
 
@@ -217,15 +218,50 @@ export async function reconcileProjectStatusInDb(
         for (const admin of admins) {
           await tx.insert(notifications).values({
             userId: admin.userId,
+            type: "PROJECT_OVERDUE",
+            title: "Project overdue",
+            body: `Project "${project.title}" (${project.projectCode}) is now OVERDUE (${effective.reason}).`,
             message: `Project "${project.title}" (${project.projectCode}) is now OVERDUE (${effective.reason}).`,
+            projectId: project.id,
+            url: `/admin`,
           });
         }
 
         // Client notification
         await tx.insert(notifications).values({
           userId: project.clientId,
+          type: "PROJECT_OVERDUE",
+          title: "Project overdue",
+          body: `Project "${project.title}" is overdue. Our administration team has been alerted.`,
           message: `Project "${project.title}" is overdue. Our administration team has been alerted.`,
+          projectId: project.id,
+          url: `/projects/${project.id}`,
         });
+
+        // Builder notification
+        if (project.builderId) {
+          await tx.insert(notifications).values({
+            userId: project.builderId,
+            type: "PROJECT_OVERDUE",
+            title: "Project overdue",
+            body: `Project "${project.title}" is overdue. Please submit progress or deliverable immediately.`,
+            message: `Project "${project.title}" is overdue. Please submit progress or deliverable immediately.`,
+            projectId: project.id,
+            url: `/builder/projects/${project.id}`,
+          });
+
+          sendWebPushForUser(project.builderId, "PROJECT_OVERDUE", {
+            title: "Project overdue",
+            body: `Project "${project.title}" is overdue.`,
+            url: `/builder/projects/${project.id}`,
+          }).catch(() => {});
+        }
+
+        sendWebPushForUser(project.clientId, "PROJECT_OVERDUE", {
+          title: "Project overdue",
+          body: `Project "${project.title}" is overdue. Our administration team has been alerted.`,
+          url: `/projects/${project.id}`,
+        }).catch(() => {});
       }
     } else {
       // If we didn't update, fetch current status
