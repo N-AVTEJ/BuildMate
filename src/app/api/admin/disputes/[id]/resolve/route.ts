@@ -12,6 +12,7 @@ import {
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { authorize } from "@/lib/authorization";
 import { validateAdminResolution } from "@/lib/projects/dispute-validation";
+import { sendWebPushForUser } from "@/lib/notify";
 
 export async function POST(
   req: Request,
@@ -154,7 +155,12 @@ export async function POST(
 
       await tx.insert(notifications).values({
         userId: project.clientId,
+        type: "DISPUTE_RESOLVED",
+        title: "Dispute resolved",
+        body: notificationMsg,
         message: notificationMsg,
+        projectId: project.id,
+        url: `/projects/${project.id}`,
         createdAt: now,
         updatedAt: now,
       });
@@ -162,7 +168,12 @@ export async function POST(
       if (project.builderId) {
         await tx.insert(notifications).values({
           userId: project.builderId,
+          type: "DISPUTE_RESOLVED",
+          title: "Dispute resolved",
+          body: notificationMsg,
           message: notificationMsg,
+          projectId: project.id,
+          url: `/builder/projects/${project.id}`,
           createdAt: now,
           updatedAt: now,
         });
@@ -177,6 +188,21 @@ export async function POST(
 
     if (result.type === "NOT_FOUND") {
       return NextResponse.json({ error: result.message }, { status: 404 });
+    }
+
+    // Backend authority: Dispatch push to client and builder
+    sendWebPushForUser(result.project.clientId, "DISPUTE_RESOLVED", {
+      title: "Dispute resolved",
+      body: `Dispute on "${result.project.title}" was resolved by admin.`,
+      url: `/projects/${result.project.id}`,
+    }).catch(() => {});
+
+    if (result.project.builderId) {
+      sendWebPushForUser(result.project.builderId, "DISPUTE_RESOLVED", {
+        title: "Dispute resolved",
+        body: `Dispute on "${result.project.title}" was resolved by admin.`,
+        url: `/builder/projects/${result.project.id}`,
+      }).catch(() => {});
     }
 
     if (result.type === "CONFLICT") {

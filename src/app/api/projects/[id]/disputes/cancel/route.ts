@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { requireAuth, AuthError } from "@/lib/auth/guards";
 import { ProjectStatus } from "@/lib/project-status";
+import { sendWebPushForUser } from "@/lib/notify";
 
 export async function POST(
   _req: Request,
