@@ -417,15 +417,29 @@ export const notifications = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    message: text("message").notNull(),
-    read: boolean("read").default(false).notNull(),
+    type: varchar("type", { length: 64 }).default("SYSTEM").notNull(),
+    title: text("title").default("Notification").notNull(),
+    body: text("body").default("").notNull(),
+    message: text("message").default("").notNull(), // backwards-compatible alias/fallback
+    url: text("url"),
+    projectId: uuid("project_id").references(() => projects.id, {
+      onDelete: "cascade",
+    }),
+    read: boolean("read").default(false).notNull(), // backwards-compatible boolean flag
+    readAt: timestamp("read_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index("notifications_user_id_idx").on(table.userId),
+    index("notifications_project_id_idx").on(table.projectId),
     index("notifications_read_idx").on(table.read),
     index("notifications_user_id_read_idx").on(table.userId, table.read),
+    index("notifications_user_id_read_at_created_at_idx").on(
+      table.userId,
+      table.readAt,
+      table.createdAt
+    ),
   ]
 );
 
@@ -580,15 +594,66 @@ export const builderApplications = pgTable(
   ]
 );
 
+// 21. push_subscriptions
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (table) => [
+    index("push_subscriptions_user_id_idx").on(table.userId),
+    index("push_subscriptions_endpoint_idx").on(table.endpoint),
+  ]
+);
+
+// 22. notification_prefs
+export const notificationPrefs = pgTable(
+  "notification_prefs",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" })
+      .unique(),
+    pushEnabled: boolean("push_enabled").default(true).notNull(),
+    quotationUpdates: boolean("quotation_updates").default(true).notNull(),
+    paymentUpdates: boolean("payment_updates").default(true).notNull(),
+    deliveryUpdates: boolean("delivery_updates").default(true).notNull(),
+    deadlineAlerts: boolean("deadline_alerts").default(true).notNull(),
+    changeRequestUpdates: boolean("change_request_updates").default(true).notNull(),
+    disputeUpdates: boolean("dispute_updates").default(true).notNull(),
+    snoozedUntil: timestamp("snoozed_until", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("notification_prefs_user_id_idx").on(table.userId),
+  ]
+);
+
 // ==========================================
 // DRIZZLE RELATIONS
 // ==========================================
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   roles: many(userRoles),
   clientProjects: many(projects, { relationName: "client" }),
   builderProjects: many(projects, { relationName: "builder" }),
   notifications: many(notifications),
+  pushSubscriptions: many(pushSubscriptions),
+  notificationPrefs: one(notificationPrefs),
   messages: many(messages),
   verifiedPayments: many(payments),
   statusChanges: many(projectStatusHistory),
@@ -724,7 +789,31 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     fields: [notifications.userId],
     references: [users.id],
   }),
+  project: one(projects, {
+    fields: [notifications.projectId],
+    references: [projects.id],
+  }),
 }));
+
+export const pushSubscriptionsRelations = relations(
+  pushSubscriptions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [pushSubscriptions.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const notificationPrefsRelations = relations(
+  notificationPrefs,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [notificationPrefs.userId],
+      references: [users.id],
+    }),
+  })
+);
 
 export const disputesRelations = relations(disputes, ({ one }) => ({
   project: one(projects, {

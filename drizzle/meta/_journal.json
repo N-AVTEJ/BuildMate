@@ -92,6 +92,13 @@
       "when": 1793602562879,
       "tag": "0012_stiff_kylun",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793722723808,
+      "tag": "0013_previous_gunslinger",
+      "breakpoints": true
     }
   ]
 }
