@@ -14,6 +14,7 @@ import { computeAdvanceBreakdown } from "@/lib/projects/pricing";
 
 import { POST as createProjectRoute } from "@/app/api/projects/route";
 import { POST as quotationRoute } from "@/app/api/projects/[id]/quotation/route";
+import { POST as quotationAcceptRoute } from "@/app/api/projects/[id]/quotation/accept/route";
 import { POST as changeRequestRoute } from "@/app/api/projects/[id]/change-requests/route";
 import { POST as registerRoute } from "@/app/api/auth/register/route";
 
@@ -362,9 +363,104 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(data.quotation.remainingAmount).toBe(1050); // 70% of 1500
       expect(data.quotation.estimatedDurationDays).toBe(21);
     });
+
+    it("test_quotation_floor_enforced_on_all_write_paths: rejects < 300 on initial quote, change-request, and quote accept", async () => {
+      // (a) initial quotation < ₹300 rejects with 400
+      const quoteReq = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalPrice: 250, estimatedDurationDays: 14 }),
+      });
+      const quoteRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => quotationRoute(quoteReq, { params: Promise.resolve({ id: testProject.id }) })
+      );
+      expect(quoteRes.status).toBe(400);
+      const quoteData = await quoteRes.json();
+      expect(quoteData.error).toBe("Total price must be at least ₹300.");
+
+      // (b) change-request recalculation < ₹300 rejects with 400
+      const [crProj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-CRFL-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "CR Floor Project",
+          subject: "Web",
+          description: "Testing CR floor",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 1000,
+          totalPrice: 200, // Legacy/low price project
+          advanceAmount: 200,
+          remainingAmount: 0,
+          status: "IN_PROGRESS",
+          integrityAck: true,
+        })
+        .returning();
+      createdProjectIds.push(crProj.id);
+
+      const crReq = new Request(`http://localhost:3000/api/projects/${crProj.id}/change-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: "Scope addition keeping total below ₹300 floor",
+          additionalCost: 50, // 200 + 50 = 250 (< 300)
+          additionalTimeDays: 2,
+        }),
+      });
+      const crRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => changeRequestRoute(crReq, { params: Promise.resolve({ id: crProj.id }) })
+      );
+      expect(crRes.status).toBe(400);
+      const crData = await crRes.json();
+      expect(crData.error).toBe("Total price cannot be less than ₹300");
+
+      // (c) quotation accept with price < ₹300 rejects with 400
+      const [qaProj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-QAFL-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "QA Floor Project",
+          subject: "Web",
+          description: "Testing QA floor",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 1000,
+          status: "QUOTATION_SENT",
+          integrityAck: true,
+        })
+        .returning();
+      createdProjectIds.push(qaProj.id);
+
+      await db.insert(quotations).values({
+        projectId: qaProj.id,
+        builderId: builderUser.id,
+        totalPrice: 200, // < 300
+        advanceAmount: 200,
+        remainingAmount: 0,
+        estimatedDurationDays: 14,
+        status: "PENDING",
+      });
+
+      const qaReq = new Request(`http://localhost:3000/api/projects/${qaProj.id}/quotation/accept`, {
+        method: "POST",
+      });
+      const qaRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${clientUser.rawToken}` },
+        () => quotationAcceptRoute(qaReq, { params: Promise.resolve({ id: qaProj.id }) })
+      );
+      expect(qaRes.status).toBe(400);
+      const qaData = await qaRes.json();
+      expect(qaData.error).toBe("Total price must be at least ₹300.");
+    });
   });
 
-  describe("2.5 Change Request Price Band Hardening (₹300 - ₹1500)", () => {
+  describe("2.5 Change Request Price Floor Hardening (₹300 minimum, no max cap)", () => {
     let crTestProject: any;
 
     beforeAll(async () => {
@@ -391,41 +487,62 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       createdProjectIds.push(proj.id);
     });
 
-    it("rejects change request pushing resulting total above 1500", async () => {
-      const req = new Request(`http://localhost:3000/api/projects/${crTestProject.id}/change-requests`, {
+    it("rejects change request pushing resulting total below ₹300", async () => {
+      const [lowProj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-CRLOW-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "Low Price CR Project",
+          subject: "Full-Stack Web",
+          description: "Testing CR price floor limits",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 2000,
+          totalPrice: 200,
+          advanceAmount: 200,
+          remainingAmount: 0,
+          status: "IN_PROGRESS",
+          integrityAck: true,
+        })
+        .returning();
+      createdProjectIds.push(lowProj.id);
+
+      const req = new Request(`http://localhost:3000/api/projects/${lowProj.id}/change-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: "Large additional scope that exceeds ₹1500 cap",
-          additionalCost: 400, // 1200 + 400 = 1600 (> 1500)
-          additionalTimeDays: 7,
+          description: "Scope addition keeping resulting total below ₹300 floor",
+          additionalCost: 50, // 200 + 50 = 250 (< 300)
+          additionalTimeDays: 1,
         }),
       });
 
       const res = await testRequestContext.run(
         { cookie: `buildmate_session=${builderUser.rawToken}` },
-        () => changeRequestRoute(req, { params: Promise.resolve({ id: crTestProject.id }) })
+        () => changeRequestRoute(req, { params: Promise.resolve({ id: lowProj.id }) })
       );
 
       expect(res.status).toBe(400);
       const data = await res.json();
-      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+      expect(data.error).toBe("Total price cannot be less than ₹300");
 
       const crs = await db
         .select()
         .from(changeRequests)
-        .where(eq(changeRequests.projectId, crTestProject.id));
+        .where(eq(changeRequests.projectId, lowProj.id));
       expect(crs.length).toBe(0);
     });
 
-    it("accepts change request within the ₹300-₹1500 band", async () => {
+    it("accepts change request pushing total above 1500 (no maximum cap)", async () => {
       const req = new Request(`http://localhost:3000/api/projects/${crTestProject.id}/change-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: "Scope addition within band",
-          additionalCost: 100, // 1200 + 100 = 1300 (<= 1500)
-          additionalTimeDays: 3,
+          description: "Scope addition pushing total to 1600 (> 1500)",
+          additionalCost: 400, // 1200 + 400 = 1600 (> 1500, allowed)
+          additionalTimeDays: 7,
         }),
       });
 
@@ -438,7 +555,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       const data = await res.json();
       expect(data.success).toBe(true);
       expect(data.changeRequest).toBeDefined();
-      expect(data.changeRequest.additionalCost).toBe(100);
+      expect(data.changeRequest.additionalCost).toBe(400);
     });
   });
 

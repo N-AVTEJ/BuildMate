@@ -94,10 +94,10 @@ export async function POST(
       const currentTotal = project.totalPrice;
       const newTotalPrice = currentTotal + cr.additionalCost;
 
-      if (newTotalPrice < 300 || newTotalPrice > 1500) {
+      if (newTotalPrice < 300) {
         return {
           type: "VALIDATION_ERROR" as const,
-          message: "Total price must be between ₹300 and ₹1500",
+          message: "Total price cannot be less than ₹300",
         };
       }
 

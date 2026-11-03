@@ -102,7 +102,7 @@ export async function POST(
         };
       }
 
-      // 4.5 Validate that resulting total price remains within ₹300-₹1500 band
+      // 4.5 Validate that resulting total price remains at or above ₹300 minimum
       if (project.totalPrice === null) {
         return {
           type: "CONFLICT" as const,
@@ -110,10 +110,10 @@ export async function POST(
         };
       }
       const resultingTotal = project.totalPrice + additionalCost;
-      if (resultingTotal < 300 || resultingTotal > 1500) {
+      if (resultingTotal < 300) {
         return {
           type: "VALIDATION_ERROR" as const,
-          message: "Total price must be between ₹300 and ₹1500",
+          message: "Total price cannot be less than ₹300",
         };
       }
 
