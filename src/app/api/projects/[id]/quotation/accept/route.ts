@@ -65,10 +65,10 @@ export async function POST(
         };
       }
 
-      if (quotation.totalPrice < 300 || quotation.totalPrice > 1500) {
+      if (quotation.totalPrice < 300) {
         return {
           type: "VALIDATION_ERROR" as const,
-          message: "Total price must be between ₹300 and ₹1500",
+          message: "Total price must be at least ₹300.",
         };
       }
 

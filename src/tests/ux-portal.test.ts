@@ -243,7 +243,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
 
       expect(res.status).toBe(400);
       const data = await res.json();
-      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+      expect(data.error).toBe("Total price must be at least ₹300.");
 
       const quotes = await db
         .select()
@@ -258,8 +258,27 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(proj.totalPrice).toBeNull();
     });
 
-    it("rejects totalPrice above 1500 with 400 and preserves database state", async () => {
-      const req = new Request(`http://localhost:3000/api/projects/${testProject.id}/quotation`, {
+    it("allows totalPrice above 1500 with no maximum cap per Phase 17", async () => {
+      const [highValProject] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-HV-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "High Value Project",
+          subject: "Enterprise Web",
+          description: "Enterprise project testing no maximum cap",
+          techStack: "Next.js",
+          budgetMin: 1000,
+          budgetMax: 50000,
+          status: "ACCEPTED_PENDING_QUOTE",
+          integrityAck: true,
+          builderAcceptedAt: new Date(),
+        })
+        .returning();
+      createdProjectIds.push(highValProject.id);
+
+      const req = new Request(`http://localhost:3000/api/projects/${highValProject.id}/quotation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -270,18 +289,13 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
 
       const res = await testRequestContext.run(
         { cookie: `buildmate_session=${builderUser.rawToken}` },
-        () => quotationRoute(req, { params: Promise.resolve({ id: testProject.id }) })
+        () => quotationRoute(req, { params: Promise.resolve({ id: highValProject.id }) })
       );
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(200);
       const data = await res.json();
-      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
-
-      const quotes = await db
-        .select()
-        .from(quotations)
-        .where(eq(quotations.projectId, testProject.id));
-      expect(quotes.length).toBe(0);
+      expect(data.success).toBe(true);
+      expect(data.quotation.totalPrice).toBe(2000);
     });
 
     it("rejects totalPrice 299 (boundary below 300) with 400", async () => {
@@ -301,7 +315,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
 
       expect(res.status).toBe(400);
       const data = await res.json();
-      expect(data.error).toBe("Total price must be between ₹300 and ₹1500");
+      expect(data.error).toBe("Total price must be at least ₹300.");
     });
 
     it("rejects estimatedDurationDays outside 1-365 range", async () => {
