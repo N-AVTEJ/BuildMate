@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "Builder credentials successfully configured. You may now log in.",
-      redirectTo: "/builder/login",
+      redirectTo: "/login",
     });
   } catch (error) {
     console.error("[Auth/BuilderSetup] Unexpected error:", error);

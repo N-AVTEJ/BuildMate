@@ -85,7 +85,7 @@ function BuilderSetupForm() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(data.redirectTo || "/builder/login");
+        router.push(data.redirectTo || "/login");
       }, 1500);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -109,10 +109,10 @@ function BuilderSetupForm() {
           </Link>
           <div className="flex items-center gap-4 text-sm font-bold">
             <Link
-              href="/builder/login"
+              href="/login"
               className="px-3.5 py-1.5 bg-white border-2 border-black rounded-lg text-black hover:bg-black hover:text-white transition font-heading font-black text-xs uppercase neo-shadow-sm"
             >
-              Builder Login →
+              Sign In →
             </Link>
           </div>
         </div>
