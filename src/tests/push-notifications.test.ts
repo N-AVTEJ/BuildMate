@@ -47,6 +47,7 @@ import { POST as readAllRoute } from "@/app/api/notifications/read-all/route";
 import { GET as getPrefsRoute, PATCH as patchPrefsRoute } from "@/app/api/notifications/prefs/route";
 import { POST as logoutRoute } from "@/app/api/auth/logout/route";
 import { POST as submitQuotationRoute } from "@/app/api/projects/[id]/quotation/route";
+import { reconcileProjectStatusInDb } from "@/lib/project-status";
 
 describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)", () => {
   const testRunId = `push_${Date.now()}`;
@@ -562,6 +563,61 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
         .limit(1);
 
       expect(builderNotif).toBeUndefined();
+    });
+
+    it("notifies both client and builder when development deadline is within 24 hours", async () => {
+      const now = new Date();
+      const devDeadline20h = new Date(now.getTime() + 20 * 60 * 60 * 1000);
+
+      const [proj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-DEADLINE-${Date.now().toString().slice(-4)}`,
+          clientId: userA.id,
+          builderId: builderUser.id,
+          title: "Urgent 24h Project",
+          subject: "Deadline check",
+          description: "Testing 24h deadline approaching push",
+          techStack: "React",
+          budgetMin: 50000,
+          budgetMax: 100000,
+          status: "IN_PROGRESS",
+          developmentDeadline: devDeadline20h,
+        })
+        .returning();
+      createdProjectIds.push(proj.id);
+
+      mockSendNotification.mockClear();
+
+      await reconcileProjectStatusInDb(proj.id, now);
+
+      // Verify client notification
+      const [clientNotif] = await db
+        .select()
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.userId, userA.id),
+            eq(notifications.projectId, proj.id),
+            eq(notifications.type, "DEADLINE_APPROACHING")
+          )
+        );
+      expect(clientNotif).toBeDefined();
+      expect(clientNotif.title).toBe("Project deadline approaching");
+
+      // Verify builder notification
+      const [builderNotif] = await db
+        .select()
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.userId, builderUser.id),
+            eq(notifications.projectId, proj.id),
+            eq(notifications.type, "DEADLINE_APPROACHING")
+          )
+        );
+      expect(builderNotif).toBeDefined();
+      expect(builderNotif.title).toBe("Project deadline approaching");
     });
   });
 

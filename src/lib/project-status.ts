@@ -169,7 +169,65 @@ export async function reconcileProjectStatusInDb(
 
     finalStatus = project.status;
 
-    // 2. Evaluate status change
+    // 2. Check 24-hour development deadline alert if project is IN_PROGRESS
+    if (
+      project.status === "IN_PROGRESS" &&
+      project.developmentDeadline &&
+      now < project.developmentDeadline &&
+      project.developmentDeadline.getTime() - now.getTime() <= 24 * 60 * 60 * 1000
+    ) {
+      const [existingReminder] = await tx
+        .select({ id: notifications.id })
+        .from(notifications)
+        .where(
+          and(
+            eq(notifications.projectId, project.id),
+            eq(notifications.type, "DEADLINE_APPROACHING")
+          )
+        )
+        .limit(1);
+
+      if (!existingReminder) {
+        const clientMsg = `Milestone deadline for project "${project.title}" (${project.projectCode}) is approaching (less than 24 hours remaining).`;
+        const builderMsg = `Milestone deadline for project "${project.title}" (${project.projectCode}) is approaching (less than 24 hours remaining). Please finalize and upload deliverables.`;
+
+        await tx.insert(notifications).values({
+          userId: project.clientId,
+          type: "DEADLINE_APPROACHING",
+          title: "Project deadline approaching",
+          body: clientMsg,
+          message: clientMsg,
+          projectId: project.id,
+          url: `/projects/${project.id}`,
+        });
+
+        if (project.builderId) {
+          await tx.insert(notifications).values({
+            userId: project.builderId,
+            type: "DEADLINE_APPROACHING",
+            title: "Project deadline approaching",
+            body: builderMsg,
+            message: builderMsg,
+            projectId: project.id,
+            url: `/builder/projects/${project.id}`,
+          });
+
+          sendWebPushForUser(project.builderId, "DEADLINE_APPROACHING", {
+            title: "Project deadline approaching",
+            body: builderMsg,
+            url: `/builder/projects/${project.id}`,
+          }).catch(() => {});
+        }
+
+        sendWebPushForUser(project.clientId, "DEADLINE_APPROACHING", {
+          title: "Project deadline approaching",
+          body: clientMsg,
+          url: `/projects/${project.id}`,
+        }).catch(() => {});
+      }
+    }
+
+    // 3. Evaluate status change
     const effective = computeEffectiveStatus(project, now);
     if (!effective.changed) {
       return;
