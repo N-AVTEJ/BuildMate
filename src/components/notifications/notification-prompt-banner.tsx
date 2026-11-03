@@ -36,7 +36,8 @@ export function NotificationPromptBanner() {
       return;
     }
 
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+    // Secure context requirement: push notifications & service worker require HTTPS (or localhost)
+    if (!window.isSecureContext || !("Notification" in window) || !("serviceWorker" in navigator)) {
       return;
     }
 
