@@ -190,6 +190,10 @@ export async function POST(
       return NextResponse.json({ error: result.message }, { status: 404 });
     }
 
+    if (result.type === "CONFLICT") {
+      return NextResponse.json({ error: result.message }, { status: 409 });
+    }
+
     // Backend authority: Dispatch push to client and builder
     sendWebPushForUser(result.project.clientId, "DISPUTE_RESOLVED", {
       title: "Dispute resolved",
@@ -203,10 +207,6 @@ export async function POST(
         body: `Dispute on "${result.project.title}" was resolved by admin.`,
         url: `/builder/projects/${result.project.id}`,
       }).catch(() => {});
-    }
-
-    if (result.type === "CONFLICT") {
-      return NextResponse.json({ error: result.message }, { status: 409 });
     }
 
     return NextResponse.json({

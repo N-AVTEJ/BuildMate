@@ -118,17 +118,32 @@ export async function POST(
       }
 
       // Notify the other party
+      let otherPartyId: string | null = null;
       if (auth.user.id === project.clientId && project.builderId) {
+        otherPartyId = project.builderId;
+        const msg = `Client has withdrawn their dispute on "${project.title}". Project restored to ${restoredStatus}.`;
         await tx.insert(notifications).values({
           userId: project.builderId,
-          message: `Client has withdrawn their dispute on "${project.title}". Project restored to ${restoredStatus}.`,
+          type: "DISPUTE_CANCELLED",
+          title: "Dispute withdrawn",
+          body: msg,
+          message: msg,
+          projectId: project.id,
+          url: `/builder/projects/${project.id}`,
           createdAt: now,
           updatedAt: now,
         });
       } else if (auth.user.id === project.builderId) {
+        otherPartyId = project.clientId;
+        const msg = `Builder has withdrawn their dispute on "${project.title}". Project restored to ${restoredStatus}.`;
         await tx.insert(notifications).values({
           userId: project.clientId,
-          message: `Builder has withdrawn their dispute on "${project.title}". Project restored to ${restoredStatus}.`,
+          type: "DISPUTE_CANCELLED",
+          title: "Dispute withdrawn",
+          body: msg,
+          message: msg,
+          projectId: project.id,
+          url: `/projects/${project.id}`,
           createdAt: now,
           updatedAt: now,
         });
@@ -138,6 +153,7 @@ export async function POST(
         type: "SUCCESS" as const,
         dispute: cancelledDispute,
         project: updatedProject,
+        otherPartyId,
       };
     });
 
@@ -147,6 +163,15 @@ export async function POST(
 
     if (result.type === "FORBIDDEN") {
       return NextResponse.json({ error: result.message }, { status: 403 });
+    }
+
+    // Backend authority: dispatch push to other party
+    if (result.otherPartyId) {
+      sendWebPushForUser(result.otherPartyId, "DISPUTE_CANCELLED", {
+        title: "Dispute withdrawn",
+        body: `Dispute on "${result.project.title}" was withdrawn.`,
+        url: `/projects/${result.project.id}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({

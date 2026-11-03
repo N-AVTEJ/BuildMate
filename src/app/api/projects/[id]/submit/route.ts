@@ -95,6 +95,7 @@ export async function POST(
         return {
           type: "SUCCESS" as const,
           deliverable: updatedDeliverable,
+          project,
           updated: true,
         };
       }
