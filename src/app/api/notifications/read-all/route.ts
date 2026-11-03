@@ -19,7 +19,7 @@ export async function POST() {
       .where(
         and(
           eq(notifications.userId, auth.user.id),
-          or(eq(notifications.read, false), isNull(notifications.readAt))
+          eq(notifications.read, false)
         )
       );
 

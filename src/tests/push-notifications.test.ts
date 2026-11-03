@@ -719,5 +719,42 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
 
       expect(unread.length).toBe(0);
     });
+
+    it("backward compatibility: legacy rows with read=true and readAt=null are not counted or returned as unread", async () => {
+      // Clear any prior notifications for User B
+      await db.delete(notifications).where(eq(notifications.userId, userB.id));
+
+      // Insert legacy read row (read: true, readAt: null)
+      await db.insert(notifications).values({
+        userId: userB.id,
+        title: "Legacy Notification",
+        message: "Legacy read row before migration",
+        body: "Legacy read row before migration",
+        read: true,
+        readAt: null,
+      });
+
+      // Insert one truly unread row (read: false, readAt: null)
+      await db.insert(notifications).values({
+        userId: userB.id,
+        title: "Current Unread Notification",
+        message: "Current unread row",
+        body: "Current unread row",
+        read: false,
+        readAt: null,
+      });
+
+      const req = new Request("http://localhost:3000/api/notifications?unreadOnly=true");
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${userB.rawToken}` },
+        () => getNotificationsRoute(req)
+      );
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.unreadCount).toBe(1);
+      expect(data.notifications.length).toBe(1);
+      expect(data.notifications[0].title).toBe("Current Unread Notification");
+    });
   });
 });

@@ -16,8 +16,9 @@ export async function GET(req: Request) {
     const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
     const unreadOnly = url.searchParams.get("unreadOnly") === "true";
 
-    // Unread condition checks both `read === false` and `readAt IS NULL` for backward compatibility
-    const unreadCondition = or(eq(notifications.read, false), isNull(notifications.readAt));
+    // Backward compatibility: A notification is unread if and only if `read` is false.
+    // Legacy rows with `read === true` (where `readAt` was not recorded) remain correctly treated as read.
+    const unreadCondition = eq(notifications.read, false);
 
     const baseFilter = unreadOnly
       ? and(eq(notifications.userId, auth.user.id), unreadCondition)
