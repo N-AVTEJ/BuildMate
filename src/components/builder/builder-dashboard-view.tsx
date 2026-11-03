@@ -251,8 +251,60 @@ export function BuilderDashboardView({
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="w-full space-y-6">
+      {/* Main Responsive Layout: Persistent Sidebar on Desktop + Content Area */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Desktop Persistent Left Sidebar (≥1024px) */}
+        <aside className="hidden lg:block w-64 shrink-0 bg-white border-2 border-black p-4 neo-shadow-md sticky top-24">
+          {userHoldsMultipleRoles && (
+            <div className="mb-4 pb-3 border-b-2 border-black/10">
+              <Link
+                href="/admin"
+                className="flex items-center justify-between px-3 py-2 bg-[#ffe17c] text-[#171e19] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm hover:bg-[#171e19] hover:text-[#ffe17c] transition group"
+                title="Back to Portal Switcher (Admin Portal)"
+              >
+                <span>← Back to Portal Switcher</span>
+                <span className="text-[10px] bg-black text-[#ffe17c] group-hover:bg-[#ffe17c] group-hover:text-black px-1.5 py-0.5 rounded font-black">
+                  ADMIN ↗
+                </span>
+              </Link>
+            </div>
+          )}
+
+          <div className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 px-1">
+            Builder Navigation
+          </div>
+
+          <nav className="space-y-1" aria-label="Builder sidebar sections">
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition text-left ${
+                    isActive
+                      ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
+                      : "bg-white text-[#171e19] border-transparent hover:border-black hover:bg-[#ffe17c]"
+                  }`}
+                >
+                  <span className="truncate">{item.icon} {item.name}</span>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded font-black shrink-0 ml-1 ${
+                        isActive ? "bg-[#ffe17c] text-[#171e19]" : "bg-black text-white"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0 w-full space-y-6">
           {/* Mobile & Tablet Navigation (<1024px): Dropdown / Hamburger Drawer */}
           <div className="lg:hidden flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 border-2 border-black neo-shadow-sm">
             <button
@@ -282,45 +334,6 @@ export function BuilderDashboardView({
                 ))}
               </select>
             </div>
-          </div>
-
-          {/* Multi-Role Switcher Bar (if multi-role admin) */}
-          {userHoldsMultipleRoles && (
-            <div className="hidden lg:flex items-center justify-between p-2.5 bg-[#ffe17c] border-2 border-black neo-shadow-sm mb-2">
-              <span className="text-xs font-black uppercase tracking-wider text-[#171e19]">
-                Multi-Role Mode Active
-              </span>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#171e19] text-[#ffe17c] border-2 border-black font-black text-xs uppercase tracking-wider neo-shadow-sm hover:bg-white hover:text-black transition"
-                title="Back to Portal Switcher (Admin Portal)"
-              >
-                <span>← Back to Portal Switcher</span>
-                <span className="text-[10px] bg-[#ffe17c] text-black px-1.5 py-0.5 rounded font-black">
-                  ADMIN ↗
-                </span>
-              </Link>
-            </div>
-          )}
-
-          {/* Desktop Tab Strip (≥1024px): Adapts with flex-wrap and zero clipping */}
-          <div className="hidden lg:flex flex-wrap gap-2 pb-2 border-b-2 border-black">
-            {NAV_ITEMS.map((item) => {
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider border-2 whitespace-nowrap transition ${
-                    isActive
-                      ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
-                      : "bg-white text-[#171e19] border-black hover:bg-[#ffe17c]"
-                  }`}
-                >
-                  {item.icon} {item.name} {item.badge !== undefined && item.badge > 0 ? `(${item.badge})` : ""}
-                </button>
-              );
-            })}
           </div>
 
           {/* Sliding Mobile Drawer */}
@@ -1223,6 +1236,7 @@ export function BuilderDashboardView({
           </div>
         </div>
       )}
+        </div>
       </div>
     </div>
   );
