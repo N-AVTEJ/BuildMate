@@ -148,6 +148,19 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
       expect(sanitized).not.toContain("https://s3.aws.com");
       expect(sanitized).toContain("[link]");
     });
+
+    it("redacts currency amounts from notification body and titles to protect financial privacy", () => {
+      const bodyWithAmounts = "Advance payment of ₹50,000 received. Balance INR 25000 due later.";
+      const sanitizedBody = sanitizeNotificationText(bodyWithAmounts);
+      expect(sanitizedBody).not.toContain("₹50,000");
+      expect(sanitizedBody).not.toContain("INR 25000");
+      expect(sanitizedBody).toContain("[amount]");
+
+      const titleWithAmount = "Payment of $1,200 received";
+      const sanitizedTitle = sanitizeTitle(titleWithAmount);
+      expect(sanitizedTitle).not.toContain("$1,200");
+      expect(sanitizedTitle).toContain("[amount]");
+    });
   });
 
   describe("2. Unit: notify() & sendWebPushForUser()", () => {

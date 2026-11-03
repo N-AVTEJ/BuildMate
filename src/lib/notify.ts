@@ -36,16 +36,25 @@ export const FORCED_NOTIFICATION_TYPES = new Set<NotificationType>([
 ]);
 
 /**
- * Sanitizes title to strip any accidental sensitive terms or banned terminology.
+ * Sanitizes title to strip any accidental sensitive terms, amounts, URLs, or banned terminology.
  * Invariant: Never use the word "escrow" anywhere in notification text or UI.
  */
 export function sanitizeTitle(title: string): string {
-  return title.replace(/escrow/gi, "Platform").trim();
+  if (!title) return "";
+  let sanitized = title.replace(/https?:\/\/[^\s]+/gi, "[link]");
+  sanitized = sanitized.replace(/git@[^\s]+/gi, "");
+  sanitized = sanitized.replace(
+    /[a-zA-Z0-9.\-_]{2,64}@(okhdfcbank|okaxis|okicici|oksbi|upi|ybl|paytm)/gi,
+    "[upi handle]"
+  );
+  sanitized = sanitized.replace(/(?:₹|INR|Rs\.?|\$)\s*[\d,]+(?:\.\d+)?/gi, "[amount]");
+  sanitized = sanitized.replace(/escrow/gi, "Platform");
+  return sanitized.trim();
 }
 
 /**
  * Sanitizes payload body text:
- * - Redacts raw repository URLs, payment proofs, and credentials.
+ * - Redacts raw repository URLs, payment proofs, amounts, and credentials.
  * - Strips any instance of the word "escrow" (case-insensitive).
  */
 export function sanitizeNotificationText(text: string): string {
@@ -63,7 +72,10 @@ export function sanitizeNotificationText(text: string): string {
     "[upi handle]"
   );
 
-  // 4. Invariant: Never use the word "escrow" anywhere in notification text or UI
+  // 4. Redact currency amounts (₹, INR, Rs., $) to prevent payment amount leakage
+  sanitized = sanitized.replace(/(?:₹|INR|Rs\.?|\$)\s*[\d,]+(?:\.\d+)?/gi, "[amount]");
+
+  // 5. Invariant: Never use the word "escrow" anywhere in notification text or UI
   sanitized = sanitized.replace(/escrow/gi, "secure milestone");
 
   return sanitized.trim();

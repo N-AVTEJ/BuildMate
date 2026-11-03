@@ -131,7 +131,7 @@ export async function POST(
         .returning();
 
       // 6. Insert Client Notification in the SAME transaction
-      const notifMsg = `New change request submitted for project "${project.title}" (${project.projectCode}): additional cost ₹${newChangeRequest.additionalCost}, +${newChangeRequest.additionalTimeDays} days.`;
+      const notifMsg = `New change request submitted for project "${project.title}" (${project.projectCode}). Please review requested scope adjustments.`;
       await tx.insert(notifications).values({
         userId: project.clientId,
         type: "CHANGE_REQUEST_CREATED",
