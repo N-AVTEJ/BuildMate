@@ -56,12 +56,10 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
       }
 
       if (data.zeroRemaining) {
-        setSuccess(true);
+        // Trigger server component refresh and optional callback
         router.refresh();
         if (props.onSuccess) props.onSuccess();
-        setTimeout(() => {
-          if (typeof window !== "undefined") window.location.reload();
-        }, 500);
+        setSuccess(true);
         return;
       }
 
@@ -104,15 +102,12 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
               );
             }
 
-            setSuccess(true);
-            // Immediately re-fetch project state without requiring manual refresh
+            // Immediately re-fetch project state without requiring manual page reload
             router.refresh();
             if (props.onSuccess) {
               props.onSuccess();
             }
-            setTimeout(() => {
-              if (typeof window !== "undefined") window.location.reload();
-            }, 500);
+            setSuccess(true);
           } catch (vErr: any) {
             setError(vErr.message || "Payment verification failed.");
           } finally {
