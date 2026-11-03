@@ -65,6 +65,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
   const [activeTab, setActiveTab] = useState<"overview" | "projects" | "deadlines" | "payments" | "payment-history" | "messages" | "notifications" | "profile">("overview");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [navigatingId, setNavigatingId] = useState<string | null>(null);
 
   // Categorize projects for Overview metrics
   const totalProjects = projects.length;
@@ -301,9 +302,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                     <div className="flex items-center gap-2 shrink-0">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                        onClick={() => setNavigatingId(project.id)}
+                        className={`neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                          navigatingId === project.id ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        Project Details →
+                        {navigatingId === project.id && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === project.id ? "Opening..." : "Project Details →"}
                       </Link>
                       <Link
                         href={`/projects/${project.id}/messages`}
@@ -420,9 +425,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                         <td className="px-5 py-4 text-right whitespace-nowrap">
                           <Link
                             href={`/projects/${p.id}`}
-                            className="neo-btn px-3 py-1 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-block"
+                            onClick={() => setNavigatingId(p.id)}
+                            className={`neo-btn px-3 py-1 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1 ${
+                              navigatingId === p.id ? "pointer-events-none opacity-80" : ""
+                            }`}
                           >
-                            View →
+                            {navigatingId === p.id && <span className="animate-spin text-xs">⏳</span>}
+                            {navigatingId === p.id ? "Opening..." : "View →"}
                           </Link>
                         </td>
                       </tr>
@@ -569,9 +578,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                       </span>
                       <Link
                         href={`/projects/${p.id}`}
-                        className="neo-btn px-3 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-block"
+                        onClick={() => setNavigatingId(p.id + "-payment")}
+                        className={`neo-btn px-3 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1 ${
+                          navigatingId === p.id + "-payment" ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        Go to Payment &amp; Upload Proof →
+                        {navigatingId === p.id + "-payment" && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === p.id + "-payment" ? "Opening..." : "Go to Payment & Upload Proof →"}
                       </Link>
                     </div>
                   </div>

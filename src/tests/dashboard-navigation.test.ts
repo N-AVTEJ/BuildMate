@@ -73,4 +73,49 @@ describe("Phase 15 Task 3 — Builder Dashboard Navigation & Responsive Layout I
       expect(html).toContain(section);
     }
   });
+
+  it("4. Desktop layout renders single left sidebar and Manage Project button with immediate action classes", () => {
+    const mockProject = {
+      id: "proj_123",
+      projectCode: "PRJ-TEST-001",
+      title: "Test Microservice",
+      subject: "Backend",
+      description: "Test description",
+      techStack: "Node.js",
+      budgetMin: 500,
+      budgetMax: 1000,
+      totalPrice: 800,
+      advanceAmount: 300,
+      remainingAmount: 500,
+      status: "IN_PROGRESS",
+      requestedCompletionDate: null,
+      developmentDeadline: null,
+      advancePaymentDeadline: null,
+      acceptanceDeadline: null,
+      lastProgressUpdateAt: null,
+      requirementCount: 1,
+      isAssignedToMe: true,
+      submittedAt: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(BuilderDashboardView, {
+        user: mockUser,
+        roles: ["BUILDER"],
+        availableProjects: [],
+        myProjects: [mockProject],
+        notifications: [],
+        initialTab: "my-projects",
+      })
+    );
+
+    // Sidebar exists
+    expect(html).toContain("Builder Navigation");
+    expect(html).toContain("hidden lg:block w-64");
+    // Duplicate top tab strip does NOT exist in render tree
+    expect(html).not.toContain("hidden lg:flex flex-wrap gap-2 pb-2 border-b-2 border-black");
+    // Manage Project action button exists
+    expect(html).toContain("Manage Project →");
+  });
 });

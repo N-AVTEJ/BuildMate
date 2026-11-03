@@ -87,6 +87,11 @@ export default async function BuilderPortalPage() {
     }
   }
 
+  const dbQueriesMs = Math.round(performance.now() - startTime);
+  if (process.env.NODE_ENV !== "test") {
+    console.log(`[Performance/BuilderDashboard] Core DB queries completed in ${dbQueriesMs}ms`);
+  }
+
   // 6. Reconcile Lazy Expiry for Available Projects
   const availableProjects: BuilderProjectCardItem[] = [];
 

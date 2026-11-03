@@ -453,8 +453,9 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
             <button
               type="submit"
               disabled={loading || resolutionNote.length < 10}
-              className="neo-btn px-6 py-3 bg-black hover:bg-black/90 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 transition"
+              className="neo-btn px-6 py-3 bg-black hover:bg-black/90 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 transition inline-flex items-center gap-1.5"
             >
+              {loading && <span className="animate-spin text-xs">⏳</span>}
               {loading ? "Adjudicating..." : "Resolve & Commit Verdict →"}
             </button>
           </div>

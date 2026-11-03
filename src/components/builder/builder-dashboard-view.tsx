@@ -51,6 +51,20 @@ interface BuilderDashboardViewProps {
   myProjects: BuilderProjectCardItem[];
   notifications: BuilderNotificationItem[];
   paymentHistory?: PaymentHistoryRow[];
+  initialTab?:
+    | "overview"
+    | "available"
+    | "my-projects"
+    | "quotations"
+    | "deadlines"
+    | "progress"
+    | "deliveries"
+    | "payments"
+    | "payment-history"
+    | "messages"
+    | "notifications"
+    | "profile"
+    | "guidelines";
 }
 
 export function getBuilderNextAction(status: string, projectId: string) {
@@ -144,6 +158,7 @@ export function BuilderDashboardView({
   myProjects,
   notifications,
   paymentHistory,
+  initialTab,
 }: BuilderDashboardViewProps) {
   const [activeTab, setActiveTab] = useState<
     | "overview"
@@ -159,8 +174,9 @@ export function BuilderDashboardView({
     | "notifications"
     | "profile"
     | "guidelines"
-  >("overview");
+  >(initialTab || "overview");
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [navigatingId, setNavigatingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
@@ -540,9 +556,13 @@ export function BuilderDashboardView({
                       )}
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                        onClick={() => setNavigatingId(p.id)}
+                        className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                          navigatingId === p.id ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        Inspect &amp; Accept →
+                        {navigatingId === p.id && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === p.id ? "Opening..." : "Inspect & Accept →"}
                       </Link>
                     </div>
                   </div>
@@ -591,9 +611,13 @@ export function BuilderDashboardView({
                       )}
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                        onClick={() => setNavigatingId(p.id)}
+                        className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                          navigatingId === p.id ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        View &amp; Accept →
+                        {navigatingId === p.id && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === p.id ? "Opening..." : "View & Accept →"}
                       </Link>
                     </div>
                   </div>
@@ -691,9 +715,13 @@ export function BuilderDashboardView({
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/builder/projects/${p.id}`}
-                          className="neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                          onClick={() => setNavigatingId(p.id)}
+                          className={`neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                            navigatingId === p.id ? "pointer-events-none opacity-80" : ""
+                          }`}
                         >
-                          Manage Project →
+                          {navigatingId === p.id && <span className="animate-spin text-xs">⏳</span>}
+                          {navigatingId === p.id ? "Opening..." : "Manage Project →"}
                         </Link>
                         <Link
                           href={`/projects/${p.id}#messages`}
@@ -717,9 +745,13 @@ export function BuilderDashboardView({
                       </div>
                       <Link
                         href={nextAction.href}
-                        className="neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0 inline-flex items-center gap-1"
+                        onClick={() => setNavigatingId(p.id + "-next")}
+                        className={`neo-btn px-3.5 py-1.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0 inline-flex items-center gap-1.5 ${
+                          navigatingId === p.id + "-next" ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        {nextAction.actionText}
+                        {navigatingId === p.id + "-next" && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === p.id + "-next" ? "Loading..." : nextAction.actionText}
                       </Link>
                     </div>
 
@@ -790,9 +822,13 @@ export function BuilderDashboardView({
                       <div className="flex justify-end pt-2">
                         <Link
                           href={nextAction.href}
-                          className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                          onClick={() => setNavigatingId(p.id + "-quote-action")}
+                          className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                            navigatingId === p.id + "-quote-action" ? "pointer-events-none opacity-80" : ""
+                          }`}
                         >
-                          {nextAction.actionText}
+                          {navigatingId === p.id + "-quote-action" && <span className="animate-spin text-xs">⏳</span>}
+                          {navigatingId === p.id + "-quote-action" ? "Loading..." : nextAction.actionText}
                         </Link>
                       </div>
                     </div>
@@ -857,9 +893,13 @@ export function BuilderDashboardView({
                     <div className="flex justify-end pt-2">
                       <Link
                         href={`/builder/projects/${p.id}`}
-                        className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                        onClick={() => setNavigatingId(p.id + "-prog")}
+                        className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                          navigatingId === p.id + "-prog" ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        Open Workspace &amp; Submit Deliverable →
+                        {navigatingId === p.id + "-prog" && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === p.id + "-prog" ? "Opening..." : "Open Workspace & Submit Deliverable →"}
                       </Link>
                     </div>
                   </div>
@@ -924,9 +964,13 @@ export function BuilderDashboardView({
                       <div className="flex justify-end pt-2">
                         <Link
                           href={`/builder/projects/${p.id}`}
-                          className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                          onClick={() => setNavigatingId(p.id + "-deliv")}
+                          className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                            navigatingId === p.id + "-deliv" ? "pointer-events-none opacity-80" : ""
+                          }`}
                         >
-                          View Deliverable Details →
+                          {navigatingId === p.id + "-deliv" && <span className="animate-spin text-xs">⏳</span>}
+                          {navigatingId === p.id + "-deliv" ? "Opening..." : "View Deliverable Details →"}
                         </Link>
                       </div>
                     </div>
@@ -1045,9 +1089,13 @@ export function BuilderDashboardView({
                   <div className="flex justify-end pt-1">
                     <Link
                       href={`/builder/projects/${p.id}`}
-                      className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                      onClick={() => setNavigatingId(p.id + "-deadlines")}
+                      className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                        navigatingId === p.id + "-deadlines" ? "pointer-events-none opacity-80" : ""
+                      }`}
                     >
-                      Manage Deadlines &amp; Deliverables →
+                      {navigatingId === p.id + "-deadlines" && <span className="animate-spin text-xs">⏳</span>}
+                      {navigatingId === p.id + "-deadlines" ? "Opening..." : "Manage Deadlines & Deliverables →"}
                     </Link>
                   </div>
                 </div>
