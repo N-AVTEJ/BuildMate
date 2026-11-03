@@ -13,6 +13,8 @@ export interface PaymentHistoryRow {
   status: string;
   verifiedAt: string | null;
   createdAt: string;
+  submittedAt?: string | null;
+  transactionReference?: string | null;
   razorpayPaymentId?: string | null;
   truncatedPaymentId?: string | null;
   rejectionReason?: string | null;
@@ -200,7 +202,7 @@ export function PaymentHistoryTable({
               >
                 Verified Date {sortOrder === "desc" ? "▼" : "▲"}
               </th>
-              <th className="p-3.5">Gateway Payment ID</th>
+              <th className="p-3.5">Transaction Reference</th>
             </tr>
           </thead>
           <tbody className="divide-y-2 divide-black text-xs font-medium">
@@ -216,7 +218,7 @@ export function PaymentHistoryTable({
                   ? `${baseProjectHrefPrefix}/${p.projectId}`
                   : null;
                 const truncatedId =
-                  p.truncatedPaymentId || formatTruncatedPaymentId(p.razorpayPaymentId);
+                  p.truncatedPaymentId || formatTruncatedPaymentId(p.transactionReference || p.razorpayPaymentId);
 
                 return (
                   <tr
@@ -272,7 +274,7 @@ export function PaymentHistoryTable({
 
                     {/* Submitted Date */}
                     <td className="p-3.5 border-r-2 border-black whitespace-nowrap text-gray-700 font-bold">
-                      {formatPaymentDate(p.createdAt)}
+                      {formatPaymentDate(p.submittedAt || p.createdAt)}
                     </td>
 
                     {/* Verified Date */}
@@ -280,7 +282,7 @@ export function PaymentHistoryTable({
                       {formatPaymentDate(p.verifiedAt)}
                     </td>
 
-                    {/* Razorpay Payment ID (truncated, last 6 chars) */}
+                    {/* Transaction Reference (truncated, last 6 chars) */}
                     <td className="p-3.5 whitespace-nowrap font-mono font-bold text-gray-800">
                       {truncatedId}
                     </td>

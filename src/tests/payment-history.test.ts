@@ -291,6 +291,7 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
     expect(html).toContain("Date:");
     expect(html).toContain("Newest First");
     expect(html).toContain("Submitted Date");
+    expect(html).toContain("Transaction Reference");
     expect(html).toContain("PRJ-2026-0001");
     expect(html).toContain("ADVANCE");
     expect(html).toContain("Verified");
@@ -314,5 +315,33 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
     expect(statuses).toContain("VERIFIED");
     expect(statuses).toContain("REJECTED");
     expect(statuses).toContain("AWAITING");
+  });
+
+  it("8. Payment history API and table expose transactionReference and submittedDate correctly", async () => {
+    const React = await import("react");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { PaymentHistoryTable } = await import("@/components/payments/payment-history-table");
+
+    const req = new Request("http://localhost:3000/api/payments/history?role=ADMIN");
+    const res = await testRequestContext.run(
+      { cookie: `buildmate_session=${adminUser.rawToken}` },
+      () => paymentHistoryRoute(req)
+    );
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    const verifiedRow = data.payments.find((p: any) => p.status === "VERIFIED");
+    expect(verifiedRow).toBeDefined();
+    expect(verifiedRow.transactionReference).toBe("pay_live_ABC123DEF456");
+    expect(verifiedRow.submittedAt).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      React.createElement(PaymentHistoryTable, {
+        initialPayments: [verifiedRow],
+        role: "ADMIN",
+        totalCount: 1,
+      })
+    );
+    expect(html).toContain("Transaction Reference");
+    expect(html).toContain("...DEF456");
   });
 });
