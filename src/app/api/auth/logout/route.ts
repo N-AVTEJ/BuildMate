@@ -1,31 +1,43 @@
 import { NextResponse } from "next/server";
 import {
   getSessionTokenFromCookies,
+  validateSession,
   invalidateSession,
   clearSessionCookie,
 } from "@/lib/auth/session";
 
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
+    const rawToken = await getSessionTokenFromCookies();
+    let currentUserId: string | null = null;
+
+    if (rawToken) {
+      const session = await validateSession(rawToken);
+      if (session) {
+        currentUserId = session.user.id;
+      }
+      await invalidateSession(rawToken);
+    }
+
     const body = await req.json().catch(() => ({}));
-    if (body?.endpoint && typeof body.endpoint === "string") {
+    if (currentUserId && body?.endpoint && typeof body.endpoint === "string") {
       try {
         await db
           .update(pushSubscriptions)
           .set({ revokedAt: new Date() })
-          .where(eq(pushSubscriptions.endpoint, body.endpoint));
+          .where(
+            and(
+              eq(pushSubscriptions.endpoint, body.endpoint),
+              eq(pushSubscriptions.userId, currentUserId)
+            )
+          );
       } catch (subErr) {
         console.warn("[Auth/Logout] Failed to revoke push subscription on logout:", subErr);
       }
-    }
-
-    const rawToken = await getSessionTokenFromCookies();
-    if (rawToken) {
-      await invalidateSession(rawToken);
     }
     await clearSessionCookie();
 

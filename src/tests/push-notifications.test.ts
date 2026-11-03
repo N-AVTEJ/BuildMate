@@ -452,6 +452,44 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
 
       expect(updatedSub.revokedAt).not.toBeNull();
     });
+
+    it("Invariant: User A logging out with User B's endpoint cannot revoke User B's subscription", async () => {
+      const victimEndpoint = `https://fcm.googleapis.com/fcm/send/victim-logout-${Date.now()}`;
+      const [victimSub] = await db
+        .insert(pushSubscriptions)
+        .values({
+          userId: userB.id,
+          endpoint: victimEndpoint,
+          p256dh: "victim_key",
+          auth: "victim_auth",
+        })
+        .returning();
+
+      expect(victimSub.revokedAt).toBeNull();
+
+      // Attacker (User A) logs out passing User B's endpoint
+      const req = new Request("http://localhost:3000/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint: victimEndpoint }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${userA.rawToken}` },
+        () => logoutRoute(req)
+      );
+
+      expect(res.status).toBe(200);
+
+      // Verify User B's subscription remains untouched (NOT revoked)
+      const [checkSub] = await db
+        .select()
+        .from(pushSubscriptions)
+        .where(eq(pushSubscriptions.id, victimSub.id))
+        .limit(1);
+
+      expect(checkSub.revokedAt).toBeNull();
+    });
   });
 
   describe("4. Integration: Quotation Created -> Notification & Push", () => {
