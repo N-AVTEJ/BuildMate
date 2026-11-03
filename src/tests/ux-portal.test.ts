@@ -16,6 +16,8 @@ import { POST as createProjectRoute } from "@/app/api/projects/route";
 import { POST as quotationRoute } from "@/app/api/projects/[id]/quotation/route";
 import { POST as quotationAcceptRoute } from "@/app/api/projects/[id]/quotation/accept/route";
 import { POST as changeRequestRoute } from "@/app/api/projects/[id]/change-requests/route";
+import { POST as changeRequestAcceptRoute } from "@/app/api/projects/[id]/change-requests/[crId]/accept/route";
+import { POST as createOrderRoute } from "@/app/api/payments/create-order/route";
 import { POST as registerRoute } from "@/app/api/auth/register/route";
 
 describe("UX + Portal Completion — Validation & Invariants", () => {
@@ -457,6 +459,96 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(qaRes.status).toBe(400);
       const qaData = await qaRes.json();
       expect(qaData.error).toBe("Total price must be at least ₹300.");
+
+      // (d) change-request accept resulting in total_price < ₹300 rejects with 400
+      const [crAcceptProj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-CRAC-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "CR Accept Floor Project",
+          subject: "Web",
+          description: "Testing CR accept floor",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 1000,
+          totalPrice: 400,
+          advanceAmount: 200,
+          remainingAmount: 200,
+          status: "IN_PROGRESS",
+          integrityAck: true,
+        })
+        .returning();
+      createdProjectIds.push(crAcceptProj.id);
+
+      const [testCR] = await db
+        .insert(changeRequests)
+        .values({
+          projectId: crAcceptProj.id,
+          description: "Negative change request reducing price below 300",
+          additionalCost: -150, // 400 - 150 = 250 (< 300)
+          additionalTimeDays: 0,
+          status: "PENDING",
+        })
+        .returning();
+
+      const crAcceptReq = new Request(
+        `http://localhost:3000/api/projects/${crAcceptProj.id}/change-requests/${testCR.id}/accept`,
+        { method: "POST" }
+      );
+      const crAcceptRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${clientUser.rawToken}` },
+        () =>
+          changeRequestAcceptRoute(crAcceptReq, {
+            params: Promise.resolve({ id: crAcceptProj.id, crId: testCR.id }),
+          })
+      );
+      expect(crAcceptRes.status).toBe(400);
+      const crAcceptData = await crAcceptRes.json();
+      expect(crAcceptData.error).toBe("Total price cannot be less than ₹300");
+
+      // (e) payment create-order on project with quotation < ₹300 rejects with 400
+      const [orderFloorProj] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-ORDFL-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "Order Floor Project",
+          subject: "Web",
+          description: "Testing order floor",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 1000,
+          status: "AWAITING_ADVANCE",
+          integrityAck: true,
+        })
+        .returning();
+      createdProjectIds.push(orderFloorProj.id);
+
+      await db.insert(quotations).values({
+        projectId: orderFloorProj.id,
+        builderId: builderUser.id,
+        totalPrice: 200, // < 300
+        advanceAmount: 200,
+        remainingAmount: 0,
+        estimatedDurationDays: 14,
+        status: "ACCEPTED",
+      });
+
+      const orderReq = new Request("http://localhost:3000/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId: orderFloorProj.id }),
+      });
+      const orderRes = await testRequestContext.run(
+        { cookie: `buildmate_session=${clientUser.rawToken}` },
+        () => createOrderRoute(orderReq)
+      );
+      expect(orderRes.status).toBe(400);
+      const orderData = await orderRes.json();
+      expect(orderData.error).toBe("Total price cannot be less than ₹300.");
     });
   });
 

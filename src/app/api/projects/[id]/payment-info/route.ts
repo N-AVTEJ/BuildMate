@@ -83,6 +83,13 @@ export async function GET(
         .limit(1);
 
       if (quote) {
+        if (quote.totalPrice < 300) {
+          return NextResponse.json(
+            { error: "Total price cannot be less than ₹300." },
+            { status: 400 }
+          );
+        }
+
         rawExpectedAmount =
           paymentType === "ADVANCE" ? quote.advanceAmount : quote.remainingAmount;
 
