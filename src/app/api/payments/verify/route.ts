@@ -127,6 +127,15 @@ export async function POST(req: Request) {
         projectId: project.id,
       });
 
+      if (project.builderId) {
+        await notify(project.builderId, "PAYMENT_REJECTED", {
+          title: "Payment rejected",
+          body: `Payment verification failed for project ${project.projectCode}.`,
+          url: `/builder/projects/${project.id}`,
+          projectId: project.id,
+        });
+      }
+
       return NextResponse.json(
         {
           success: false,
@@ -172,6 +181,22 @@ export async function POST(req: Request) {
           updatedAt: new Date(),
         })
         .where(eq(payments.id, paymentRecord.id));
+
+      await notify(project.clientId, "PAYMENT_REJECTED", {
+        title: "Payment rejected",
+        body: `Payment verification failed for project ${project.projectCode}.`,
+        url: `/projects/${project.id}`,
+        projectId: project.id,
+      });
+
+      if (project.builderId) {
+        await notify(project.builderId, "PAYMENT_REJECTED", {
+          title: "Payment rejected",
+          body: `Payment verification failed for project ${project.projectCode}.`,
+          url: `/builder/projects/${project.id}`,
+          projectId: project.id,
+        });
+      }
 
       return NextResponse.json(
         {
