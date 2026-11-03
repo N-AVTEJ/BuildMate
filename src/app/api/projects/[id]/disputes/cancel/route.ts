@@ -167,10 +167,13 @@ export async function POST(
 
     // Backend authority: dispatch push to other party
     if (result.otherPartyId) {
+      const isOtherPartyBuilder = result.otherPartyId === result.project.builderId;
       sendWebPushForUser(result.otherPartyId, "DISPUTE_CANCELLED", {
         title: "Dispute withdrawn",
         body: `Dispute on "${result.project.title}" was withdrawn.`,
-        url: `/projects/${result.project.id}`,
+        url: isOtherPartyBuilder
+          ? `/builder/projects/${result.project.id}`
+          : `/projects/${result.project.id}`,
       }).catch(() => {});
     }
 

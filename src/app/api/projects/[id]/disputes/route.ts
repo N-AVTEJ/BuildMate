@@ -197,10 +197,13 @@ export async function POST(
 
     // Backend authority: dispatch push to other party
     if (result.otherPartyId) {
+      const isOtherPartyBuilder = result.otherPartyId === result.project.builderId;
       sendWebPushForUser(result.otherPartyId, "DISPUTE_OPENED", {
         title: "Dispute opened",
         body: `A formal dispute was opened on "${result.project.title}".`,
-        url: `/projects/${result.project.id}`,
+        url: isOtherPartyBuilder
+          ? `/builder/projects/${result.project.id}`
+          : `/projects/${result.project.id}`,
       }).catch(() => {});
     }
 
