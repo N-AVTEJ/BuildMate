@@ -244,4 +244,39 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
     expect(data.pagination.total).toBeGreaterThanOrEqual(3);
     expect(data.pagination.hasMore).toBe(true);
   });
+
+  it("6. PaymentHistoryTable renders status filter and date sort controls", async () => {
+    const React = await import("react");
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { PaymentHistoryTable } = await import("@/components/payments/payment-history-table");
+
+    const sampleRow = {
+      id: "pay_test_1",
+      projectId: "proj_test_1",
+      projectCode: "PRJ-2026-0001",
+      projectTitle: "Test Project",
+      type: "ADVANCE" as const,
+      amount: 1500,
+      status: "VERIFIED",
+      verifiedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      razorpayPaymentId: "pay_sample_123456",
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(PaymentHistoryTable, {
+        initialPayments: [sampleRow],
+        role: "BUILDER",
+        totalCount: 1,
+      })
+    );
+
+    expect(html).toContain("Status:");
+    expect(html).toContain("All Statuses");
+    expect(html).toContain("Date:");
+    expect(html).toContain("Newest First");
+    expect(html).toContain("PRJ-2026-0001");
+    expect(html).toContain("ADVANCE");
+    expect(html).toContain("Verified");
+  });
 });

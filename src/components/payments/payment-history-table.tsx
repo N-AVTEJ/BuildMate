@@ -88,6 +88,8 @@ export function PaymentHistoryTable({
   const [total, setTotal] = useState<number>(totalCount ?? initialPayments.length);
   const [offset, setOffset] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.floor(offset / pageSize) + 1;
@@ -113,10 +115,22 @@ export function PaymentHistoryTable({
     }
   }
 
+  // Filter and sort displayed payments
+  const displayedPayments = payments
+    .filter((p) => {
+      if (statusFilter === "ALL") return true;
+      return p.status === statusFilter;
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.verifiedAt || a.createdAt).getTime();
+      const timeB = new Date(b.verifiedAt || b.createdAt).getTime();
+      return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+    });
+
   return (
     <div className="bg-white border-2 border-black neo-shadow overflow-hidden">
       {/* Header Bar */}
-      <div className="p-5 border-b-2 border-black flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#fffdf0]">
+      <div className="p-5 border-b-2 border-black flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-[#fffdf0]">
         <div>
           <h3 className="text-lg font-cabinet font-black text-[#171e19] uppercase tracking-wide">
             Payment History
@@ -127,9 +141,42 @@ export function PaymentHistoryTable({
               : "All payment transactions across your software projects."}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Filter and Sort Toolbar */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Status Filter */}
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="payment-status-filter" className="text-xs font-black uppercase tracking-wider text-black">
+              Status:
+            </label>
+            <select
+              id="payment-status-filter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-white border-2 border-black px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[#171e19] focus:outline-none focus:bg-[#ffe17c] cursor-pointer"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="VERIFIED">Verified</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="UNDER_REVIEW">In Review</option>
+              <option value="AWAITING">Awaiting</option>
+              <option value="ORDER_CREATED">Order Created</option>
+            </select>
+          </div>
+
+          {/* Date Sort Toggle */}
+          <button
+            type="button"
+            onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-[#ffe17c] border-2 border-black text-xs font-black uppercase tracking-wider text-[#171e19] transition"
+            title="Toggle sort order by date"
+          >
+            <span>Date:</span>
+            <span>{sortOrder === "desc" ? "Newest First ▼" : "Oldest First ▲"}</span>
+          </button>
+
           <span className="text-xs font-black uppercase tracking-wider bg-[#ffe17c] border border-black px-2.5 py-1">
-            Total Records: {total}
+            Total: {statusFilter === "ALL" ? total : displayedPayments.length}
           </span>
         </div>
       </div>
@@ -143,19 +190,25 @@ export function PaymentHistoryTable({
               <th className="p-3.5 border-r border-white/20">Type</th>
               <th className="p-3.5 border-r border-white/20">Amount</th>
               <th className="p-3.5 border-r border-white/20">Status</th>
-              <th className="p-3.5 border-r border-white/20">Verified Date</th>
+              <th
+                onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
+                className="p-3.5 border-r border-white/20 cursor-pointer hover:bg-white/10 select-none"
+                title="Click to sort by date"
+              >
+                Verified Date {sortOrder === "desc" ? "▼" : "▲"}
+              </th>
               <th className="p-3.5">Gateway Payment ID</th>
             </tr>
           </thead>
           <tbody className="divide-y-2 divide-black text-xs font-medium">
-            {payments.length === 0 ? (
+            {displayedPayments.length === 0 ? (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-gray-600 font-bold">
                   {isLoading ? "Loading payment records..." : "No payment records found."}
                 </td>
               </tr>
             ) : (
-              payments.map((p) => {
+              displayedPayments.map((p) => {
                 const projectLink = baseProjectHrefPrefix
                   ? `${baseProjectHrefPrefix}/${p.projectId}`
                   : null;
@@ -195,7 +248,7 @@ export function PaymentHistoryTable({
                             : "bg-[#ffe17c] text-[#171e19]"
                         }`}
                       >
-                        {p.type === "ADVANCE" ? "INITIAL" : "FINAL"}
+                        {p.type}
                       </span>
                     </td>
 
