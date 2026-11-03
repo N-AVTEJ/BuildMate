@@ -233,8 +233,9 @@ export function DisputeForm({
         <button
           type="submit"
           disabled={loading || description.length < 10}
-          className="neo-btn px-6 py-3 bg-black text-white hover:bg-rose-600 text-xs font-heading font-black uppercase tracking-wider rounded-xl disabled:opacity-50"
+          className="neo-btn px-6 py-3 bg-black text-white hover:bg-rose-600 text-xs font-heading font-black uppercase tracking-wider rounded-xl disabled:opacity-50 inline-flex items-center gap-2"
         >
+          {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
           {loading ? "Submitting Dispute..." : "Submit Formal Dispute"}
         </button>
       </div>

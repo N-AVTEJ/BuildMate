@@ -55,8 +55,9 @@ export function DeliveryAcceptButton({ projectId }: DeliveryAcceptButtonProps) {
       <button
         onClick={handleAccept}
         disabled={loading}
-        className="neo-btn px-5 py-2.5 bg-black hover:bg-emerald-600 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50"
+        className="neo-btn px-5 py-2.5 bg-black hover:bg-emerald-600 text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 inline-flex items-center gap-2"
       >
+        {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
         {loading ? "Accepting..." : "Accept & Complete ✓"}
       </button>
     </div>

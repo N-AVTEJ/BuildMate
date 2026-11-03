@@ -64,16 +64,18 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
           type="button"
           onClick={handleAccept}
           disabled={loading !== null}
-          className="neo-btn flex-1 px-6 py-3 bg-[#ffe17c] hover:bg-emerald-300 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="neo-btn flex-1 px-6 py-3 bg-[#ffe17c] hover:bg-emerald-300 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
         >
+          {loading === "accept" && <span className="inline-block animate-spin text-sm">⏳</span>}
           {loading === "accept" ? "Accepting Quotation..." : "Accept Quotation & Lock Scope ✓"}
         </button>
         <button
           type="button"
           onClick={handleReject}
           disabled={loading !== null}
-          className="neo-btn px-6 py-3 bg-white hover:bg-rose-200 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="neo-btn px-6 py-3 bg-white hover:bg-rose-200 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
         >
+          {loading === "reject" && <span className="inline-block animate-spin text-sm">⏳</span>}
           {loading === "reject" ? "Rejecting..." : "Reject Quotation"}
         </button>
       </div>

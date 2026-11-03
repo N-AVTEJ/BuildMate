@@ -240,17 +240,19 @@ export function BuilderApplicationsTable({
                             type="button"
                             disabled={loadingId === app.id}
                             onClick={() => handleAction(app.id, "APPROVE")}
-                            className="neo-btn px-3 py-1.5 bg-emerald-300 hover:bg-emerald-400 text-emerald-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50"
+                            className="neo-btn px-3 py-1.5 bg-emerald-300 hover:bg-emerald-400 text-emerald-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
-                            {loadingId === app.id ? "..." : "Approve"}
+                            {loadingId === app.id && <span className="inline-block animate-spin text-xs">⏳</span>}
+                            {loadingId === app.id ? "Approving..." : "Approve"}
                           </button>
                           <button
                             type="button"
                             disabled={loadingId === app.id}
                             onClick={() => handleAction(app.id, "REJECT")}
-                            className="neo-btn px-3 py-1.5 bg-rose-200 hover:bg-rose-300 text-rose-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50"
+                            className="neo-btn px-3 py-1.5 bg-rose-200 hover:bg-rose-300 text-rose-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
-                            {loadingId === app.id ? "..." : "Reject"}
+                            {loadingId === app.id && <span className="inline-block animate-spin text-xs">⏳</span>}
+                            {loadingId === app.id ? "Rejecting..." : "Reject"}
                           </button>
                         </div>
                       ) : (

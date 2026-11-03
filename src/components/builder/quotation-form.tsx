@@ -230,8 +230,9 @@ export function QuotationForm({ projectId }: { projectId: string }) {
         <button
           type="submit"
           disabled={loading || !isFormValid}
-          className="neo-btn w-full sm:w-auto px-7 py-3.5 bg-black hover:bg-black/90 disabled:opacity-50 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl border-2 border-black transition"
+          className="neo-btn w-full sm:w-auto px-7 py-3.5 bg-black hover:bg-black/90 disabled:opacity-50 text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl border-2 border-black transition inline-flex items-center justify-center gap-2"
         >
+          {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
           {loading ? "Submitting Quotation..." : "Submit Quotation to Client →"}
         </button>
       </div>

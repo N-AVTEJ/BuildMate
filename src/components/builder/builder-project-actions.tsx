@@ -103,18 +103,20 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
           <button
             onClick={() => handleAccept(false)}
             disabled={loading}
-            className="neo-btn px-5 py-2.5 bg-black hover:bg-black/90 text-[#ffe17c] text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition"
+            className="neo-btn px-5 py-2.5 bg-black hover:bg-black/90 text-[#ffe17c] text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center gap-2"
           >
-            {loading ? "Processing..." : "Acquire Project →"}
+            {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
+            {loading ? "Acquiring..." : "Acquire Project →"}
           </button>
 
           {showReject && (
             <button
               onClick={handleReject}
               disabled={loading}
-              className="neo-btn px-4 py-2.5 bg-white hover:bg-rose-100 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="neo-btn px-4 py-2.5 bg-white hover:bg-rose-100 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center gap-2"
             >
-              Pass
+              {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
+              {loading ? "Passing..." : "Pass"}
             </button>
           )}
         </div>
@@ -167,8 +169,9 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
               <button
                 onClick={() => handleAccept(true)}
                 disabled={loading}
-                className="neo-btn px-5 py-2.5 text-xs font-heading font-black uppercase text-black bg-[#ffe17c] hover:bg-emerald-300 rounded-xl border-2 border-black"
+                className="neo-btn px-5 py-2.5 text-xs font-heading font-black uppercase text-black bg-[#ffe17c] hover:bg-emerald-300 rounded-xl border-2 border-black inline-flex items-center gap-2 disabled:opacity-50"
               >
+                {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
                 {loading ? "Acquiring..." : "Proceed & Acquire"}
               </button>
             </div>
