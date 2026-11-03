@@ -3,7 +3,7 @@
  * 
  * Invariant: Never alters backend database enums or status transitions.
  * Ensures user interface strictly adheres to Razorpay and RBI Payment Aggregator
- * compliance policies (no display of "ADVANCE", "ESCROW", etc.).
+ * compliance policies (displaying compliant milestone-based terminology).
  */
 export function formatProjectStatus(status: string | null | undefined): string {
   if (!status) return "—";
