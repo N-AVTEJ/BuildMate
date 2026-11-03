@@ -441,7 +441,6 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
 
       await db.insert(quotations).values({
         projectId: qaProj.id,
-        builderId: builderUser.id,
         totalPrice: 200, // < 300
         advanceAmount: 200,
         remainingAmount: 0,
@@ -529,7 +528,6 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
 
       await db.insert(quotations).values({
         projectId: orderFloorProj.id,
-        builderId: builderUser.id,
         totalPrice: 200, // < 300
         advanceAmount: 200,
         remainingAmount: 0,

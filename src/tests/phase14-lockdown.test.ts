@@ -435,9 +435,9 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
       .where(eq(users.id, userRecord.id))
       .limit(1);
     expect(builderUserAfter).toBeDefined();
-    const isPwValid = await verifyPassword(builderUserAfter.passwordHash, "ValidBuilderPassword123!");
+    const isPwValid = await verifyPassword(builderUserAfter.passwordHash!, "ValidBuilderPassword123!");
     expect(isPwValid).toBe(true);
-    const isWrongPwInvalid = await verifyPassword(builderUserAfter.passwordHash, "WrongPassword!");
+    const isWrongPwInvalid = await verifyPassword(builderUserAfter.passwordHash!, "WrongPassword!");
     expect(isWrongPwInvalid).toBe(false);
 
     // Test Admin RESEND_SETUP
