@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   CLIENT_DISPUTE_REASONS,
   BUILDER_DISPUTE_REASONS,
@@ -149,8 +150,9 @@ export function DisputeForm({
             <button
               onClick={handleCancelDispute}
               disabled={loading}
-              className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-200 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition disabled:opacity-50"
+              className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-200 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition disabled:opacity-50 inline-flex items-center gap-2"
             >
+              {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
               {loading ? "Withdrawing..." : "Withdraw / Cancel Dispute"}
             </button>
           ) : (
@@ -159,12 +161,12 @@ export function DisputeForm({
             </p>
           )}
 
-          <a
+          <Link
             href={`/projects/${projectId}/messages`}
             className="neo-btn px-5 py-2.5 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl"
           >
             Open Project Chat →
-          </a>
+          </Link>
         </div>
       </div>
     );

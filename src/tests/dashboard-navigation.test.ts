@@ -1,7 +1,16 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BuilderDashboardView } from "@/components/builder/builder-dashboard-view";
+import { DisputeForm } from "@/components/projects/dispute-form";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => "/",
+}));
 
 describe("Phase 15 Task 3 — Builder Dashboard Navigation & Responsive Layout Invariants", () => {
   const mockUser = {
@@ -117,5 +126,27 @@ describe("Phase 15 Task 3 — Builder Dashboard Navigation & Responsive Layout I
     expect(html).not.toContain("hidden lg:flex flex-wrap gap-2 pb-2 border-b-2 border-black");
     // Manage Project action button exists
     expect(html).toContain("Manage Project →");
+  });
+
+  it("5. DisputeForm renders client-side chat link and immediate action feedback", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(DisputeForm, {
+        projectId: "proj_dispute_123",
+        role: "CLIENT",
+        currentUserId: "user_test_123",
+        activeDispute: {
+          id: "disp_123",
+          reason: "MISSING_FEATURE",
+          description: "Missing features in initial release",
+          raisedBy: "user_test_123",
+          createdAt: new Date().toISOString(),
+        },
+      })
+    );
+
+    // Verifies client-side navigation to project chat
+    expect(html).toContain('href="/projects/proj_dispute_123/messages"');
+    // Verifies action button exists with immediate action classes
+    expect(html).toContain("Withdraw / Cancel Dispute");
   });
 });

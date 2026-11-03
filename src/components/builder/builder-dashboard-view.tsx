@@ -725,9 +725,13 @@ export function BuilderDashboardView({
                         </Link>
                         <Link
                           href={`/projects/${p.id}#messages`}
-                          className="neo-btn px-3.5 py-1.5 bg-white hover:bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                          onClick={() => setNavigatingId(p.id + "-msg")}
+                          className={`neo-btn px-3.5 py-1.5 bg-white hover:bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1 ${
+                            navigatingId === p.id + "-msg" ? "pointer-events-none opacity-80" : ""
+                          }`}
                         >
-                          💬 Messages
+                          {navigatingId === p.id + "-msg" && <span className="animate-spin text-xs">⏳</span>}
+                          {navigatingId === p.id + "-msg" ? "Opening..." : "💬 Messages"}
                         </Link>
                       </div>
                     </div>
@@ -1012,9 +1016,13 @@ export function BuilderDashboardView({
                   </div>
                   <Link
                     href={`/projects/${p.id}#messages`}
-                    className="neo-btn px-4 py-2 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 shrink-0"
+                    onClick={() => setNavigatingId(p.id + "-discussion")}
+                    className={`neo-btn px-4 py-2 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 shrink-0 ${
+                      navigatingId === p.id + "-discussion" ? "pointer-events-none opacity-80" : ""
+                    }`}
                   >
-                    <span>💬</span> Open Discussion →
+                    {navigatingId === p.id + "-discussion" ? <span className="animate-spin text-xs">⏳</span> : <span>💬</span>}
+                    {navigatingId === p.id + "-discussion" ? "Opening..." : "Open Discussion →"}
                   </Link>
                 </div>
               ))}

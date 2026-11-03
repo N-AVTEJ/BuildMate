@@ -312,9 +312,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                       </Link>
                       <Link
                         href={`/projects/${project.id}/messages`}
-                        className="neo-btn px-3.5 py-1.5 bg-white hover:bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
+                        onClick={() => setNavigatingId(project.id + "-msg")}
+                        className={`neo-btn px-3.5 py-1.5 bg-white hover:bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1 ${
+                          navigatingId === project.id + "-msg" ? "pointer-events-none opacity-80" : ""
+                        }`}
                       >
-                        💬 Messages
+                        {navigatingId === project.id + "-msg" && <span className="animate-spin text-xs">⏳</span>}
+                        {navigatingId === project.id + "-msg" ? "Opening..." : "💬 Messages"}
                       </Link>
                     </div>
                   </div>
@@ -518,9 +522,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                   <div className="flex justify-end">
                     <Link
                       href={`/projects/${p.id}`}
-                      className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-block"
+                      onClick={() => setNavigatingId(p.id + "-timeline")}
+                      className={`neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 ${
+                        navigatingId === p.id + "-timeline" ? "pointer-events-none opacity-80" : ""
+                      }`}
                     >
-                      Inspect Timeline in Project Details →
+                      {navigatingId === p.id + "-timeline" && <span className="animate-spin text-xs">⏳</span>}
+                      {navigatingId === p.id + "-timeline" ? "Opening..." : "Inspect Timeline in Project Details →"}
                     </Link>
                   </div>
                 </div>
@@ -684,9 +692,13 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                     </div>
                     <Link
                       href={`/projects/${p.id}#messages`}
-                      className="neo-btn px-4 py-2 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 shrink-0"
+                      onClick={() => setNavigatingId(p.id + "-discussion")}
+                      className={`neo-btn px-4 py-2 bg-[#ffe17c] text-[#171e19] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm inline-flex items-center gap-1.5 shrink-0 ${
+                        navigatingId === p.id + "-discussion" ? "pointer-events-none opacity-80" : ""
+                      }`}
                     >
-                      <span>💬</span> Open Discussion →
+                      {navigatingId === p.id + "-discussion" ? <span className="animate-spin text-xs">⏳</span> : <span>💬</span>}
+                      {navigatingId === p.id + "-discussion" ? "Opening..." : "Open Discussion →"}
                     </Link>
                   </div>
                 ))}
