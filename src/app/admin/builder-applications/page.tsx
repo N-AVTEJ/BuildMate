@@ -78,7 +78,7 @@ export default async function AdminBuilderApplicationsPage() {
         currentPortalTitle="Builder Applications"
       />
 
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1 w-full">
+      <main className="max-w-screen-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex-1 w-full">
         {/* Navigation Breadcrumb & Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-xs font-heading font-black uppercase tracking-wider text-black/60 mb-3">

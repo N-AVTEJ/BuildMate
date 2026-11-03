@@ -92,7 +92,7 @@ export default async function AdminPaymentsPage() {
     <div className="min-h-screen bg-[#fffdf0] neo-dots font-body text-[#171e19]">
       <PortalHeader user={auth.user} roles={auth.roles} currentPortalTitle="Admin Portal" />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {/* Header Block */}
         <div className="bg-white rounded-2xl border-2 border-black neo-shadow-lg p-6 sm:p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -2,8 +2,8 @@ export default function BuilderLoading() {
   return (
     <div className="min-h-screen bg-[#fffdf0] neo-dots">
       {/* Skeleton Header */}
-      <header className="bg-[#ffe17c] border-b-2 border-black sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="bg-[#ffe17c] border-b-2 border-black sticky top-0 z-50 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#171e19] border-2 border-black animate-pulse" />
             <div className="h-6 w-32 bg-black/20 rounded animate-pulse" />
@@ -17,7 +17,7 @@ export default function BuilderLoading() {
       </header>
 
       {/* Main Content Skeleton */}
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-screen-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Welcome Banner Skeleton */}
         <div className="bg-white border-2 border-black rounded-2xl p-6 mb-8 neo-shadow-md animate-pulse">
           <div className="h-7 w-64 bg-gray-300 rounded mb-2" />
