@@ -13,10 +13,13 @@ vi.mock("next/headers", () => {
   };
 });
 
+import crypto from "crypto";
 import { POST as loginRoute } from "@/app/api/auth/login/route";
+import { POST as builderSetupRoute } from "@/app/api/auth/builder-setup/route";
 import { db } from "@/db";
-import { users, userRoles } from "@/db/schema";
+import { users, userRoles, emailVerificationTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { hashToken } from "@/lib/auth/session";
 import fs from "fs";
 import path from "path";
 
@@ -102,5 +105,57 @@ describe("Builder vs Client Auth Separation & Provisioned Builder Verification",
     );
     const projectSource = fs.readFileSync(projectDetailPath, "utf-8");
     expect(projectSource).toContain('redirect("/builder/login")');
+  });
+
+  it("6. Builder setup token flow sets password and enables successful login via POST /api/auth/login", async () => {
+    const testEmail = `newbuilder_${Date.now()}@example.com`;
+    const [user] = await db
+      .insert(users)
+      .values({
+        name: "New Builder",
+        email: testEmail,
+        passwordHash: "PENDING_SETUP",
+        emailVerified: true,
+      })
+      .returning();
+
+    await db.insert(userRoles).values({ userId: user.id, role: "BUILDER" });
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await db.insert(emailVerificationTokens).values({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+      used: false,
+    });
+
+    // Set password via builder-setup route
+    const setupReq = new Request("http://localhost:3000/api/auth/builder-setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: rawToken, password: "StrongBuilderPassword123!" }),
+    });
+    const setupRes = await builderSetupRoute(setupReq);
+    expect(setupRes.status).toBe(200);
+
+    // Now log in via loginRoute
+    const loginReq = new Request("http://localhost:3000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: testEmail, password: "StrongBuilderPassword123!" }),
+    });
+    const loginRes = await loginRoute(loginReq);
+    expect(loginRes.status).toBe(200);
+    const loginData = await loginRes.json();
+    expect(loginData.user.email).toBe(testEmail);
+    expect(loginData.user.roles).toContain("BUILDER");
+
+    // Clean up
+    await db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, user.id));
+    await db.delete(userRoles).where(eq(userRoles.userId, user.id));
+    await db.delete(users).where(eq(users.id, user.id));
   });
 });

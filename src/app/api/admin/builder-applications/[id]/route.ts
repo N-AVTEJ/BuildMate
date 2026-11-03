@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import crypto from "crypto";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
-import { builderApplications, notifications, users } from "@/db/schema";
+import { builderApplications, notifications, users, userRoles, emailVerificationTokens } from "@/db/schema";
 import { requireRole } from "@/lib/auth/guards";
+import { hashToken } from "@/lib/auth/session";
+import { sendBuilderSetupEmail } from "@/lib/email/resend";
 
 export async function PATCH(
   req: Request,
@@ -23,9 +26,9 @@ export async function PATCH(
     }
 
     const { action } = body;
-    if (action !== "APPROVE" && action !== "REJECT") {
+    if (action !== "APPROVE" && action !== "REJECT" && action !== "RESEND_SETUP") {
       return NextResponse.json(
-        { error: "Invalid action. Must be 'APPROVE' or 'REJECT'." },
+        { error: "Invalid action. Must be 'APPROVE', 'REJECT', or 'RESEND_SETUP'." },
         { status: 400 }
       );
     }
@@ -41,12 +44,88 @@ export async function PATCH(
       return NextResponse.json({ error: "Application not found." }, { status: 404 });
     }
 
+    const normalizedEmail = app.email.trim().toLowerCase();
+
+    // Helper: provision user, assign BUILDER role, generate setup token and send email
+    const provisionAndSendSetup = async () => {
+      let [userRecord] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, normalizedEmail))
+        .limit(1);
+
+      if (!userRecord) {
+        const [created] = await db
+          .insert(users)
+          .values({
+            name: app.name,
+            email: normalizedEmail,
+            passwordHash: "PENDING_SETUP",
+            emailVerified: true,
+          })
+          .returning();
+        userRecord = created;
+      } else if (!userRecord.emailVerified) {
+        await db.update(users).set({ emailVerified: true }).where(eq(users.id, userRecord.id));
+      }
+
+      // Add BUILDER role
+      await db
+        .insert(userRoles)
+        .values({
+          userId: userRecord.id,
+          role: "BUILDER",
+        })
+        .onConflictDoNothing();
+
+      // Generate 7-day secure one-time setup token
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = hashToken(rawToken);
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+      await db
+        .update(emailVerificationTokens)
+        .set({ used: true })
+        .where(
+          and(
+            eq(emailVerificationTokens.userId, userRecord.id),
+            eq(emailVerificationTokens.used, false)
+          )
+        );
+
+      await db.insert(emailVerificationTokens).values({
+        userId: userRecord.id,
+        tokenHash,
+        expiresAt,
+        used: false,
+      });
+
+      // Dispatch setup link email via Resend
+      await sendBuilderSetupEmail(normalizedEmail, rawToken, app.name);
+
+      return { userRecord, rawToken };
+    };
+
+    if (action === "RESEND_SETUP") {
+      if (app.status !== "APPROVED") {
+        return NextResponse.json(
+          { error: "Cannot resend setup link for an application that is not approved." },
+          { status: 400 }
+        );
+      }
+
+      const { rawToken } = await provisionAndSendSetup();
+
+      return NextResponse.json({
+        success: true,
+        message: `Account setup link re-sent to ${normalizedEmail}.`,
+        setupToken: rawToken,
+      });
+    }
+
     const newStatus = action === "APPROVE" ? "APPROVED" : "REJECTED";
 
     // 3. Update application status
-    // Invariant (Phase 14 Lockdown):
-    // Approve action does NOT auto-provision anything in this phase.
-    // It flips status to APPROVED and sends a notification to the admin with provisioning instructions.
     const [updatedApp] = await db
       .update(builderApplications)
       .set({
@@ -56,19 +135,21 @@ export async function PATCH(
       .where(eq(builderApplications.id, applicationId))
       .returning();
 
-    // 4. Send notification:
-    // If APPROVED: notify admin with manual provisioning CLI instructions.
-    // If REJECTED: notify applicant (in-app if user account exists, and log notice). No account is created.
+    let setupToken: string | undefined;
+
     if (action === "APPROVE") {
+      const provisioned = await provisionAndSendSetup();
+      setupToken = provisioned.rawToken;
+
       await db.insert(notifications).values({
         userId: auth.user.id,
-        message: `Builder application for ${app.name} (${app.email}) was APPROVED. Run "npx tsx scripts/provision-builder.ts ${app.email}" to provision account.`,
+        message: `Builder account for ${app.name} (${normalizedEmail}) has been provisioned and an account setup invitation link was dispatched.`,
       });
     } else {
       const [applicantUser] = await db
         .select({ id: users.id })
         .from(users)
-        .where(eq(users.email, app.email.toLowerCase()))
+        .where(eq(users.email, normalizedEmail))
         .limit(1);
 
       if (applicantUser) {
@@ -77,13 +158,14 @@ export async function PATCH(
           message: `Your builder application for BuildMate has been reviewed and was not accepted at this time.`,
         });
       }
-      console.log(`[Admin/BuilderApplications] Rejection notice dispatched to applicant <${app.email}> for application ${applicationId}.`);
+      console.log(`[Admin/BuilderApplications] Rejection notice dispatched to applicant <${normalizedEmail}> for application ${applicationId}.`);
     }
 
     return NextResponse.json({
       success: true,
       message: `Application ${action.toLowerCase()}d successfully.`,
       application: updatedApp,
+      setupToken,
     });
   } catch (error: any) {
     if (error?.status === 401 || error?.status === 403) {

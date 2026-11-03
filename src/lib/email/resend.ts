@@ -69,6 +69,63 @@ export async function sendVerificationEmail(
 }
 
 /**
+ * Sends an account setup invitation link to an approved builder.
+ */
+export async function sendBuilderSetupEmail(
+  toEmail: string,
+  rawToken: string,
+  builderName: string
+): Promise<{ success: boolean; error?: string }> {
+  const setupUrl = `${appUrl}/builder/setup?token=${encodeURIComponent(rawToken)}`;
+
+  if (!resend) {
+    if (process.env.NODE_ENV === "development") {
+      console.info("\n=======================================================");
+      console.info(`[Auth/Email] LOCAL DEV BUILDER SETUP LINK FOR ${toEmail}:`);
+      console.info(setupUrl);
+      console.info("=======================================================\n");
+    } else {
+      console.info(`[Auth/Email] Builder setup link generated for ${toEmail} (Email delivery skipped: Resend API key placeholder)`);
+    }
+    return { success: true };
+  }
+
+  try {
+    const { error } = await resend.emails.send({
+      from: emailFrom,
+      to: toEmail,
+      subject: "Welcome to BuildMate — Set Up Your Builder Account",
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; line-height: 1.6;">
+          <h2>Congratulations ${builderName}!</h2>
+          <p>Your application to join BuildMate as an approved software builder has been accepted by our review team.</p>
+          <p>Please click the button below to set up your password and access your builder portal:</p>
+          <p style="margin: 24px 0;">
+            <a href="${setupUrl}" style="background-color: #171e19; color: #ffe17c; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Set Up Builder Account
+            </a>
+          </p>
+          <p style="font-size: 13px; color: #6b7280;">
+            This link is valid for 7 days. If you did not apply for BuildMate, you can safely ignore this email.
+          </p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error(`[Auth/Email] Resend API error sending builder setup to ${toEmail}:`, error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown email delivery error";
+    console.error(`[Auth/Email] Delivery exception sending to ${toEmail}:`, message);
+    return { success: false, error: message };
+  }
+}
+
+/**
  * Sends a general notification email (e.g. admin alerts, system notifications).
  */
 export async function sendNotificationEmail(

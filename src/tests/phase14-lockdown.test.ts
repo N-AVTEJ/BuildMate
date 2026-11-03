@@ -1,13 +1,15 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { db } from "@/db";
-import { users, userRoles, builderApplications, notifications, sessions } from "@/db/schema";
+import { users, userRoles, builderApplications, notifications, sessions, emailVerificationTokens } from "@/db/schema";
 import { eq, inArray, and, desc, like, not } from "drizzle-orm";
 import { POST as builderApplicationsRoute } from "@/app/api/builder-applications/route";
 import { GET as adminGetApplicationsRoute } from "@/app/api/admin/builder-applications/route";
 import { PATCH as adminPatchApplicationRoute } from "@/app/api/admin/builder-applications/[id]/route";
 import { GET as adminGetResumeRoute } from "@/app/api/admin/builder-applications/[id]/resume/route";
 import { GET as googleCallbackRoute } from "@/app/api/auth/google/callback/route";
-import { createSession, testRequestContext } from "@/lib/auth/session";
+import { POST as builderSetupRoute, GET as builderSetupValidateRoute } from "@/app/api/auth/builder-setup/route";
+import { createSession, testRequestContext, hashToken } from "@/lib/auth/session";
+import { verifyPassword } from "@/lib/auth/password";
 import * as googleAuthModule from "@/lib/auth/google";
 import { validateResumeFile } from "@/lib/storage/resume-validation";
 
@@ -297,13 +299,14 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
     expect(data.error).toContain("Forbidden");
   });
 
-  it("7. Admin can view applications and approve an application without auto-provisioning", async () => {
+  it("7. Admin approval provisions builder account, assigns BUILDER role, generates 7-day setup token, and allows password setup (Fix 7)", async () => {
     // 1. Create a test application
+    const candidateEmail = `candidate_${testRunId}@example.com`;
     const [newApp] = await db
       .insert(builderApplications)
       .values({
         name: "Pending Candidate",
-        email: `candidate_${testRunId}@example.com`,
+        email: candidateEmail,
         resumeUrl: "mock-storage-key.pdf",
         status: "PENDING",
       })
@@ -337,6 +340,9 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
     const approveData = await approveRes.json();
     expect(approveData.success).toBe(true);
     expect(approveData.application.status).toBe("APPROVED");
+    expect(approveData.setupToken).toBeDefined();
+
+    const rawSetupToken = approveData.setupToken;
 
     // Verify DB row status is APPROVED
     const [updatedApp] = await db
@@ -346,29 +352,123 @@ describe("Phase 14 — Builder/Admin Lockdown & Application Flow Invariant Suite
       .limit(1);
     expect(updatedApp.status).toBe("APPROVED");
 
-    // Invariant: Approve action does NOT create a user or grant a role automatically
+    // Fix 7 Invariant: User account was provisioned with BUILDER role
     const [userRecord] = await db
       .select()
       .from(users)
-      .where(eq(users.email, `candidate_${testRunId}@example.com`))
+      .where(eq(users.email, candidateEmail))
       .limit(1);
-    expect(userRecord).toBeUndefined();
+    expect(userRecord).toBeDefined();
+    expect(userRecord.emailVerified).toBe(true);
+    createdUserIds.push(userRecord.id);
 
-    // Verify notification was sent to admin with manual provisioning instruction
+    const builderRoles = await db
+      .select()
+      .from(userRoles)
+      .where(and(eq(userRoles.userId, userRecord.id), eq(userRoles.role, "BUILDER")));
+    expect(builderRoles.length).toBe(1);
+
+    // Verify token generated in emailVerificationTokens with 7 days expiry
+    const [tokenRecord] = await db
+      .select()
+      .from(emailVerificationTokens)
+      .where(
+        and(
+          eq(emailVerificationTokens.userId, userRecord.id),
+          eq(emailVerificationTokens.tokenHash, hashToken(rawSetupToken))
+        )
+      )
+      .limit(1);
+    expect(tokenRecord).toBeDefined();
+    expect(tokenRecord.used).toBe(false);
+    expect(tokenRecord.expiresAt.getTime()).toBeGreaterThan(Date.now() + 6 * 24 * 60 * 60 * 1000);
+
+    // Verify validation GET endpoint
+    const validateReq = new Request(`http://localhost:3000/api/auth/builder-setup?token=${rawSetupToken}`);
+    const validateRes = await builderSetupValidateRoute(validateReq);
+    expect(validateRes.status).toBe(200);
+    const validateData = await validateRes.json();
+    expect(validateData.valid).toBe(true);
+    expect(validateData.email).toBe(candidateEmail);
+
+    // Test rejection of weak password (< 8 chars)
+    const weakReq = new Request("http://localhost:3000/api/auth/builder-setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: rawSetupToken, password: "short" }),
+    });
+    const weakRes = await builderSetupRoute(weakReq);
+    expect(weakRes.status).toBe(400);
+
+    // Test password setup with valid Argon2id password
+    const setupReq = new Request("http://localhost:3000/api/auth/builder-setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: rawSetupToken, password: "ValidBuilderPassword123!" }),
+    });
+    const setupRes = await builderSetupRoute(setupReq);
+    expect(setupRes.status).toBe(200);
+    const setupData = await setupRes.json();
+    expect(setupData.success).toBe(true);
+
+    // Verify token marked used
+    const [usedToken] = await db
+      .select()
+      .from(emailVerificationTokens)
+      .where(eq(emailVerificationTokens.id, tokenRecord.id))
+      .limit(1);
+    expect(usedToken.used).toBe(true);
+
+    // Verify token cannot be reused
+    const reuseReq = new Request("http://localhost:3000/api/auth/builder-setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: rawSetupToken, password: "AnotherValidPassword123!" }),
+    });
+    const reuseRes = await builderSetupRoute(reuseReq);
+    expect(reuseRes.status).toBe(400);
+
+    // Verify builder can authenticate with the configured password
+    const [builderUserAfter] = await db
+      .select({ passwordHash: users.passwordHash })
+      .from(users)
+      .where(eq(users.id, userRecord.id))
+      .limit(1);
+    expect(builderUserAfter).toBeDefined();
+    const isPwValid = await verifyPassword(builderUserAfter.passwordHash, "ValidBuilderPassword123!");
+    expect(isPwValid).toBe(true);
+    const isWrongPwInvalid = await verifyPassword(builderUserAfter.passwordHash, "WrongPassword!");
+    expect(isWrongPwInvalid).toBe(false);
+
+    // Test Admin RESEND_SETUP
+    const resendReq = new Request(`http://localhost:3000/api/admin/builder-applications/${newApp.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "RESEND_SETUP" }),
+    });
+    const resendRes = await testRequestContext.run(
+      { token: adminSessionToken },
+      async () => await adminPatchApplicationRoute(resendReq, { params: Promise.resolve({ id: newApp.id }) })
+    );
+    expect(resendRes.status).toBe(200);
+    const resendData = await resendRes.json();
+    expect(resendData.success).toBe(true);
+    expect(resendData.setupToken).toBeDefined();
+
+    // Verify notification was sent to admin
     const [notif] = await db
       .select()
       .from(notifications)
       .where(
         and(
           eq(notifications.userId, adminUserId),
-          like(notifications.message, `%${newApp.email}%`)
+          like(notifications.message, `%${candidateEmail}%`)
         )
       )
       .orderBy(desc(notifications.createdAt))
       .limit(1);
     expect(notif).toBeDefined();
-    expect(notif.message).toContain("APPROVED");
-    expect(notif.message).toContain("scripts/provision-builder.ts");
+    expect(notif.message).toContain("provisioned");
   });
 
   it("8. Admin can reject an application and applicant receives notification (if registered) with zero role creation", async () => {

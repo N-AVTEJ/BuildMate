@@ -28,7 +28,7 @@ export function BuilderApplicationsTable({
     return app.status === filter;
   });
 
-  const handleAction = async (id: string, action: "APPROVE" | "REJECT") => {
+  const handleAction = async (id: string, action: "APPROVE" | "REJECT" | "RESEND_SETUP") => {
     setLoadingId(id);
     setStatusMessage(null);
 
@@ -44,17 +44,25 @@ export function BuilderApplicationsTable({
         throw new Error(data.error || `Failed to ${action.toLowerCase()} application.`);
       }
 
-      setApplications((prev) =>
-        prev.map((app) =>
-          app.id === id ? { ...app, status: action === "APPROVE" ? "APPROVED" : "REJECTED" } : app
-        )
-      );
+      if (action !== "RESEND_SETUP") {
+        setApplications((prev) =>
+          prev.map((app) =>
+            app.id === id ? { ...app, status: action === "APPROVE" ? "APPROVED" : "REJECTED" } : app
+          )
+        );
+      }
 
       const targetApp = applications.find((a) => a.id === id);
       if (action === "APPROVE") {
         setStatusMessage({
           id,
-          text: `Application for ${targetApp?.email} APPROVED! Notice sent. To provision their BUILDER role, run: npx tsx scripts/provision-builder.ts "${targetApp?.email}"`,
+          text: `Application for ${targetApp?.email} APPROVED! Account provisioned and setup invitation link dispatched.`,
+          type: "success",
+        });
+      } else if (action === "RESEND_SETUP") {
+        setStatusMessage({
+          id,
+          text: `Setup invitation link re-sent to ${targetApp?.email}!`,
           type: "success",
         });
       } else {
@@ -104,7 +112,7 @@ export function BuilderApplicationsTable({
 
         <div className="text-xs font-mono font-bold bg-[#ffe17c] border-2 border-black px-3 py-1.5 rounded-xl neo-shadow-sm flex items-center gap-2">
           <span>🔒 Vetting Policy:</span>
-          <span>Zero Auto-Grants (Manual Provisioning Only)</span>
+          <span>Admin Review &amp; Automated Setup Link Dispatch</span>
         </div>
       </div>
 
@@ -253,6 +261,18 @@ export function BuilderApplicationsTable({
                           >
                             {loadingId === app.id && <span className="inline-block animate-spin text-xs">⏳</span>}
                             {loadingId === app.id ? "Rejecting..." : "Reject"}
+                          </button>
+                        </div>
+                      ) : app.status === "APPROVED" ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            disabled={loadingId === app.id}
+                            onClick={() => handleAction(app.id, "RESEND_SETUP")}
+                            className="neo-btn px-3 py-1.5 bg-[#ffe17c] hover:bg-[#ffd644] text-[#171e19] text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
+                          >
+                            {loadingId === app.id && <span className="inline-block animate-spin text-xs">⏳</span>}
+                            {loadingId === app.id ? "Sending..." : "Re-send Setup Link"}
                           </button>
                         </div>
                       ) : (
