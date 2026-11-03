@@ -438,7 +438,7 @@ export const notifications = pgTable(
     index("notifications_user_id_read_at_created_at_idx").on(
       table.userId,
       table.readAt,
-      table.createdAt
+      table.createdAt.desc()
     ),
   ]
 );
@@ -615,6 +615,10 @@ export const pushSubscriptions = pgTable(
   (table) => [
     index("push_subscriptions_user_id_idx").on(table.userId),
     index("push_subscriptions_endpoint_idx").on(table.endpoint),
+    index("push_subscriptions_user_id_revoked_at_idx").on(
+      table.userId,
+      table.revokedAt
+    ),
   ]
 );
 

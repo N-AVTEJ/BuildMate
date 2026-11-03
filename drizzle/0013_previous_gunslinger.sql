@@ -39,6 +39,7 @@ ALTER TABLE "push_subscriptions" ADD CONSTRAINT "push_subscriptions_user_id_user
 CREATE INDEX "notification_prefs_user_id_idx" ON "notification_prefs" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "push_subscriptions_user_id_idx" ON "push_subscriptions" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "push_subscriptions_endpoint_idx" ON "push_subscriptions" USING btree ("endpoint");--> statement-breakpoint
+CREATE INDEX "push_subscriptions_user_id_revoked_at_idx" ON "push_subscriptions" USING btree ("user_id","revoked_at");--> statement-breakpoint
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_project_id_projects_id_fk" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "notifications_project_id_idx" ON "notifications" USING btree ("project_id");--> statement-breakpoint
-CREATE INDEX "notifications_user_id_read_at_created_at_idx" ON "notifications" USING btree ("user_id","read_at","created_at");
+CREATE INDEX "notifications_user_id_read_at_created_at_idx" ON "notifications" USING btree ("user_id","read_at","created_at" DESC);

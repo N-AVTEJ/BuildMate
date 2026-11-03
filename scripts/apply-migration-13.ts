@@ -101,8 +101,9 @@ async function applyToDb(name: string, connectionConfig: any) {
       CREATE INDEX IF NOT EXISTS "notification_prefs_user_id_idx" ON "notification_prefs" USING btree ("user_id");
       CREATE INDEX IF NOT EXISTS "push_subscriptions_user_id_idx" ON "push_subscriptions" USING btree ("user_id");
       CREATE INDEX IF NOT EXISTS "push_subscriptions_endpoint_idx" ON "push_subscriptions" USING btree ("endpoint");
+      CREATE INDEX IF NOT EXISTS "push_subscriptions_user_id_revoked_at_idx" ON "push_subscriptions" USING btree ("user_id", "revoked_at");
       CREATE INDEX IF NOT EXISTS "notifications_project_id_idx" ON "notifications" USING btree ("project_id");
-      CREATE INDEX IF NOT EXISTS "notifications_user_id_read_at_created_at_idx" ON "notifications" USING btree ("user_id", "read_at", "created_at");
+      CREATE INDEX IF NOT EXISTS "notifications_user_id_read_at_created_at_idx" ON "notifications" USING btree ("user_id", "read_at", "created_at" DESC);
     `);
 
     console.log(`✓ Migration 0013 successfully applied to ${name}!`);

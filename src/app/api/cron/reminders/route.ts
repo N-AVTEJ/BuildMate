@@ -3,7 +3,7 @@ import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { reconcileProjectStatusInDb } from "@/lib/project-status";
-import { checkAndSendPaymentReminders } from "@/lib/projects/payment-reminders";
+import { reconcilePaymentReminders } from "@/lib/projects/payment-reminders";
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +54,7 @@ export async function GET(req: Request) {
         reconciledCount++;
 
         if (proj.status === "AWAITING_ADVANCE") {
-          await checkAndSendPaymentReminders(proj, now);
+          await reconcilePaymentReminders(proj, now);
           paymentReminderCount++;
         }
       } catch (err) {
