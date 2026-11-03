@@ -20,7 +20,7 @@ export interface PaymentHistoryRow {
 
 interface PaymentHistoryTableProps {
   initialPayments: PaymentHistoryRow[];
-  role: "BUILDER" | "CLIENT";
+  role: "BUILDER" | "CLIENT" | "ADMIN";
   totalCount?: number;
   pageSize?: number;
   baseProjectHrefPrefix?: string; // "/builder/projects" or "/projects"
@@ -138,6 +138,8 @@ export function PaymentHistoryTable({
           <p className="text-xs font-bold text-gray-600">
             {role === "BUILDER"
               ? "All verified and rejected payment transactions across your assigned projects."
+              : role === "ADMIN"
+              ? "All payment transactions across all projects system-wide."
               : "All payment transactions across your software projects."}
           </p>
         </div>
@@ -190,6 +192,7 @@ export function PaymentHistoryTable({
               <th className="p-3.5 border-r border-white/20">Type</th>
               <th className="p-3.5 border-r border-white/20">Amount</th>
               <th className="p-3.5 border-r border-white/20">Status</th>
+              <th className="p-3.5 border-r border-white/20">Submitted Date</th>
               <th
                 onClick={() => setSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
                 className="p-3.5 border-r border-white/20 cursor-pointer hover:bg-white/10 select-none"
@@ -203,7 +206,7 @@ export function PaymentHistoryTable({
           <tbody className="divide-y-2 divide-black text-xs font-medium">
             {displayedPayments.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-gray-600 font-bold">
+                <td colSpan={7} className="p-8 text-center text-gray-600 font-bold">
                   {isLoading ? "Loading payment records..." : "No payment records found."}
                 </td>
               </tr>
@@ -265,6 +268,11 @@ export function PaymentHistoryTable({
                           Reason: {p.rejectionReason}
                         </span>
                       )}
+                    </td>
+
+                    {/* Submitted Date */}
+                    <td className="p-3.5 border-r-2 border-black whitespace-nowrap text-gray-700 font-bold">
+                      {formatPaymentDate(p.createdAt)}
                     </td>
 
                     {/* Verified Date */}

@@ -22,15 +22,20 @@ export async function GET(req: Request) {
     const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0);
 
     const roleParam = url.searchParams.get("role")?.toUpperCase();
+    const isAdminRequested = roleParam === "ADMIN";
     const isBuilderRequested = roleParam === "BUILDER";
     const isClientRequested = roleParam === "CLIENT";
 
     // Determine target role based on param or user roles
-    let targetRole: "BUILDER" | "CLIENT";
-    if (isBuilderRequested && auth.roles.includes("BUILDER")) {
+    let targetRole: "ADMIN" | "BUILDER" | "CLIENT";
+    if (isAdminRequested && auth.roles.includes("ADMIN")) {
+      targetRole = "ADMIN";
+    } else if (isBuilderRequested && auth.roles.includes("BUILDER")) {
       targetRole = "BUILDER";
     } else if (isClientRequested && auth.roles.includes("CLIENT")) {
       targetRole = "CLIENT";
+    } else if (auth.roles.includes("ADMIN")) {
+      targetRole = "ADMIN";
     } else if (auth.roles.includes("BUILDER") && !auth.roles.includes("CLIENT")) {
       targetRole = "BUILDER";
     } else if (auth.roles.includes("CLIENT")) {
@@ -39,12 +44,68 @@ export async function GET(req: Request) {
       targetRole = "BUILDER";
     } else {
       return NextResponse.json(
-        { error: "Forbidden. Neither CLIENT nor BUILDER role found." },
+        { error: "Forbidden. Insufficient permissions." },
         { status: 403 }
       );
     }
 
-    if (targetRole === "BUILDER") {
+    if (targetRole === "ADMIN") {
+      // Admin: every payment row across all projects
+      const [totalResult] = await db
+        .select({ total: count() })
+        .from(payments)
+        .innerJoin(projects, eq(payments.projectId, projects.id));
+
+      const total = totalResult ? Number(totalResult.total) : 0;
+
+      const rows = await db
+        .select({
+          id: payments.id,
+          projectId: payments.projectId,
+          projectCode: projects.projectCode,
+          projectTitle: projects.title,
+          type: payments.type,
+          expectedAmount: payments.expectedAmount,
+          submittedAmount: payments.submittedAmount,
+          status: payments.status,
+          verifiedAt: payments.verifiedAt,
+          createdAt: payments.createdAt,
+          razorpayPaymentId: payments.razorpayPaymentId,
+          rejectionReason: payments.rejectionReason,
+        })
+        .from(payments)
+        .innerJoin(projects, eq(payments.projectId, projects.id))
+        .orderBy(desc(payments.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      const formatted = rows.map((r) => ({
+        id: r.id,
+        projectId: r.projectId,
+        projectCode: r.projectCode,
+        projectTitle: r.projectTitle,
+        type: r.type,
+        amount: r.submittedAmount ?? r.expectedAmount,
+        status: r.status,
+        verifiedAt: r.verifiedAt ? r.verifiedAt.toISOString() : null,
+        createdAt: r.createdAt.toISOString(),
+        razorpayPaymentId: r.razorpayPaymentId,
+        truncatedPaymentId: truncatePaymentId(r.razorpayPaymentId),
+        rejectionReason: r.rejectionReason,
+      }));
+
+      return NextResponse.json({
+        success: true,
+        role: "ADMIN",
+        payments: formatted,
+        pagination: {
+          total,
+          limit,
+          offset,
+          hasMore: offset + formatted.length < total,
+        },
+      });
+    } else if (targetRole === "BUILDER") {
       // Builder: every payments row across all their projects where status = VERIFIED or REJECTED
       const condition = and(
         eq(projects.builderId, auth.user.id),

@@ -145,6 +145,7 @@ export default async function AdminPaymentsPage() {
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4">Gateway Order ID</th>
                     <th className="py-3 px-4">Gateway Payment ID</th>
+                    <th className="py-3 px-4">Submitted At</th>
                     <th className="py-3 px-4">Verified At</th>
                   </tr>
                 </thead>
@@ -203,6 +204,9 @@ export default async function AdminPaymentsPage() {
                         </td>
                         <td className="py-3.5 px-4 font-mono text-[11px] text-black/80">
                           {p.razorpayPaymentId || "—"}
+                        </td>
+                        <td className="py-3.5 px-4 text-black/70 text-[11px]">
+                          {p.createdAt ? new Date(p.createdAt).toLocaleString() : "—"}
                         </td>
                         <td className="py-3.5 px-4 text-black/70 text-[11px]">
                           {p.verifiedAt

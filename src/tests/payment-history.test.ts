@@ -16,10 +16,25 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
   let clientUser: { id: string; rawToken: string };
   let builderUser: { id: string; rawToken: string };
   let otherClientUser: { id: string; rawToken: string };
+  let adminUser: { id: string; rawToken: string };
 
   let testProject: any;
 
   beforeAll(async () => {
+    // 0. Create admin
+    const [aUser] = await db
+      .insert(users)
+      .values({
+        name: "History Test Admin",
+        email: `admin_hist_${runId}@example.com`,
+        passwordHash: await hashPassword("ValidPassword123!"),
+      })
+      .returning();
+    createdUserIds.push(aUser.id);
+    await db.insert(userRoles).values({ userId: aUser.id, role: "ADMIN" });
+    const aSession = await createSession(aUser.id);
+    adminUser = { id: aUser.id, rawToken: aSession.rawToken };
+
     // 1. Create client
     const [cUser] = await db
       .insert(users)
@@ -275,8 +290,29 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
     expect(html).toContain("All Statuses");
     expect(html).toContain("Date:");
     expect(html).toContain("Newest First");
+    expect(html).toContain("Submitted Date");
     expect(html).toContain("PRJ-2026-0001");
     expect(html).toContain("ADVANCE");
     expect(html).toContain("Verified");
+  });
+
+  it("7. Admin sees all payments across all projects via /api/payments/history", async () => {
+    const req = new Request("http://localhost:3000/api/payments/history");
+    const res = await testRequestContext.run(
+      { cookie: `buildmate_session=${adminUser.rawToken}` },
+      () => paymentHistoryRoute(req)
+    );
+
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.success).toBe(true);
+    expect(data.role).toBe("ADMIN");
+
+    const ourPayments = data.payments.filter((p: any) => createdProjectIds.includes(p.projectId));
+    expect(ourPayments.length).toBe(3);
+    const statuses = ourPayments.map((p: any) => p.status);
+    expect(statuses).toContain("VERIFIED");
+    expect(statuses).toContain("REJECTED");
+    expect(statuses).toContain("AWAITING");
   });
 });
