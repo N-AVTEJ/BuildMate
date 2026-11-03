@@ -1,5 +1,18 @@
 import { describe, it, expect, beforeAll, afterAll, vi, beforeEach } from "vitest";
 
+// Mock next/headers for route testing
+vi.mock("next/headers", () => {
+  const cookieMap = new Map<string, any>();
+  return {
+    cookies: vi.fn(async () => ({
+      get: vi.fn((name: string) => cookieMap.get(name)),
+      set: vi.fn((name: string, val: any, opts: any) => cookieMap.set(name, { value: val, ...opts })),
+      delete: vi.fn((name: string) => cookieMap.delete(name)),
+    })),
+    headers: vi.fn(async () => new Headers()),
+  };
+});
+
 // Mock web-push before importing notify
 const mockSendNotification = vi.fn();
 const mockSetVapidDetails = vi.fn();
@@ -62,6 +75,7 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
         name: "User A (Client)",
         email: `usera_${testRunId}@test.buildmate`,
         passwordHash,
+        emailVerified: true,
       })
       .returning();
     createdUserIds.push(uA.id);
@@ -76,6 +90,7 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
         name: "User B (Client)",
         email: `userb_${testRunId}@test.buildmate`,
         passwordHash,
+        emailVerified: true,
       })
       .returning();
     createdUserIds.push(uB.id);
@@ -90,6 +105,7 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
         name: "Builder User",
         email: `builder_${testRunId}@test.buildmate`,
         passwordHash,
+        emailVerified: true,
       })
       .returning();
     createdUserIds.push(bU.id);
@@ -172,6 +188,9 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
     });
 
     it("marks subscription revoked on 410 Gone / 404 Not Found web-push response", async () => {
+      // Clear any prior subscriptions for userA to isolate this test
+      await db.delete(pushSubscriptions).where(eq(pushSubscriptions.userId, userA.id));
+
       const staleEndpoint = `https://fcm.googleapis.com/fcm/send/stale-sub-${Date.now()}`;
       const [sub] = await db
         .insert(pushSubscriptions)
@@ -238,6 +257,14 @@ describe("Web Push & Notification System (VAPID + Drizzle + Security Invariants)
     });
 
     it("mandatory/forced types (payment/security) always dispatch push even if pushEnabled is false", async () => {
+      // Ensure User A has an active subscription
+      await db.insert(pushSubscriptions).values({
+        userId: userA.id,
+        endpoint: `https://fcm.googleapis.com/fcm/send/active-user-a-${Date.now()}`,
+        p256dh: "key_a",
+        auth: "auth_a",
+      });
+
       // Turn off master push for User A
       await db
         .update(notificationPrefs)
