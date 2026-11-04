@@ -27,6 +27,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState<string>("Verifying payment with secure gateway...");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -84,35 +85,54 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         }) => {
           setLoading(false);
           setVerifying(true);
+          setVerificationMessage("Verifying payment cryptographic signature...");
 
-          try {
-            // 3. Cryptographically verify signature on server
-            const verifyRes = await fetch("/api/razorpay/verify-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
-            });
+          let lastErr: Error | null = null;
+          // BL-01: Resilient verification with exponential backoff retry
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              if (attempt > 1) {
+                setVerificationMessage(`Reconnecting to verify payment with gateway (attempt ${attempt}/3)...`);
+                await new Promise((r) => setTimeout(r, attempt * 1200));
+              }
 
-            const verifyData = await verifyRes.json();
+              const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response),
+              });
 
-            if (!verifyRes.ok || !verifyData.success) {
-              throw new Error(
-                verifyData.error ||
-                  "Payment signature verification failed. Please contact support."
-              );
+              const verifyData = await verifyRes.json().catch(() => ({}));
+
+              if (!verifyRes.ok || !verifyData.success) {
+                if (verifyRes.status === 400 || verifyRes.status === 403) {
+                  throw new Error(verifyData.error || "Payment signature verification failed.");
+                }
+                throw new Error(verifyData.error || `Server returned status ${verifyRes.status}`);
+              }
+
+              // Verification succeeded!
+              router.refresh();
+              if (props.onSuccess) {
+                props.onSuccess();
+              }
+              setSuccess(true);
+              lastErr = null;
+              break;
+            } catch (err: any) {
+              lastErr = err;
+              if (err.message && err.message.includes("signature verification failed")) {
+                break; // Do not retry fatal signature mismatches
+              }
             }
-
-            // Immediately re-fetch project state without requiring manual page reload
-            router.refresh();
-            if (props.onSuccess) {
-              props.onSuccess();
-            }
-            setSuccess(true);
-          } catch (vErr: any) {
-            setError(vErr.message || "Payment verification failed.");
-          } finally {
-            setVerifying(false);
           }
+
+          if (lastErr) {
+            setError(
+              `${lastErr.message || "Payment verification failed."} If payment was deducted, reference ID: ${response.razorpay_payment_id}. Please refresh or contact support.`
+            );
+          }
+          setVerifying(false);
         },
         modal: {
           ondismiss: () => {
@@ -200,6 +220,16 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
         )}
 
         {/* Error Banner with Retry */}
+        {verifying && (
+          <div className="bg-amber-50 border-2 border-black rounded-xl p-4 text-xs font-semibold text-amber-950 flex items-center gap-3">
+            <span className="animate-spin text-xl">⏳</span>
+            <div>
+              <p className="font-heading font-black text-sm text-black">Confirming Transaction</p>
+              <p className="mt-0.5">{verificationMessage}</p>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="bg-rose-100 border-2 border-black rounded-xl p-4 text-xs font-semibold text-rose-900 flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">

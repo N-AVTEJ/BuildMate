@@ -12,6 +12,7 @@ export default function BuilderApplyPage() {
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
@@ -85,22 +86,46 @@ export default function BuilderApplyPage() {
       }
       data.append("resume", resumeFile);
 
-      const res = await fetch("/api/builder-applications", {
-        method: "POST",
-        body: data,
+      setUploadProgress(0);
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/builder-applications");
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.min(99, Math.round((event.loaded / event.total) * 100));
+            setUploadProgress(percent);
+          }
+        };
+
+        xhr.onload = () => {
+          setUploadProgress(100);
+          try {
+            const json = JSON.parse(xhr.responseText || "{}");
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve();
+            } else {
+              reject(new Error(json.error || `Failed to submit builder application (Status ${xhr.status}).`));
+            }
+          } catch {
+            reject(new Error(`Server returned status ${xhr.status}.`));
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error("Network connection lost during upload. Please check your internet and retry."));
+        };
+
+        xhr.send(data);
       });
-
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(json.error || `Failed to submit builder application (Status ${res.status}).`);
-      }
 
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(null);
     }
   };
 
@@ -283,8 +308,27 @@ export default function BuilderApplyPage() {
                   disabled={isSubmitting}
                   className="neo-btn-lg w-full py-4 bg-black text-white font-heading font-black text-base uppercase tracking-wider rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Uploading Application..." : "Submit Builder Application →"}
+                  {isSubmitting
+                    ? uploadProgress !== null
+                      ? `Uploading Resume (${uploadProgress}%)... `
+                      : "Processing Application..."
+                    : "Submit Builder Application →"}
                 </button>
+
+                {isSubmitting && uploadProgress !== null && (
+                  <div className="mt-4 p-4 bg-[#fffdf0] border-2 border-black rounded-xl neo-shadow-sm">
+                    <div className="flex justify-between text-xs font-heading font-black uppercase tracking-wider mb-2 text-black">
+                      <span>Uploading Resume & Application Data</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full h-3 bg-white border-2 border-black rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#ffe17c] transition-all duration-150 border-r-2 border-black"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </form>
 
               <div className="mt-8 pt-6 border-t-2 border-black/10 text-center">

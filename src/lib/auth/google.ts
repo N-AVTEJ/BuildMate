@@ -28,32 +28,39 @@ export function getAppBaseUrl(req?: Request): string {
       const port = portMatch ? portMatch[1] : "3000";
       return `http://localhost:${port}`;
     }
-  }
 
-  // In production, if canonical APP_URL is explicitly configured with https, prefer it to prevent preview URL mismatches
-  if (process.env.APP_URL && process.env.APP_URL.trim().startsWith("https://")) {
-    return process.env.APP_URL.trim().replace(/\/$/, "");
-  }
-
-  // Otherwise, use request headers if present
-  if (req) {
-    const proto = req.headers.get("x-forwarded-proto") || "https";
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    // Match deployed domain directly from incoming request, normalizing any typo
     if (host) {
-      return `${proto}://${host}`;
+      const normalizedHost = host.replace("nbuildmmate.vercel.app", "nbuildmate.vercel.app");
+      const proto = req.headers.get("x-forwarded-proto") || "https";
+      return `${proto}://${normalizedHost}`;
+    }
+  }
+
+  // In production, if canonical APP_URL is explicitly configured with https, check if it's the old domain
+  if (process.env.APP_URL && process.env.APP_URL.trim().startsWith("https://")) {
+    const envUrl = process.env.APP_URL.trim().replace(/\/$/, "");
+    if (!envUrl.includes("navtejbuildmate")) {
+      return envUrl.replace("nbuildmmate.vercel.app", "nbuildmate.vercel.app");
     }
   }
 
   // Fallbacks for environment variables
-  if (process.env.APP_URL) {
-    return process.env.APP_URL.trim().replace(/\/$/, "");
+  if (process.env.APP_URL && !process.env.APP_URL.includes("navtejbuildmate")) {
+    return process.env.APP_URL.trim().replace(/\/$/, "").replace("nbuildmmate.vercel.app", "nbuildmate.vercel.app");
   }
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/$/, "")}`;
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim().replace(/\/$/, "").replace("nbuildmmate.vercel.app", "nbuildmate.vercel.app")}`;
   }
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL.trim().replace(/\/$/, "")}`;
+    return `https://${process.env.VERCEL_URL.trim().replace(/\/$/, "").replace("nbuildmmate.vercel.app", "nbuildmate.vercel.app")}`;
   }
+
+  // Canonical production fallback strictly matching registered Google OAuth origin
+  if (process.env.NODE_ENV === "production") {
+    return "https://nbuildmate.vercel.app";
+  }
+
   return "http://localhost:3000";
 }
 

@@ -10,13 +10,13 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Re-export storageProvider for existing routes (e.g. project requirements upload)
-import { storageProvider } from "./storage/index";
+import { storageProvider } from "./storage/providers";
 export {
   storageProvider,
   LocalStorageProvider,
   type StorageProvider,
   type StorageResult,
-} from "./storage/index";
+} from "./storage/providers";
 
 export const ALLOWED_PROOF_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
 export type AllowedProofExtension = (typeof ALLOWED_PROOF_EXTENSIONS)[number];
