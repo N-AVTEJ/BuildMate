@@ -13,8 +13,32 @@ import {
   BuilderNotificationItem,
 } from "@/components/builder/builder-dashboard-view";
 
-export default async function BuilderPortalPage() {
+export default async function BuilderPortalPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string }>;
+}) {
   const startTime = performance.now();
+  const resolvedParams = searchParams ? await searchParams : {};
+  const validTabs = [
+    "overview",
+    "available",
+    "my-projects",
+    "quotations",
+    "deadlines",
+    "progress",
+    "deliveries",
+    "payments",
+    "payment-history",
+    "messages",
+    "notifications",
+    "profile",
+    "guidelines",
+  ];
+  const initialTab =
+    resolvedParams?.tab && validTabs.includes(resolvedParams.tab)
+      ? (resolvedParams.tab as any)
+      : undefined;
 
   // 1. Server-Side Authentication Guard
   const auth = await getOptionalAuth();
@@ -242,6 +266,7 @@ export default async function BuilderPortalPage() {
           myProjects={myProjects}
           notifications={formattedNotifications}
           paymentHistory={formattedPaymentHistory}
+          initialTab={initialTab}
         />
       </main>
     </div>

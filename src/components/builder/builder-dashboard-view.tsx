@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown";
 import { PaymentHistoryTable, PaymentHistoryRow } from "@/components/payments/payment-history-table";
@@ -175,6 +175,34 @@ export function BuilderDashboardView({
     | "profile"
     | "guidelines"
   >(initialTab || "overview");
+
+  const selectTab = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (tab === "overview") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", tab);
+      }
+      window.history.pushState({}, "", url.toString());
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab") as typeof activeTab;
+      if (tabParam) {
+        setActiveTab(tabParam);
+      } else {
+        setActiveTab("overview");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [navigatingId, setNavigatingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -259,7 +287,7 @@ export function BuilderDashboardView({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => setActiveTab("available")}
+            onClick={() => selectTab("available")}
             className="neo-btn inline-flex items-center px-5 py-3 bg-[#171e19] text-[#ffe17c] font-black text-sm uppercase tracking-wider border-2 border-black neo-shadow"
           >
             ⚡ Browse Available Projects ({countAvailable})
@@ -296,7 +324,7 @@ export function BuilderDashboardView({
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => selectTab(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition text-left ${
                     isActive
                       ? "bg-[#171e19] text-[#ffe17c] border-black neo-shadow-sm"
@@ -340,7 +368,7 @@ export function BuilderDashboardView({
               <select
                 id="mobile-section-select"
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value as any)}
+                onChange={(e) => selectTab(e.target.value as any)}
                 className="w-full bg-[#fffdf0] border-2 border-black px-3 py-2 text-xs font-black uppercase tracking-wider text-[#171e19] focus:outline-none focus:bg-[#ffe17c] cursor-pointer"
               >
                 {NAV_ITEMS.map((item) => (
@@ -396,7 +424,7 @@ export function BuilderDashboardView({
                       <button
                         key={item.id}
                         onClick={() => {
-                          setActiveTab(item.id);
+                          selectTab(item.id);
                           setMobileDrawerOpen(false);
                         }}
                         className={`w-full flex items-center justify-between px-3 py-2 text-xs font-black uppercase tracking-wider border-2 transition text-left ${
@@ -473,7 +501,7 @@ export function BuilderDashboardView({
               </div>
               <button
                 onClick={() => {
-                  setActiveTab("my-projects");
+                  selectTab("my-projects");
                   setStatusFilter("AWAITING_QUOTE");
                 }}
                 className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0"
@@ -496,7 +524,7 @@ export function BuilderDashboardView({
               </div>
               <button
                 onClick={() => {
-                  setActiveTab("deadlines");
+                  selectTab("deadlines");
                 }}
                 className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm shrink-0"
               >
@@ -513,7 +541,7 @@ export function BuilderDashboardView({
                 <p className="text-xs font-bold text-gray-600">New projects submitted by verified clients awaiting discovery</p>
               </div>
               <button
-                onClick={() => setActiveTab("available")}
+                onClick={() => selectTab("available")}
                 className="neo-btn px-3 py-1 bg-white text-[#171e19] hover:bg-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm"
               >
                 Browse All ({countAvailable}) →
