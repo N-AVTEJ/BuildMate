@@ -17,9 +17,16 @@ export async function GET(req: Request) {
     const authHeader = req.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET?.trim();
 
-    // Verify secret if set in environment
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+    // Strictly enforce CRON_SECRET authorization (prevent unauthorized invocation)
+    if (process.env.NODE_ENV === "production" && !cronSecret) {
+      console.error("[Cron/Reminders] CRON_SECRET is not configured in production environment.");
+      return NextResponse.json({ error: "Cron endpoint unavailable." }, { status: 503 });
+    }
+
+    if (cronSecret || process.env.NODE_ENV === "production") {
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+      }
     }
 
     const now = new Date();

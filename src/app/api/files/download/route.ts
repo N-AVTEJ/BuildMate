@@ -17,36 +17,42 @@ export async function GET(req: Request) {
 
     const safeKey = path.basename(key);
 
-    // Verify HMAC signature if provided
-    if (sig && expires) {
-      const expiresNum = parseInt(expires, 10);
-      if (Date.now() > expiresNum) {
-        return NextResponse.json({ error: "Download link has expired." }, { status: 410 });
-      }
+    // Mandatory HMAC signature & expiration enforcement (prevent unauthorized access to uploaded files)
+    if (!sig || !expires) {
+      return NextResponse.json(
+        { error: "Access denied. A valid cryptographic signature and expiration timestamp are required." },
+        { status: 403 }
+      );
+    }
 
-      // Check HMAC for both payment proofs and resumes
-      const expectedSigWithTime = crypto
-        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-        .update(`${key}:${expiresNum}`)
-        .digest("hex");
+    const expiresNum = parseInt(expires, 10);
+    if (!Number.isFinite(expiresNum) || Date.now() > expiresNum) {
+      return NextResponse.json({ error: "Download link has expired." }, { status: 410 });
+    }
 
-      const expectedSigSafeKeyWithTime = crypto
-        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-        .update(`${safeKey}:${expiresNum}`)
-        .digest("hex");
+    const secret = process.env.SESSION_SECRET || "dev-storage-secret";
+    const expectedSigWithTime = crypto
+      .createHmac("sha256", secret)
+      .update(`${key}:${expiresNum}`)
+      .digest("hex");
 
-      const expectedSigWithoutTime = crypto
-        .createHmac("sha256", process.env.SESSION_SECRET || "dev-storage-secret")
-        .update(key)
-        .digest("hex");
+    const expectedSigSafeKeyWithTime = crypto
+      .createHmac("sha256", secret)
+      .update(`${safeKey}:${expiresNum}`)
+      .digest("hex");
 
-      if (
-        sig !== expectedSigWithTime &&
-        sig !== expectedSigSafeKeyWithTime &&
-        sig !== expectedSigWithoutTime
-      ) {
-        return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
-      }
+    const sigBuf = Buffer.from(sig, "hex");
+    const isMatch = (expectedHex: string) => {
+      const expBuf = Buffer.from(expectedHex, "hex");
+      return (
+        sigBuf.length > 0 &&
+        sigBuf.length === expBuf.length &&
+        crypto.timingSafeEqual(sigBuf, expBuf)
+      );
+    };
+
+    if (!isMatch(expectedSigWithTime) && !isMatch(expectedSigSafeKeyWithTime)) {
+      return NextResponse.json({ error: "Invalid signature." }, { status: 403 });
     }
 
     const localDir = path.join(process.cwd(), "storage", "uploads");

@@ -18,26 +18,6 @@ export function Footer() {
             <p className="text-sm leading-relaxed text-[#b7c6c2]/80">
               The high-trust software development platform. Milestone-based delivery, verified code releases, and strict scope locking for modern software engineering.
             </p>
-            {/* Social Icons */}
-            <div className="flex items-center gap-3 pt-2">
-              {[
-                { name: "𝕏", href: "https://x.com" },
-                { name: "GH", href: "https://github.com/N-AVTEJ/BuildMate" },
-                { name: "IN", href: "https://linkedin.com" },
-                { name: "DS", href: "https://discord.com" },
-              ].map((s) => (
-                <a
-                  key={s.name}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-[#272727] border-2 border-[#b7c6c2]/40 text-xs font-bold font-heading text-white flex items-center justify-center hover:bg-[#ffe17c] hover:text-black hover:border-black transition neo-shadow-sm"
-                  aria-label={s.name}
-                >
-                  {s.name}
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Column 2: Portals & Workflows */}
