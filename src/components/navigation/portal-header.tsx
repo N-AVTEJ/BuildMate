@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@/lib/auth/session";
@@ -31,34 +32,72 @@ export function formatHeaderRoleBadge(roles: UserRole[]): string {
 
 export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderProps) {
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+
     try {
       let endpoint: string | undefined;
 
-      // Revoke push subscription for this device if active
+      // Fast, non-blocking push subscription retrieval with bounded 200ms timeout fallback
       if (typeof window !== "undefined" && "serviceWorker" in navigator) {
         try {
-          const reg = await navigator.serviceWorker.ready;
-          const sub = await reg.pushManager.getSubscription();
-          if (sub) {
-            endpoint = sub.endpoint;
-            await sub.unsubscribe().catch(() => {});
+          const timeoutFallback = new Promise<undefined>((resolve) =>
+            setTimeout(() => resolve(undefined), 200)
+          );
+          const reg = await Promise.race([
+            navigator.serviceWorker.getRegistration(),
+            timeoutFallback,
+          ]);
+
+          if (reg?.pushManager) {
+            const sub = await Promise.race([
+              reg.pushManager.getSubscription(),
+              timeoutFallback,
+            ]);
+            if (sub) {
+              endpoint = sub.endpoint;
+              // Non-blocking push revocation: fire-and-forget
+              sub.unsubscribe().catch(() => {});
+            }
           }
         } catch {
-          // Continue logout even if service worker unregister fails
+          // Proceed immediately with logout if service worker retrieval fails
         }
       }
 
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint }),
-      });
-      router.push("/login");
-      router.refresh();
+      // Send POST to /api/auth/logout with AbortSignal timeout (2000ms)
+      const controller = new AbortController();
+      const abortTimer = setTimeout(() => controller.abort(), 2000);
+
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint }),
+          signal: controller.signal,
+        });
+      } catch {
+        // Proceed even if logout fetch timed out or encountered network error
+      } finally {
+        clearTimeout(abortTimer);
+      }
+
+      // Direct users to portal-appropriate login route
+      const isBuilderPortal =
+        currentPortalTitle?.toLowerCase().includes("builder") ||
+        (roles.includes("BUILDER") && !roles.includes("CLIENT"));
+      const redirectUrl = isBuilderPortal ? "/builder/login" : "/login";
+
+      // Hard redirect replaces history entry and flushes RSC router cache and bfcache
+      window.location.replace(redirectUrl);
     } catch {
-      router.push("/login");
+      const isBuilderPortal =
+        currentPortalTitle?.toLowerCase().includes("builder") ||
+        (roles.includes("BUILDER") && !roles.includes("CLIENT"));
+      window.location.replace(isBuilderPortal ? "/builder/login" : "/login");
     }
   }
 
@@ -101,9 +140,15 @@ export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderPr
 
             <button
               onClick={handleLogout}
-              className="neo-btn bg-white hover:bg-rose-500 hover:text-white text-[#171e19] border-2 border-black px-3 py-1.5 text-xs font-black uppercase tracking-wider neo-shadow-sm"
+              disabled={isLoggingOut}
+              className={`neo-btn text-[#171e19] border-2 border-black px-3 py-1.5 text-xs font-black uppercase tracking-wider neo-shadow-sm transition ${
+                isLoggingOut
+                  ? "bg-gray-200 cursor-not-allowed opacity-80"
+                  : "bg-white hover:bg-rose-500 hover:text-white"
+              }`}
+              aria-busy={isLoggingOut}
             >
-              Log Out
+              {isLoggingOut ? "Logging out..." : "Log Out"}
             </button>
           </div>
         </div>

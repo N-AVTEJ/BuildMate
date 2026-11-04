@@ -135,6 +135,7 @@ export function NotificationsView() {
   }
 
   async function handleSendTest() {
+    if (testStatus) return;
     setTestStatus("Sending test push notification...");
     try {
       const res = await fetch("/api/push/test", { method: "POST" });
@@ -155,6 +156,7 @@ export function NotificationsView() {
   }
 
   async function handleMarkAllRead() {
+    if (unreadCount === 0) return;
     setNotifications((prev) =>
       prev.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() }))
     );
@@ -244,9 +246,10 @@ export function NotificationsView() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="neo-btn bg-white hover:bg-black hover:text-[#ffe17c] text-[#171e19] border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider neo-shadow-sm"
+                disabled={loading}
+                className="neo-btn bg-white hover:bg-black hover:text-[#ffe17c] text-[#171e19] border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider neo-shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Mark all as read
+                {loading ? "Marking..." : "Mark all as read"}
               </button>
             )}
           </div>
@@ -364,9 +367,10 @@ export function NotificationsView() {
 
               <button
                 onClick={handleSendTest}
-                className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] border-2 border-black font-black uppercase text-xs neo-shadow-sm hover:bg-black transition"
+                disabled={Boolean(testStatus)}
+                className="neo-btn px-4 py-2 bg-[#171e19] text-[#ffe17c] border-2 border-black font-black uppercase text-xs neo-shadow-sm hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Test Push
+                {testStatus?.startsWith("Sending") ? "Sending..." : "Send Test Push"}
               </button>
             </div>
 

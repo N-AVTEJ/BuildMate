@@ -13,6 +13,7 @@ export function DeliveryAcceptButton({ projectId }: DeliveryAcceptButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleAccept = async () => {
+    if (loading) return;
     if (
       !confirm(
         "Are you sure you want to accept this delivery? This will mark the project as COMPLETED."

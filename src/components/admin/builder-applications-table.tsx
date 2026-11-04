@@ -29,6 +29,7 @@ export function BuilderApplicationsTable({
   });
 
   const handleAction = async (id: string, action: "APPROVE" | "REJECT" | "RESEND_SETUP") => {
+    if (loadingId !== null) return;
     setLoadingId(id);
     setStatusMessage(null);
 
@@ -246,7 +247,7 @@ export function BuilderApplicationsTable({
                         <div className="flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            disabled={loadingId === app.id}
+                            disabled={loadingId !== null}
                             onClick={() => handleAction(app.id, "APPROVE")}
                             className="neo-btn px-3 py-1.5 bg-emerald-300 hover:bg-emerald-400 text-emerald-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
@@ -255,7 +256,7 @@ export function BuilderApplicationsTable({
                           </button>
                           <button
                             type="button"
-                            disabled={loadingId === app.id}
+                            disabled={loadingId !== null}
                             onClick={() => handleAction(app.id, "REJECT")}
                             className="neo-btn px-3 py-1.5 bg-rose-200 hover:bg-rose-300 text-rose-950 text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
                           >
@@ -267,7 +268,7 @@ export function BuilderApplicationsTable({
                         <div className="flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            disabled={loadingId === app.id}
+                            disabled={loadingId !== null}
                             onClick={() => handleAction(app.id, "RESEND_SETUP")}
                             className="neo-btn px-3 py-1.5 bg-[#ffe17c] hover:bg-[#ffd644] text-[#171e19] text-xs font-heading font-black uppercase tracking-wider rounded-lg border-2 border-black disabled:opacity-50 inline-flex items-center gap-1.5"
                           >

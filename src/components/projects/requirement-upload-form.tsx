@@ -16,6 +16,7 @@ export function RequirementUploadForm({ projectId }: RequirementUploadFormProps)
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     if (!file) {
       setError("Please select a file to upload.");
       return;

@@ -33,6 +33,7 @@ export function RazorpayCheckoutButton(props: RazorpayCheckoutButtonProps) {
   const [scriptLoaded, setScriptLoaded] = useState(false);
 
   const handlePayment = async () => {
+    if (loading || verifying || success) return;
     setError(null);
     setLoading(true);
 

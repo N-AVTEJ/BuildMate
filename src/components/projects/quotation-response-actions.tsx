@@ -9,6 +9,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   async function handleAccept() {
+    if (loading !== null) return;
     if (!confirm("Are you sure you want to accept this quotation? This will lock the project scope to Version 1.")) {
       return;
     }
@@ -31,6 +32,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
   }
 
   async function handleReject() {
+    if (loading !== null) return;
     if (!confirm("Are you sure you want to reject this quotation? The project will return to the builder for re-quotation.")) {
       return;
     }

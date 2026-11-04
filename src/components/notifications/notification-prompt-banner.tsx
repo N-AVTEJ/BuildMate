@@ -119,6 +119,7 @@ export function NotificationPromptBanner() {
   }
 
   async function handleEnable() {
+    if (isProcessing) return;
     setIsProcessing(true);
     try {
       // ONLY triggered by explicit user button click

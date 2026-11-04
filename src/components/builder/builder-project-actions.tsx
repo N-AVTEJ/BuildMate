@@ -23,6 +23,7 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   async function handleAccept(confirmed = false) {
+    if (loading) return;
     setLoading(true);
     setError(null);
 
@@ -61,6 +62,7 @@ export function BuilderProjectActions({ projectId, showReject = true }: BuilderP
   }
 
   async function handleReject() {
+    if (loading) return;
     if (!confirm("Are you sure you want to reject this project? It will remain available for other builders.")) {
       return;
     }

@@ -41,6 +41,7 @@ export function DisputeForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError(null);
     setSuccess(null);
     setLoading(true);
@@ -67,6 +68,7 @@ export function DisputeForm({
   };
 
   const handleCancelDispute = async () => {
+    if (loading) return;
     if (!confirm("Are you sure you want to withdraw this dispute? The project will be restored to its pre-dispute status.")) {
       return;
     }

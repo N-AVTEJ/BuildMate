@@ -75,6 +75,7 @@ export function QuotationForm({ projectId }: { projectId: string }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setTouched({ price: true, duration: true });
 
     if (!isFormValid || numericTotal === null || numericDuration === null) {

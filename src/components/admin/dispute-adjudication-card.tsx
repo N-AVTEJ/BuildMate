@@ -78,6 +78,7 @@ export function DisputeAdjudicationCard({ dispute }: { dispute: DisputeWithConte
 
   const handleResolve = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError(null);
     setSuccess(null);
     setLoading(true);

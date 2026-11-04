@@ -53,6 +53,7 @@ function BuilderSetupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError(null);
 
     if (password.length < 8) {

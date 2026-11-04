@@ -108,6 +108,7 @@ export function NotificationBell() {
   }
 
   async function markAllAsRead() {
+    if (loading || unreadCount === 0) return;
     setLoading(true);
     setNotifications((prev) =>
       prev.map((n) => ({ ...n, read: true, readAt: new Date().toISOString() }))
@@ -177,9 +178,9 @@ export function NotificationBell() {
               <button
                 onClick={markAllAsRead}
                 disabled={loading}
-                className="text-[10px] font-black uppercase text-[#171e19] hover:underline"
+                className="text-[10px] font-black uppercase text-[#171e19] hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Mark all read
+                {loading ? "Marking..." : "Mark all read"}
               </button>
             )}
           </div>

@@ -140,6 +140,7 @@ export function PaymentHistoryTable({
   const currentPage = Math.floor(offset / pageSize) + 1;
 
   async function loadPage(newOffset: number) {
+    if (isLoading) return;
     setIsLoading(true);
     try {
       const res = await fetch(

@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import {
   getSessionTokenFromCookies,
-  validateSession,
-  invalidateSession,
   clearSessionCookie,
+  hashToken,
 } from "@/lib/auth/session";
 
 import { db } from "@/db";
-import { pushSubscriptions } from "@/db/schema";
+import { sessions, pushSubscriptions } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -16,11 +15,14 @@ export async function POST(req: Request) {
     let currentUserId: string | null = null;
 
     if (rawToken) {
-      const session = await validateSession(rawToken);
-      if (session) {
-        currentUserId = session.user.id;
-      }
-      await invalidateSession(rawToken);
+      const tokenHash = hashToken(rawToken);
+      // Atomic session invalidation: delete session and retrieve userId in a single DB query
+      const deleted = await db
+        .delete(sessions)
+        .where(eq(sessions.tokenHash, tokenHash))
+        .returning({ userId: sessions.userId });
+
+      currentUserId = deleted[0]?.userId ?? null;
     }
 
     const body = await req.json().catch(() => ({}));

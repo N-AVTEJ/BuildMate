@@ -16,6 +16,7 @@ export function GoogleSignInButton({
   const [loading, setLoading] = useState(false);
 
   const handleClick = () => {
+    if (loading) return;
     setLoading(true);
     const url = `/api/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
     window.location.href = url;
