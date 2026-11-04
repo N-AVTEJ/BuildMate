@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export interface PaymentHistoryRow {
@@ -93,6 +93,49 @@ export function PaymentHistoryTable({
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
+  // BL-03: URL query parameter persistence for page & status filter
+  const updateUrlState = (newPage: number, newStatus: string) => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    if (newPage > 1) {
+      url.searchParams.set("page", String(newPage));
+    } else {
+      url.searchParams.delete("page");
+    }
+    if (newStatus && newStatus !== "ALL") {
+      url.searchParams.set("status", newStatus);
+    } else {
+      url.searchParams.delete("status");
+    }
+    window.history.pushState({}, "", url.toString());
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const p = parseInt(params.get("page") || "1", 10);
+    const s = params.get("status");
+
+    if (s && ["ALL", "AWAITING", "UNDER_REVIEW", "VERIFIED", "REJECTED"].includes(s)) {
+      setStatusFilter(s);
+    }
+    if (p > 1) {
+      const initialOffset = (p - 1) * pageSize;
+      loadPage(initialOffset);
+    }
+
+    const handlePopState = () => {
+      const currentParams = new URLSearchParams(window.location.search);
+      const currentPageNum = parseInt(currentParams.get("page") || "1", 10);
+      const currentStatusFilter = currentParams.get("status") || "ALL";
+      setStatusFilter(currentStatusFilter);
+      loadPage((currentPageNum - 1) * pageSize);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.floor(offset / pageSize) + 1;
 
@@ -108,6 +151,8 @@ export function PaymentHistoryTable({
         if (data.pagination) {
           setTotal(data.pagination.total);
           setOffset(data.pagination.offset);
+          const pageNum = Math.floor(data.pagination.offset / pageSize) + 1;
+          updateUrlState(pageNum, statusFilter);
         }
       }
     } catch (err) {
@@ -156,7 +201,7 @@ export function PaymentHistoryTable({
             <select
               id="payment-status-filter"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => { const val = e.target.value; setStatusFilter(val); updateUrlState(1, val); }}
               className="bg-white border-2 border-black px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[#171e19] focus:outline-none focus:bg-[#ffe17c] cursor-pointer"
             >
               <option value="ALL">All Statuses</option>
