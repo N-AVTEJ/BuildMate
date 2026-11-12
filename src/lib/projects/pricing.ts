@@ -1,14 +1,16 @@
 /**
- * Phase 5 Canonical Pricing & Advance Calculation
+ * Canonical Pricing & Advance Calculation
  *
  * Rule:
- * advanceAmount = min(totalPrice, max(300, floor(totalPrice * 0.30)))
+ * advanceAmount = Math.floor(totalPrice * 0.50)
  * remainingAmount = totalPrice - advanceAmount
  *
  * This function is the single source of truth for advance calculation across:
  * - Quotation submission (POST /api/projects/[id]/quotation)
  * - Change-request acceptance (POST /api/projects/[id]/change-requests/[crId]/accept)
  */
+export const MIN_QUOTATION_PRICE = 300;
+
 export function computeAdvanceBreakdown(totalPrice: number): {
   advanceAmount: number;
   remainingAmount: number;
@@ -18,8 +20,7 @@ export function computeAdvanceBreakdown(totalPrice: number): {
   }
 
   const roundedTotal = Math.floor(totalPrice);
-  const thirtyPercent = Math.floor(roundedTotal * 0.3);
-  const advanceAmount = Math.min(roundedTotal, Math.max(300, thirtyPercent));
+  const advanceAmount = Math.floor(roundedTotal * 0.5);
   const remainingAmount = roundedTotal - advanceAmount;
 
   return {
