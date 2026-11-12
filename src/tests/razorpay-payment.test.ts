@@ -110,8 +110,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 30000,
         budgetMax: 60000,
         totalPrice: 60000,
-        advanceAmount: 18000,
-        remainingAmount: 42000,
+        advanceAmount: 30000,
+        remainingAmount: 30000,
         status: "AWAITING_ADVANCE",
       })
       .returning();
@@ -147,8 +147,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 30000,
         budgetMax: 60000,
         totalPrice: 60000,
-        advanceAmount: 18000,
-        remainingAmount: 42000,
+        advanceAmount: 30000,
+        remainingAmount: 30000,
         status: "IN_PROGRESS",
       })
       .returning();
@@ -184,8 +184,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 50000,
         budgetMax: 100000,
         totalPrice: 100000,
-        advanceAmount: 30000,
-        remainingAmount: 70000,
+        advanceAmount: 50000,
+        remainingAmount: 50000,
         status: "AWAITING_ADVANCE",
       })
       .returning();
@@ -206,8 +206,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     expect(res.status).toBe(200);
     const body = await res.json();
 
-    // 30000 INR = 3000000 paise
-    expect(body.amount).toBe(3000000);
+    // 50000 INR = 5000000 paise
+    expect(body.amount).toBe(5000000);
     expect(body.currency).toBe("INR");
     expect(body.order_id).toBeDefined();
     expect(body.key_id).toBeDefined();
@@ -220,7 +220,7 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
       .limit(1);
 
     expect(storedPayment).toBeDefined();
-    expect(storedPayment.expectedAmount).toBe(30000);
+    expect(storedPayment.expectedAmount).toBe(50000);
     expect(storedPayment.type).toBe("ADVANCE");
     expect(storedPayment.status).toBe("ORDER_CREATED");
     expect(storedPayment.razorpayOrderId).toBe(body.order_id);
@@ -258,8 +258,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 40000,
         budgetMax: 80000,
         totalPrice: 80000,
-        advanceAmount: 24000,
-        remainingAmount: 56000,
+        advanceAmount: 40000,
+        remainingAmount: 40000,
         status: "AWAITING_ADVANCE",
       })
       .returning();
@@ -269,7 +269,7 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     await db.insert(payments).values({
       projectId: proj.id,
       type: "ADVANCE",
-      expectedAmount: 24000,
+      expectedAmount: 40000,
       status: "ORDER_CREATED",
       razorpayOrderId: testOrderId,
     });
@@ -328,8 +328,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 50000,
         budgetMax: 100000,
         totalPrice: 100000,
-        advanceAmount: 30000,
-        remainingAmount: 70000,
+        advanceAmount: 50000,
+        remainingAmount: 50000,
         status: "AWAITING_ADVANCE",
       })
       .returning();
@@ -341,7 +341,7 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     await db.insert(payments).values({
       projectId: proj.id,
       type: "ADVANCE",
-      expectedAmount: 30000,
+      expectedAmount: 50000,
       status: "ORDER_CREATED",
       razorpayOrderId: testOrderId,
     });
@@ -410,8 +410,8 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
         budgetMin: 50000,
         budgetMax: 100000,
         totalPrice: 100000,
-        advanceAmount: 30000,
-        remainingAmount: 70000,
+        advanceAmount: 50000,
+        remainingAmount: 50000,
         status: "FINAL_PAYMENT_PENDING",
       })
       .returning();
@@ -423,7 +423,7 @@ describe("Phase 14 — Razorpay Standard Web Checkout Integration Tests", () => 
     await db.insert(payments).values({
       projectId: proj.id,
       type: "FINAL",
-      expectedAmount: 70000,
+      expectedAmount: 50000,
       status: "ORDER_CREATED",
       razorpayOrderId: testOrderId,
     });

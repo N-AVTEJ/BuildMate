@@ -172,8 +172,8 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
           budgetMin: 30000,
           budgetMax: 60000,
           totalPrice: 60000,
-          advanceAmount: 18000,
-          remainingAmount: 42000,
+          advanceAmount: 30000,
+          remainingAmount: 30000,
           status: "AWAITING_ADVANCE",
         })
         .returning();
@@ -183,7 +183,7 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
       await db.insert(payments).values({
         projectId: proj.id,
         type: "ADVANCE",
-        expectedAmount: 18000,
+        expectedAmount: 30000,
         status: "ORDER_CREATED",
         razorpayOrderId: testOrderId,
       });
@@ -245,8 +245,8 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
           budgetMin: 30000,
           budgetMax: 50000,
           totalPrice: 50000,
-          advanceAmount: 15000,
-          remainingAmount: 35000,
+          advanceAmount: 25000,
+          remainingAmount: 25000,
           status: "AWAITING_ADVANCE",
         })
         .returning();
@@ -259,7 +259,7 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
       await db.insert(payments).values({
         projectId: proj.id,
         type: "ADVANCE",
-        expectedAmount: 15000,
+        expectedAmount: 25000,
         status: "ORDER_CREATED",
         razorpayOrderId: testOrderId,
       });
@@ -314,8 +314,8 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
           budgetMin: 40000,
           budgetMax: 80000,
           totalPrice: 80000,
-          advanceAmount: 24000,
-          remainingAmount: 56000,
+          advanceAmount: 40000,
+          remainingAmount: 40000,
           status: "AWAITING_ADVANCE",
         })
         .returning();
@@ -328,7 +328,7 @@ describe("Phase 15 Task 2 — Submission & Razorpay Hardening Tests", () => {
       await db.insert(payments).values({
         projectId: proj.id,
         type: "ADVANCE",
-        expectedAmount: 24000,
+        expectedAmount: 40000,
         status: "ORDER_CREATED",
         razorpayOrderId: testOrderId,
       });

@@ -35,36 +35,36 @@ async function runPhase5Tests() {
   const adminAuth = createMockAuth("admin-super", ["ADMIN"]);
 
   // =========================================================================
-  // 1. Advance Calculation Pure Function (Canonical V1 Rule)
-  // advanceAmount = min(totalPrice, max(300, floor(totalPrice * 0.30)))
+  // 1. Advance Calculation Pure Function (Canonical 50/50 Rule)
+  // advanceAmount = Math.floor(totalPrice * 0.50)
   // remainingAmount = totalPrice - advanceAmount
   // =========================================================================
   console.log("1. Testing canonical advance calculation formula...");
 
-  // Example 1: ₹300 -> advance ₹300, remaining ₹0
+  // Example 1: ₹300 -> advance ₹150, remaining ₹150
   const ex300 = computeAdvanceBreakdown(300);
-  assert.strictEqual(ex300.advanceAmount, 300, "₹300 total must require ₹300 advance");
-  assert.strictEqual(ex300.remainingAmount, 0, "₹300 total must have ₹0 remaining");
+  assert.strictEqual(ex300.advanceAmount, 150, "₹300 total must require ₹150 advance (50%)");
+  assert.strictEqual(ex300.remainingAmount, 150, "₹300 total must have ₹150 remaining (50%)");
 
-  // Example 2: ₹500 -> advance ₹300, remaining ₹200
+  // Example 2: ₹500 -> advance ₹250, remaining ₹250
   const ex500 = computeAdvanceBreakdown(500);
-  assert.strictEqual(ex500.advanceAmount, 300, "₹500 total must require ₹300 advance (minimum floor)");
-  assert.strictEqual(ex500.remainingAmount, 200, "₹500 total must have ₹200 remaining");
+  assert.strictEqual(ex500.advanceAmount, 250, "₹500 total must require ₹250 advance (50%)");
+  assert.strictEqual(ex500.remainingAmount, 250, "₹500 total must have ₹250 remaining (50%)");
 
-  // Example 3: ₹1,000 -> advance ₹300, remaining ₹700
+  // Example 3: ₹1,000 -> advance ₹500, remaining ₹500
   const ex1000 = computeAdvanceBreakdown(1000);
-  assert.strictEqual(ex1000.advanceAmount, 300, "₹1000 total must require ₹300 advance (30% = 300)");
-  assert.strictEqual(ex1000.remainingAmount, 700, "₹1000 total must have ₹700 remaining");
+  assert.strictEqual(ex1000.advanceAmount, 500, "₹1000 total must require ₹500 advance (50%)");
+  assert.strictEqual(ex1000.remainingAmount, 500, "₹1000 total must have ₹500 remaining (50%)");
 
-  // Example 4: ₹1,500 -> advance ₹450, remaining ₹1,050
+  // Example 4: ₹1,500 -> advance ₹750, remaining ₹750
   const ex1500 = computeAdvanceBreakdown(1500);
-  assert.strictEqual(ex1500.advanceAmount, 450, "₹1500 total must require ₹450 advance (30%)");
-  assert.strictEqual(ex1500.remainingAmount, 1050, "₹1500 total must have ₹1050 remaining");
+  assert.strictEqual(ex1500.advanceAmount, 750, "₹1500 total must require ₹750 advance (50%)");
+  assert.strictEqual(ex1500.remainingAmount, 750, "₹1500 total must have ₹750 remaining (50%)");
 
-  // Edge case: small price below 300 (e.g. ₹50) -> capped at totalPrice
+  // Edge case: small price below 300 (e.g. ₹50) -> 50% split (25/25)
   const ex50 = computeAdvanceBreakdown(50);
-  assert.strictEqual(ex50.advanceAmount, 50, "₹50 total must cap advance at ₹50");
-  assert.strictEqual(ex50.remainingAmount, 0, "₹50 total must have ₹0 remaining");
+  assert.strictEqual(ex50.advanceAmount, 25, "₹50 total requires ₹25 advance (50%)");
+  assert.strictEqual(ex50.remainingAmount, 25, "₹50 total requires ₹25 remaining (50%)");
 
   // Invalid input rejection
   assert.throws(() => computeAdvanceBreakdown(0), /positive number/);
@@ -246,8 +246,8 @@ async function runPhase5Tests() {
   });
 
   assert.strictEqual(project.status, "QUOTATION_SENT");
-  assert.strictEqual(project.advanceAmount, 450);
-  assert.strictEqual(project.remainingAmount, 1050);
+  assert.strictEqual(project.advanceAmount, 750);
+  assert.strictEqual(project.remainingAmount, 750);
   assert.strictEqual(quotationsTable.length, 1);
   assert.strictEqual(quotationsTable[0].status, "PENDING");
   assert.strictEqual(statusHistoryTable[0].toStatus, "QUOTATION_SENT");
@@ -343,15 +343,15 @@ async function runPhase5Tests() {
     builderId: "builder-assigned",
     status: "QUOTATION_SENT",
     totalPrice: 2000,
-    advanceAmount: 600,
-    remainingAmount: 1400,
+    advanceAmount: 1000,
+    remainingAmount: 1000,
   };
   const quoteToReject: MockQuotation = {
     id: "quote-2",
     projectId: rejectedProject.id,
     totalPrice: 2000,
-    advanceAmount: 600,
-    remainingAmount: 1400,
+    advanceAmount: 1000,
+    remainingAmount: 1000,
     status: "PENDING",
   };
 
@@ -511,8 +511,8 @@ async function runPhase5Tests() {
     builderId: "builder-assigned",
     status: "IN_PROGRESS",
     totalPrice: 3000,
-    advanceAmount: 900,
-    remainingAmount: 2100,
+    advanceAmount: 1500,
+    remainingAmount: 1500,
   };
 
   assert.throws(() => {
@@ -543,19 +543,19 @@ async function runPhase5Tests() {
   // =========================================================================
   console.log("7. Testing Change Request acceptance, price recalculation & Scope Version N+1...");
 
-  // Project before CR accept: totalPrice = 1500, advanceAmount = 450, remaining = 1050
+  // Project before CR accept: totalPrice = 1500, advanceAmount = 750, remaining = 750
   // CR: additionalCost = 500
   // New total = 2000
   // computeAdvanceBreakdown(2000):
-  // advance = min(2000, max(300, floor(2000 * 0.3))) = 600
-  // remaining = 2000 - 600 = 1400
+  // advance = floor(2000 * 0.5) = 1000
+  // remaining = 2000 - 1000 = 1000
   const oldTotal = project.totalPrice!;
   const newTotal = oldTotal + cr.additionalCost;
   const recalculated = computeAdvanceBreakdown(newTotal);
 
   assert.strictEqual(newTotal, 2000);
-  assert.strictEqual(recalculated.advanceAmount, 600);
-  assert.strictEqual(recalculated.remainingAmount, 1400);
+  assert.strictEqual(recalculated.advanceAmount, 1000);
+  assert.strictEqual(recalculated.remainingAmount, 1000);
 
   // Apply CR accept
   cr.status = "ACCEPTED";
@@ -578,7 +578,7 @@ async function runPhase5Tests() {
   assert.strictEqual(scopeVersionsTable.length, 2);
   assert.strictEqual(scopeVersionsTable[1].versionNumber, 2);
   assert.strictEqual(scopeVersionsTable[1].projectSnapshot.totalPrice, 2000);
-  assert.strictEqual(scopeVersionsTable[1].projectSnapshot.advanceAmount, 600);
+  assert.strictEqual(scopeVersionsTable[1].projectSnapshot.advanceAmount, 1000);
   console.log("  ✓ CR accepted: server-side prices recalculated, Scope Version 2 created");
 
   // =========================================================================

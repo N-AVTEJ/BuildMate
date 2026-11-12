@@ -91,8 +91,8 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
         budgetMin: 500,
         budgetMax: 1000,
         totalPrice: 1000,
-        advanceAmount: 300,
-        remainingAmount: 700,
+        advanceAmount: 500,
+        remainingAmount: 500,
         status: "IN_PROGRESS",
       })
       .returning();
@@ -112,8 +112,8 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
         budgetMin: 500,
         budgetMax: 1000,
         totalPrice: 1000,
-        advanceAmount: 300,
-        remainingAmount: 700,
+        advanceAmount: 500,
+        remainingAmount: 500,
         status: "IN_PROGRESS",
       })
       .returning();
@@ -126,8 +126,8 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
       .values({
         projectId: proj.id,
         type: "ADVANCE",
-        expectedAmount: 300,
-        submittedAmount: 300,
+        expectedAmount: 500,
+        submittedAmount: 500,
         status: "VERIFIED",
         razorpayPaymentId: "pay_live_ABC123DEF456",
         verifiedAt: new Date(),
@@ -141,8 +141,8 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
       .values({
         projectId: proj.id,
         type: "FINAL",
-        expectedAmount: 700,
-        submittedAmount: 700,
+        expectedAmount: 500,
+        submittedAmount: 500,
         status: "REJECTED",
         rejectionReason: "Invalid transaction reference",
         razorpayPaymentId: "pay_live_REJ999XYZ888",
@@ -156,7 +156,7 @@ describe("Phase 17 Task 2 — Payment History Reporting View", () => {
       .values({
         projectId: proj2.id,
         type: "ADVANCE",
-        expectedAmount: 300,
+        expectedAmount: 500,
         status: "AWAITING",
       })
       .returning();
