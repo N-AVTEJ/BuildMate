@@ -169,7 +169,7 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
     });
   });
 
-  describe("2. Quotation Validation & 30% Advance Formula", () => {
+  describe("2. Quotation Validation & 50% Advance Formula", () => {
     let testProject: any;
 
     beforeAll(async () => {
@@ -196,17 +196,17 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
     });
 
     it("verifies canonical advance breakdown formula invariants", () => {
-      // ₹300 -> min(300, max(300, 90)) = 300, remaining = 0
-      expect(computeAdvanceBreakdown(300)).toEqual({ advanceAmount: 300, remainingAmount: 0 });
+      // ₹300 -> 50% advance = 150, remaining = 150
+      expect(computeAdvanceBreakdown(300)).toEqual({ advanceAmount: 150, remainingAmount: 150 });
 
-      // ₹500 -> min(500, max(300, 150)) = 300, remaining = 200
-      expect(computeAdvanceBreakdown(500)).toEqual({ advanceAmount: 300, remainingAmount: 200 });
+      // ₹500 -> 50% advance = 250, remaining = 250
+      expect(computeAdvanceBreakdown(500)).toEqual({ advanceAmount: 250, remainingAmount: 250 });
 
-      // ₹1000 -> min(1000, max(300, 300)) = 300, remaining = 700
-      expect(computeAdvanceBreakdown(1000)).toEqual({ advanceAmount: 300, remainingAmount: 700 });
+      // ₹1000 -> 50% advance = 500, remaining = 500
+      expect(computeAdvanceBreakdown(1000)).toEqual({ advanceAmount: 500, remainingAmount: 500 });
 
-      // ₹1500 -> min(1500, max(300, 450)) = 450, remaining = 1050
-      expect(computeAdvanceBreakdown(1500)).toEqual({ advanceAmount: 450, remainingAmount: 1050 });
+      // ₹1500 -> 50% advance = 750, remaining = 750
+      expect(computeAdvanceBreakdown(1500)).toEqual({ advanceAmount: 750, remainingAmount: 750 });
     });
 
     it("rejects non-integer totalPrice", async () => {
@@ -361,9 +361,53 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
       expect(data.success).toBe(true);
       expect(data.quotation).toBeDefined();
       expect(data.quotation.totalPrice).toBe(1500);
-      expect(data.quotation.advanceAmount).toBe(450); // 30% of 1500
-      expect(data.quotation.remainingAmount).toBe(1050); // 70% of 1500
+      expect(data.quotation.advanceAmount).toBe(750); // 50% of 1500
+      expect(data.quotation.remainingAmount).toBe(750); // 50% of 1500
       expect(data.quotation.estimatedDurationDays).toBe(21);
+    });
+
+    it("submits quotation at minimum boundary ₹300 with 50/50 split (150 advance / 150 remaining)", async () => {
+      const [boundaryProject] = await db
+        .insert(projects)
+        .values({
+          projectCode: `PRJ-MIN-${Date.now().toString().slice(-4)}`,
+          clientId: clientUser.id,
+          builderId: builderUser.id,
+          title: "Minimum Boundary Project",
+          subject: "Boundary Web",
+          description: "Testing quotation submission at exactly 300 boundary",
+          techStack: "Next.js",
+          budgetMin: 300,
+          budgetMax: 1000,
+          status: "ACCEPTED_PENDING_QUOTE",
+          integrityAck: true,
+          builderAcceptedAt: new Date(),
+        })
+        .returning();
+      createdProjectIds.push(boundaryProject.id);
+
+      const req = new Request(`http://localhost:3000/api/projects/${boundaryProject.id}/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          totalPrice: 300,
+          estimatedDurationDays: 10,
+        }),
+      });
+
+      const res = await testRequestContext.run(
+        { cookie: `buildmate_session=${builderUser.rawToken}` },
+        () => quotationRoute(req, { params: Promise.resolve({ id: boundaryProject.id }) })
+      );
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.quotation).toBeDefined();
+      expect(data.quotation.totalPrice).toBe(300);
+      expect(data.quotation.advanceAmount).toBe(150);
+      expect(data.quotation.remainingAmount).toBe(150);
+      expect(data.quotation.estimatedDurationDays).toBe(10);
     });
 
     it("test_quotation_floor_enforced_on_all_write_paths: rejects < 300 on initial quote, change-request, and quote accept", async () => {
@@ -567,8 +611,8 @@ describe("UX + Portal Completion — Validation & Invariants", () => {
           budgetMin: 1000,
           budgetMax: 2000,
           totalPrice: 1200,
-          advanceAmount: 360,
-          remainingAmount: 840,
+          advanceAmount: 600,
+          remainingAmount: 600,
           status: "IN_PROGRESS",
           integrityAck: true,
         })
