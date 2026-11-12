@@ -17,4 +17,4 @@ When authoring or modifying public marketing surfaces, landing pages, banners, c
 
 ## 2. Business Logic Invariant
 - Do NOT alter or remove backend calculations, database columns (`advance_amount`, `remaining_amount`, `total_price`), API endpoints (`/api/razorpay/*`, `/api/payments/*`), or status transitions.
-- The 30% calculation and milestone phase locking remain active in backend code; only customer-facing labels are framed as initial and final milestones.
+- The 50% calculation and milestone phase locking remain active in backend code; only customer-facing labels are framed as initial and final milestones.
