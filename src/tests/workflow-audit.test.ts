@@ -526,12 +526,12 @@ describe("Workflow Audit & Production UX Invariant Regression Suite (20 Requirem
   it("13. Payment amount cannot be client-modified", () => {
     // Expected amount is computed strictly server-side
     const breakdown1 = computeAdvanceBreakdown(1000);
-    expect(breakdown1.advanceAmount).toBe(300);
-    expect(breakdown1.remainingAmount).toBe(700);
+    expect(breakdown1.advanceAmount).toBe(500);
+    expect(breakdown1.remainingAmount).toBe(500);
 
     const breakdown2 = computeAdvanceBreakdown(3000);
-    expect(breakdown2.advanceAmount).toBe(900);
-    expect(breakdown2.remainingAmount).toBe(2100);
+    expect(breakdown2.advanceAmount).toBe(1500);
+    expect(breakdown2.remainingAmount).toBe(1500);
   });
 
   // 14. Requested completion date must be future
@@ -641,12 +641,12 @@ describe("Workflow Audit & Production UX Invariant Regression Suite (20 Requirem
     expect(data.error).toMatch(/positive integer/i);
   });
 
-  // 17. 30%/₹300 formula
-  it("17. 30%/₹300 formula canonical invariants", () => {
-    expect(computeAdvanceBreakdown(300)).toEqual({ advanceAmount: 300, remainingAmount: 0 });
-    expect(computeAdvanceBreakdown(500)).toEqual({ advanceAmount: 300, remainingAmount: 200 });
-    expect(computeAdvanceBreakdown(1000)).toEqual({ advanceAmount: 300, remainingAmount: 700 });
-    expect(computeAdvanceBreakdown(1500)).toEqual({ advanceAmount: 450, remainingAmount: 1050 });
+  // 17. 50%/₹300 formula
+  it("17. 50%/₹300 formula canonical invariants", () => {
+    expect(computeAdvanceBreakdown(300)).toEqual({ advanceAmount: 150, remainingAmount: 150 });
+    expect(computeAdvanceBreakdown(500)).toEqual({ advanceAmount: 250, remainingAmount: 250 });
+    expect(computeAdvanceBreakdown(1000)).toEqual({ advanceAmount: 500, remainingAmount: 500 });
+    expect(computeAdvanceBreakdown(1500)).toEqual({ advanceAmount: 750, remainingAmount: 750 });
   });
 
   // 18. QR upload authorization
