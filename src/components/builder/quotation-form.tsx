@@ -56,11 +56,11 @@ export function QuotationForm({ projectId }: { projectId: string }) {
   }
 
   // Approved BuildMate payment calculation:
-  // advance = min(totalPrice, max(300, floor(totalPrice * 0.30)))
+  // advance = Math.floor(totalPrice * 0.50)
   // remaining = totalPrice - advance
   const previewAdvance =
     numericTotal !== null
-      ? Math.min(numericTotal, Math.max(300, Math.floor(numericTotal * 0.3)))
+      ? Math.floor(numericTotal * 0.5)
       : null;
   const previewRemaining =
     numericTotal !== null && previewAdvance !== null
