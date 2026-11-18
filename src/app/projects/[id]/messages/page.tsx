@@ -140,9 +140,11 @@ export default async function ProjectMessagesPage({ params }: ProjectMessagesPag
           <div className="flex items-center gap-2">
             <Link
               href={backLink}
-              className="neo-btn px-4 py-2 bg-white hover:bg-[#ffe17c] text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black"
+              aria-label="Back to Project"
+              title="Back to Project"
+              className="neo-btn px-4 py-2 bg-white hover:bg-[#ffe17c] text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl border-2 border-black inline-flex items-center gap-1.5"
             >
-              Project Overview →
+              ← Back to Project
             </Link>
           </div>
         </div>
