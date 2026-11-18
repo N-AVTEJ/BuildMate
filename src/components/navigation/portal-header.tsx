@@ -103,12 +103,25 @@ export function PortalHeader({ user, roles, currentPortalTitle }: PortalHeaderPr
 
   const roleBadgeText = formatHeaderRoleBadge(roles);
 
+  // Logo navigates directly to role dashboard for authenticated users
+  const logoHref = currentPortalTitle?.toLowerCase().includes("builder")
+    ? "/builder"
+    : currentPortalTitle?.toLowerCase().includes("admin")
+    ? "/admin"
+    : roles.includes("ADMIN")
+    ? "/admin"
+    : roles.includes("BUILDER")
+    ? "/builder"
+    : roles.includes("CLIENT")
+    ? "/projects"
+    : "/";
+
   return (
     <>
       <header className="bg-[#ffe17c] border-b-2 border-black sticky top-0 z-50 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2 group">
+            <Link href={logoHref} className="flex items-center gap-2 group">
               <div className="w-8 h-8 bg-[#171e19] text-[#ffe17c] border-2 border-black flex items-center justify-center font-black text-base neo-shadow-sm group-hover:bg-[#ffe17c] group-hover:text-[#171e19] transition">
                 ⚡
               </div>

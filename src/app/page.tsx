@@ -1,6 +1,16 @@
 import Link from "next/link";
+import { getOptionalAuth } from "@/lib/auth/guards";
 
-export default function Home() {
+export default async function Home() {
+  const auth = await getOptionalAuth();
+  const logoHref = auth
+    ? auth.roles.includes("ADMIN")
+      ? "/admin"
+      : auth.roles.includes("BUILDER")
+      ? "/builder"
+      : "/projects"
+    : "/";
+
   return (
     <div className="min-h-screen bg-white text-[#171e19] font-body selection:bg-[#ffe17c] selection:text-black">
       {/* =================================================================== */}
@@ -9,7 +19,7 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 h-20 bg-[#ffe17c] border-b-2 border-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
           {/* Left: Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href={logoHref} className="flex items-center gap-3 group">
             <div className="w-10 h-10 bg-black border-2 border-black flex items-center justify-center neo-shadow-sm group-hover:rotate-6 transition-transform">
               <span className="text-[#ffe17c] font-black text-xl">⚡</span>
             </div>
@@ -39,18 +49,29 @@ export default function Home() {
 
           {/* Right: CTA Group */}
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-bold text-black hover:bg-black/5 rounded-lg transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/start"
-              className="neo-btn px-5 py-2.5 text-sm font-black font-heading tracking-wide uppercase bg-black text-white rounded-lg"
-            >
-              Start Free Trial →
-            </Link>
+            {auth ? (
+              <Link
+                href={logoHref}
+                className="neo-btn px-5 py-2.5 text-sm font-black font-heading tracking-wide uppercase bg-black text-[#ffe17c] rounded-lg"
+              >
+                Go to Dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-bold text-black hover:bg-black/5 rounded-lg transition"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/start"
+                  className="neo-btn px-5 py-2.5 text-sm font-black font-heading tracking-wide uppercase bg-black text-white rounded-lg"
+                >
+                  Start Free Trial →
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
