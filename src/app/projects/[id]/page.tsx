@@ -114,6 +114,8 @@ export default async function ProjectDetailPage({
                 ? "bg-emerald-300 text-black"
                 : project.status === "EXPIRED_NO_BUILDER"
                 ? "bg-rose-300 text-black"
+                : project.status === "OVERDUE"
+                ? "bg-rose-200 text-rose-950"
                 : project.status === "IN_PROGRESS"
                 ? "bg-[#ffe17c] text-black"
                 : "bg-white text-black"
@@ -122,6 +124,28 @@ export default async function ProjectDetailPage({
             {formatClientProjectStatus(project.status)}
           </span>
         </div>
+
+        {/* Phase 18 Fix 5: Overdue Alert (Red Bell Icon) with Reassuring Client Copy */}
+        {project.status === "OVERDUE" && (
+          <div className="mb-6 p-5 bg-rose-200 border-2 border-black rounded-2xl flex items-center gap-4 neo-shadow">
+            <div className="w-11 h-11 rounded-xl bg-rose-600 text-white border-2 border-black flex items-center justify-center text-xl shrink-0 neo-shadow-sm">
+              🔔
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-heading font-black text-sm uppercase tracking-wide text-rose-950">
+                  Project Overdue
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-heading font-black uppercase tracking-wider bg-rose-700 text-white border border-black">
+                  Follow-Up In Progress
+                </span>
+              </div>
+              <p className="text-xs font-bold text-rose-900 mt-1 leading-relaxed">
+                Your builder&apos;s deadline has passed — we&apos;re following up with them to ensure your project stays on track. Your payment remains completely secure.
+              </p>
+            </div>
+          </div>
+        )}
 
         {project.status === "DISPUTE_OPEN" && (
           <div className="mb-6 p-5 bg-rose-200 border-2 border-black rounded-2xl flex items-center justify-between gap-4 neo-shadow">
