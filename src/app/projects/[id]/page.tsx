@@ -11,6 +11,7 @@ import { RequirementUploadForm } from "@/components/projects/requirement-upload-
 import { RazorpayCheckoutButton } from "@/components/payments/razorpay-checkout-button";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { formatProjectStatus, formatClientProjectStatus } from "@/lib/project-status-format";
+import { computePaymentSummary } from "@/lib/projects/payment-summary";
 
 export default async function ProjectDetailPage({
   params,
@@ -76,13 +77,15 @@ export default async function ProjectDetailPage({
     .from(projectRequirements)
     .where(eq(projectRequirements.projectId, project.id));
 
-  // 6. Fetch Latest Payment Record
-  const [existingPayment] = await db
+  // 6. Fetch Payment Records
+  const projectPayments = await db
     .select()
     .from(payments)
     .where(eq(payments.projectId, project.id))
-    .orderBy(desc(payments.createdAt))
-    .limit(1);
+    .orderBy(desc(payments.createdAt));
+
+  const existingPayment = projectPayments[0] || null;
+  const paymentSummary = computePaymentSummary(project, projectPayments);
 
   const durationMs = Math.round(performance.now() - startTime);
   if (process.env.NODE_ENV !== "test") {
@@ -196,6 +199,87 @@ export default async function ProjectDetailPage({
               {project.description}
             </p>
           </div>
+        </div>
+
+        {/* Payment Summary Block */}
+        <div className="bg-white rounded-2xl border-2 border-black neo-shadow-md p-6 sm:p-8 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b-2 border-black/10 pb-5 mb-5">
+            <div>
+              <span className="text-[11px] font-heading font-black uppercase tracking-wider text-black/60 block">
+                Payment Summary
+              </span>
+              <h2 className="font-heading font-black text-xl sm:text-2xl text-black mt-1">
+                {paymentSummary.displayText}
+              </h2>
+            </div>
+            {paymentSummary.totalPrice !== null && paymentSummary.totalPrice > 0 && (
+              <span
+                className={`px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow-sm self-start sm:self-auto ${
+                  (paymentSummary.remainingBalance ?? 0) === 0
+                    ? "bg-emerald-300 text-black"
+                    : paymentSummary.amountPaidSoFar > 0
+                    ? "bg-[#ffe17c] text-black"
+                    : "bg-white text-black"
+                }`}
+              >
+                {(paymentSummary.remainingBalance ?? 0) === 0
+                  ? "Fully Paid"
+                  : paymentSummary.amountPaidSoFar > 0
+                  ? "Partially Paid"
+                  : "Payment Due"}
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-3.5 bg-[#fffdf0] rounded-xl border-2 border-black neo-shadow-sm">
+              <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">
+                Total Price Quote
+              </span>
+              <span className="text-lg font-heading font-black text-black">
+                {paymentSummary.totalPrice !== null
+                  ? `₹${paymentSummary.totalPrice.toLocaleString("en-IN")}`
+                  : "Pending Agreement"}
+              </span>
+            </div>
+            <div className="p-3.5 bg-[#fffdf0] rounded-xl border-2 border-black neo-shadow-sm">
+              <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">
+                Amount Paid So Far
+              </span>
+              <span className="text-lg font-heading font-black text-emerald-700">
+                ₹{paymentSummary.amountPaidSoFar.toLocaleString("en-IN")}
+              </span>
+            </div>
+            <div className="p-3.5 bg-[#fffdf0] rounded-xl border-2 border-black neo-shadow-sm">
+              <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">
+                Remaining Balance
+              </span>
+              <span className="text-lg font-heading font-black text-black">
+                {paymentSummary.remainingBalance !== null
+                  ? `₹${paymentSummary.remainingBalance.toLocaleString("en-IN")}`
+                  : "—"}
+              </span>
+            </div>
+          </div>
+
+          {paymentSummary.totalPrice !== null && paymentSummary.totalPrice > 0 && (
+            <div className="mt-5">
+              <div className="w-full bg-slate-100 h-3 border-2 border-black rounded-full overflow-hidden">
+                <div
+                  className="bg-[#ffe17c] h-full border-r-2 border-black transition-all duration-300"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        Math.round((paymentSummary.amountPaidSoFar / paymentSummary.totalPrice) * 100)
+                      )
+                    )}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Requirements & Attachments Card */}
