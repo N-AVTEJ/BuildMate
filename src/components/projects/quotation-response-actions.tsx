@@ -10,7 +10,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
 
   async function handleAccept() {
     if (loading !== null) return;
-    if (!confirm("Are you sure you want to accept this quotation? This will lock the project scope to Version 1.")) {
+    if (!confirm("Are you sure you want to accept this price quote? This will finalize the project requirements.")) {
       return;
     }
     setLoading("accept");
@@ -21,7 +21,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to accept quotation.");
+        throw new Error(data.error || "Failed to accept price quote.");
       }
       router.push(`/projects/${projectId}`);
       router.refresh();
@@ -33,7 +33,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
 
   async function handleReject() {
     if (loading !== null) return;
-    if (!confirm("Are you sure you want to reject this quotation? The project will return to the builder for re-quotation.")) {
+    if (!confirm("Are you sure you want to reject this price quote? The project will return to the builder for a revised proposal.")) {
       return;
     }
     setLoading("reject");
@@ -44,7 +44,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to reject quotation.");
+        throw new Error(data.error || "Failed to reject price quote.");
       }
       router.push(`/projects/${projectId}`);
       router.refresh();
@@ -69,7 +69,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
           className="neo-btn flex-1 px-6 py-3 bg-[#ffe17c] hover:bg-emerald-300 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
         >
           {loading === "accept" && <span className="inline-block animate-spin text-sm">⏳</span>}
-          {loading === "accept" ? "Accepting Quotation..." : "Accept Quotation & Lock Scope ✓"}
+          {loading === "accept" ? "Accepting Price Quote..." : "Accept Price Quote & Finalize Requirements ✓"}
         </button>
         <button
           type="button"
@@ -78,7 +78,7 @@ export function QuotationResponseActions({ projectId }: { projectId: string }) {
           className="neo-btn px-6 py-3 bg-white hover:bg-rose-200 text-black border-2 border-black font-heading font-black text-xs uppercase tracking-wider rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
         >
           {loading === "reject" && <span className="inline-block animate-spin text-sm">⏳</span>}
-          {loading === "reject" ? "Rejecting..." : "Reject Quotation"}
+          {loading === "reject" ? "Rejecting..." : "Reject Price Quote"}
         </button>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatClientProjectStatus } from "@/lib/project-status-format";
 
 export interface ClientProjectItem {
   id: string;
@@ -126,7 +126,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
             href="/projects/new"
             className="neo-btn inline-flex items-center px-5 py-3 bg-[#171e19] text-[#ffe17c] font-black text-sm uppercase tracking-wider border-2 border-black neo-shadow"
           >
-            + Create New Project
+            + Request a Project
           </Link>
         </div>
       </div>
@@ -136,7 +136,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
         {[
           { id: "overview", label: "📊 Overview" },
           { id: "projects", label: `📁 My Projects (${totalProjects})` },
-          { id: "create", label: "➕ Create Project", href: "/projects/new" },
+          { id: "create", label: "➕ Request a Project", href: "/projects/new" },
           { id: "deadlines", label: "⏳ Deadlines" },
           { id: "payments", label: "💳 Payments" },
           { id: "payment-history", label: "🧾 Payment History" },
@@ -185,11 +185,11 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
               <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{awaitingBuilder}</span>
             </div>
             <div className="bg-[#ffe17c] p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Quotations</span>
+              <span className="text-[10px] uppercase tracking-wider font-black text-[#171e19] block">Price Quotes</span>
               <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{awaitingQuote}</span>
             </div>
             <div className="bg-[#fffdf0] p-4 border-2 border-black neo-shadow-sm">
-              <span className="text-[10px] uppercase tracking-wider font-black text-gray-700 block">Awaiting Deposit</span>
+              <span className="text-[10px] uppercase tracking-wider font-black text-gray-700 block">Waiting for Advance</span>
               <span className="text-3xl font-cabinet font-black text-[#171e19] mt-1 block">{awaitingPayment}</span>
             </div>
             <div className="bg-white p-4 border-2 border-black neo-shadow-sm">
@@ -210,7 +210,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                 <div>
                   <h4 className="text-base font-cabinet font-black text-[#171e19] uppercase tracking-wide">Payment Action Required</h4>
                   <p className="text-xs font-bold text-gray-800 mt-0.5">
-                    You have accepted quotation(s) awaiting initial milestone confirmation. Please complete the initial milestone payment to unlock development.
+                    You have accepted price quote(s) waiting for advance payment confirmation. Please complete the advance payment to begin development.
                   </p>
                 </div>
               </div>
@@ -242,12 +242,12 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
 
             {projects.length === 0 ? (
               <div className="p-10 text-center">
-                <p className="text-sm font-bold text-gray-600 mb-4">You haven&apos;t created any projects yet.</p>
+                <p className="text-sm font-bold text-gray-600 mb-4">You haven&apos;t requested any projects yet.</p>
                 <Link
                   href="/projects/new"
                   className="neo-btn inline-flex items-center px-5 py-2.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow"
                 >
-                  Create Your First Project
+                  Request Your First Project
                 </Link>
               </div>
             ) : (
@@ -272,7 +272,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                               : "bg-gray-200 text-[#171e19]"
                           }`}
                         >
-                          {formatProjectStatus(project.status)}
+                          {formatClientProjectStatus(project.status)}
                         </span>
                       </div>
                       <h4 className="text-lg font-cabinet font-black text-[#171e19]">
@@ -405,7 +405,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                                 : "bg-gray-200 text-[#171e19]"
                             }`}
                           >
-                            {formatProjectStatus(p.status)}
+                            {formatClientProjectStatus(p.status)}
                           </span>
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap">
@@ -471,7 +471,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                       <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                     </div>
                     <span className="px-2.5 py-0.5 bg-gray-200 text-black border border-black text-xs font-black uppercase">
-                      {formatProjectStatus(p.status)}
+                      {formatClientProjectStatus(p.status)}
                     </span>
                   </div>
 
@@ -561,28 +561,28 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
                         <h4 className="text-lg font-cabinet font-black text-[#171e19] mt-1">{p.title}</h4>
                       </div>
                       <span className="px-2.5 py-1 text-xs font-black uppercase border border-black bg-[#ffe17c] text-[#171e19]">
-                        {formatProjectStatus(p.status)}
+                        {formatClientProjectStatus(p.status)}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3 p-3 bg-[#fffdf0] border-2 border-black text-xs">
                       <div>
-                        <span className="text-[10px] uppercase font-black text-gray-600 block">Total Agreed</span>
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Total Price Quote</span>
                         <span className="font-cabinet font-black text-gray-900 text-base">₹{p.totalPrice?.toLocaleString() || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-black text-[#171e19] block">Initial Milestone</span>
+                        <span className="text-[10px] uppercase font-black text-[#171e19] block">Advance Payment</span>
                         <span className="font-cabinet font-black text-[#171e19] text-base">₹{p.advanceAmount?.toLocaleString() || "—"}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] uppercase font-black text-gray-600 block">Final Milestone</span>
+                        <span className="text-[10px] uppercase font-black text-gray-600 block">Final Payment</span>
                         <span className="font-cabinet font-black text-gray-900 text-base">₹{p.remainingAmount?.toLocaleString() || "—"}</span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t-2 border-black text-xs">
                       <span className="font-bold text-gray-700">
-                        {p.payment ? `Payment Status: ${p.payment.status}` : "Payment Proof: Not yet uploaded"}
+                        {p.payment ? (p.payment.status === "VERIFIED" ? "Payment verified" : p.payment.status === "REJECTED" ? "Payment rejected" : "Payment processing") : "Payment: Pending"}
                       </span>
                       <Link
                         href={`/projects/${p.id}`}
@@ -600,7 +600,7 @@ export function ClientDashboardView({ user, projects, notifications, paymentHist
 
               {projects.filter((p) => p.totalPrice || p.advanceAmount).length === 0 && (
                 <div className="bg-white p-8 border-2 border-black neo-shadow text-center text-sm font-bold text-gray-600">
-                  No active quotations or payment schedules yet. Once a builder submits a quotation and you accept, payment schedules will appear here.
+                  No active price quotes or payment schedules yet. Once a builder submits a price quote and you accept, payment schedules will appear here.
                 </div>
               )}
             </div>

@@ -58,7 +58,11 @@ export function DisputeForm({
         throw new Error(data.error || "Failed to open dispute.");
       }
 
-      setSuccess("Dispute opened successfully. The project has been placed in DISPUTE_OPEN status.");
+      setSuccess(
+        role === "CLIENT"
+          ? "Problem reported successfully. Our team will review and mediate."
+          : "Dispute opened successfully. The project has been placed in DISPUTE_OPEN status."
+      );
       router.refresh();
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -155,11 +159,17 @@ export function DisputeForm({
               className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-200 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition disabled:opacity-50 inline-flex items-center gap-2"
             >
               {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
-              {loading ? "Withdrawing..." : "Withdraw / Cancel Dispute"}
+              {loading
+                ? "Withdrawing..."
+                : role === "CLIENT"
+                ? "Withdraw Problem Report"
+                : "Withdraw / Cancel Dispute"}
             </button>
           ) : (
             <p className="text-xs text-black/70 font-semibold italic">
-              Dispute was opened by the other party. BuildMate administration has been notified for mediation.
+              {role === "CLIENT"
+                ? "A problem report was submitted. BuildMate administration has been notified for mediation."
+                : "Dispute was opened by the other party. BuildMate administration has been notified for mediation."}
             </p>
           )}
 
@@ -190,7 +200,7 @@ export function DisputeForm({
 
       <div>
         <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
-          Dispute Reason <span className="text-rose-600">*</span>
+          {role === "CLIENT" ? "Problem Category" : "Dispute Reason"} <span className="text-rose-600">*</span>
         </label>
         <select
           value={reason}
@@ -205,13 +215,13 @@ export function DisputeForm({
           ))}
         </select>
         <p className="text-xs text-black/60 font-semibold mt-1">
-          Select the category that best describes the issue.
+          {role === "CLIENT" ? "Select the category that best describes the issue." : "Select the category that best describes the dispute."}
         </p>
       </div>
 
       <div>
         <label className="block text-xs font-heading font-black text-black uppercase tracking-wider mb-1.5">
-          Detailed Description <span className="text-rose-600">*</span>
+          {role === "CLIENT" ? "Describe the Problem" : "Detailed Description"} <span className="text-rose-600">*</span>
         </label>
         <textarea
           value={description}
@@ -220,7 +230,7 @@ export function DisputeForm({
           minLength={10}
           maxLength={3000}
           rows={5}
-          placeholder="Describe the issue in detail, referencing specific scope items, missing features, or broken functionality..."
+          placeholder="Describe the issue in detail, referencing specific requirements, missing features, or broken functionality..."
           className="w-full px-3.5 py-2.5 border-2 border-black rounded-xl text-sm font-medium focus:bg-[#ffe17c]/20 leading-relaxed"
         />
         <div className="flex justify-between text-xs font-bold text-black/50 mt-1">
@@ -230,7 +240,10 @@ export function DisputeForm({
       </div>
 
       <div className="p-4 bg-[#ffe17c] border-2 border-black rounded-xl text-xs font-semibold text-black leading-relaxed">
-        <span className="font-heading font-black uppercase">Important Note:</span> Opening a formal dispute locks active project delivery, halts automatic transitions, and invites BuildMate administration to mediate the dispute.
+        <span className="font-heading font-black uppercase">Important Note:</span>{" "}
+        {role === "CLIENT"
+          ? "Reporting a problem pauses active project delivery and invites BuildMate administration to review and mediate."
+          : "Opening a formal dispute locks active project delivery, halts automatic transitions, and invites BuildMate administration to mediate the dispute."}
       </div>
 
       <div className="flex justify-end gap-3 pt-3 border-t-2 border-black/10">
@@ -240,7 +253,11 @@ export function DisputeForm({
           className="neo-btn px-6 py-3 bg-black text-white hover:bg-rose-600 text-xs font-heading font-black uppercase tracking-wider rounded-xl disabled:opacity-50 inline-flex items-center gap-2"
         >
           {loading && <span className="inline-block animate-spin text-sm">⏳</span>}
-          {loading ? "Submitting Dispute..." : "Submit Formal Dispute"}
+          {loading
+            ? "Submitting..."
+            : role === "CLIENT"
+            ? "Submit Problem Report"
+            : "Submit Formal Dispute"}
         </button>
       </div>
     </form>

@@ -6,7 +6,7 @@ import { projects, deliverables, payments } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { PortalHeader } from "@/components/navigation/portal-header";
 import { DeliveryAcceptButton } from "@/components/projects/delivery-accept-button";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatProjectStatus, formatClientProjectStatus } from "@/lib/project-status-format";
 
 export const dynamic = "force-dynamic";
 
@@ -95,7 +95,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
             {project.projectCode}
           </Link>
           <span>/</span>
-          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Delivery</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Final Files</span>
         </div>
 
         {/* Header Banner */}
@@ -106,7 +106,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                 {project.projectCode}
               </span>
               <h1 className="text-2xl sm:text-3xl font-heading font-black text-black mt-3 tracking-tight">
-                {project.title} — Deliverables
+                {project.title} — Final Files
               </h1>
               <p className="text-sm text-black/70 font-semibold mt-1">
                 Verified delivery portal and source code access.
@@ -116,12 +116,12 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
               {isDeliveryUnlocked ? (
                 <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-emerald-300 text-black border-2 border-black neo-shadow-sm">
                   <span className="w-2.5 h-2.5 rounded-full bg-black mr-2 animate-pulse" />
-                  Delivery Unlocked
+                  Final Files Unlocked
                 </span>
               ) : (
                 <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-heading font-black uppercase tracking-wider bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
                   <span className="w-2.5 h-2.5 rounded-full bg-black mr-2" />
-                  Delivery Locked
+                  Final Files Locked
                 </span>
               )}
             </div>
@@ -135,20 +135,20 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
               🔒
             </div>
             <h2 className="text-2xl font-heading font-black text-black mb-3">
-              Deliverables Are Currently Locked
+              Final Files Are Currently Locked
             </h2>
 
             {isDisputeOpen ? (
               <p className="text-sm text-rose-700 font-semibold max-w-md mx-auto mb-6">
-                An active dispute is currently open for this project. Delivery access is blocked until an administrator resolves the dispute.
+                A problem report is currently active on this project. File access is paused until an administrator resolves the report.
               </p>
             ) : !deliverable ? (
               <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
-                The builder has not yet submitted the final project deliverables. Development is still ongoing.
+                The builder has not yet submitted the final project files. Development is still ongoing.
               </p>
             ) : !isPaymentVerified ? (
               <p className="text-sm text-black/80 font-medium max-w-md mx-auto mb-6 leading-relaxed">
-                The builder has submitted deliverables. To unlock access to the repository and deliverables, the final payment of{" "}
+                The builder has submitted final files. To unlock access to the repository and files, the final payment of{" "}
                 <span className="font-heading font-black text-black">
                   ₹{project.remainingAmount || 0}
                 </span>{" "}
@@ -156,7 +156,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
               </p>
             ) : (
               <p className="text-sm text-black/70 font-medium max-w-md mx-auto mb-6">
-                This project is currently in {formatProjectStatus(project.status)} status. Final payment verification is required.
+                This project is currently {formatClientProjectStatus(project.status)}. Final payment verification is required.
               </p>
             )}
 
@@ -302,7 +302,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                     Client Review &amp; Project Completion
                   </h3>
                   <p className="text-xs text-black/80 font-medium mt-1">
-                    Verify the deliverables against your requirements. Mark the project complete or raise an issue.
+                    Verify the final files against your requirements. Mark the project complete or report a problem.
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -316,7 +316,7 @@ export default async function ProjectDeliveryPage({ params }: DeliveryPageProps)
                         href={`/projects/${project.id}/dispute/new`}
                         className="neo-btn px-4 py-2.5 border-2 border-black bg-white hover:bg-rose-100 text-black text-xs font-heading font-black uppercase tracking-wider rounded-xl transition"
                       >
-                        Raise an Issue
+                        Report a Problem
                       </Link>
                       <DeliveryAcceptButton projectId={project.id} />
                     </>

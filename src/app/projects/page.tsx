@@ -6,7 +6,7 @@ import { projects } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { computeEffectiveStatus, reconcileProjectStatusInDb } from "@/lib/project-status";
 import { PortalHeader } from "@/components/navigation/portal-header";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatClientProjectStatus } from "@/lib/project-status-format";
 
 export default async function ProjectsPage() {
   const startTime = performance.now();
@@ -107,7 +107,7 @@ export default async function ProjectsPage() {
               href="/projects/new"
               className="neo-btn inline-flex items-center justify-center px-5 py-2.5 bg-[#171e19] text-[#ffe17c] text-xs font-black uppercase tracking-wider border-2 border-black neo-shadow transition"
             >
-              + New Project
+              + Request a Project
             </Link>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default async function ProjectsPage() {
                               : "bg-gray-200 text-[#171e19]"
                           }`}
                         >
-                          {formatProjectStatus(project.status)}
+                          {formatClientProjectStatus(project.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-black font-bold">

@@ -11,7 +11,7 @@ import {
   BUILDER_DISPUTE_STATUS_ALLOWLIST,
 } from "@/lib/projects/dispute-validation";
 import { ProjectStatus } from "@/lib/project-status";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatProjectStatus, formatClientProjectStatus } from "@/lib/project-status-format";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +112,9 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
             {project.projectCode}
           </Link>
           <span>/</span>
-          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">Dispute</span>
+          <span className="text-black bg-[#ffe17c] px-2 py-0.5 border border-black rounded">
+            {role === "CLIENT" ? "Report a Problem" : "Dispute"}
+          </span>
         </div>
 
         <div className="bg-white rounded-2xl border-2 border-black p-6 sm:p-8 mb-6 neo-shadow-md">
@@ -121,14 +123,16 @@ export default async function DisputeNewPage({ params }: DisputeNewPageProps) {
               {project.projectCode}
             </span>
             <span className="text-xs font-heading font-black uppercase px-2.5 py-0.5 rounded-full bg-[#ffe17c] text-black border-2 border-black neo-shadow-sm">
-              Status: {formatProjectStatus(project.status)}
+              Status: {role === "CLIENT" ? formatClientProjectStatus(project.status) : formatProjectStatus(project.status)}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-heading font-black text-black tracking-tight">
-            Project Dispute Mediation
+            {role === "CLIENT" ? "Report a Problem" : "Project Dispute Mediation"}
           </h1>
           <p className="text-xs text-black/70 font-semibold mt-1">
-            BuildMate mediation portal for resolving scope disagreements, missing deliverables, or unresponsive communication.
+            {role === "CLIENT"
+              ? "BuildMate support portal for resolving issues, delays, or communication problems."
+              : "BuildMate mediation portal for resolving scope disagreements, missing deliverables, or unresponsive communication."}
           </p>
         </div>
 

@@ -10,7 +10,7 @@ import { AcceptanceCountdown } from "@/components/projects/acceptance-countdown"
 import { RequirementUploadForm } from "@/components/projects/requirement-upload-form";
 import { RazorpayCheckoutButton } from "@/components/payments/razorpay-checkout-button";
 import { PortalHeader } from "@/components/navigation/portal-header";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatProjectStatus, formatClientProjectStatus } from "@/lib/project-status-format";
 
 export default async function ProjectDetailPage({
   params,
@@ -116,7 +116,7 @@ export default async function ProjectDetailPage({
                 : "bg-white text-black"
             }`}
           >
-            {formatProjectStatus(project.status)}
+            {formatClientProjectStatus(project.status)}
           </span>
         </div>
 
@@ -125,15 +125,15 @@ export default async function ProjectDetailPage({
             <div className="flex items-center gap-3 text-black">
               <span className="text-2xl">⚠️</span>
               <div>
-                <p className="text-sm font-heading font-black">This project is currently in DISPUTE_OPEN status.</p>
-                <p className="text-xs font-medium text-black/80">Active development and delivery are locked while BuildMate administrators mediate.</p>
+                <p className="text-sm font-heading font-black">A problem report is currently active on this project.</p>
+                <p className="text-xs font-medium text-black/80">Active development and delivery are paused while BuildMate administrators mediate.</p>
               </div>
             </div>
             <Link
               href={`/projects/${project.id}/dispute/new`}
               className="neo-btn px-4 py-2 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl shrink-0"
             >
-              View Dispute
+              View Problem Report
             </Link>
           </div>
         )}
@@ -248,16 +248,16 @@ export default async function ProjectDetailPage({
               <div className="inline-block px-2.5 py-0.5 bg-black text-[#ffe17c] text-[11px] font-heading font-black uppercase tracking-wider rounded mb-2">
                 Action Required
               </div>
-              <h3 className="font-heading font-black text-xl text-black">Quotation Received</h3>
+              <h3 className="font-heading font-black text-xl text-black">Price Quote Received</h3>
               <p className="text-xs text-black/80 font-medium mt-1 max-w-lg">
-                The assigned builder has submitted a formal quotation for your review. Inspect the milestone breakdown, budget, and accept or reject the proposal.
+                The assigned builder has submitted a formal price quote for your review. Inspect the milestone breakdown, budget, and accept or reject the proposal.
               </p>
             </div>
             <Link
               href={`/projects/${project.id}/quotation`}
               className="neo-btn px-5 py-3 bg-black text-white font-heading font-black text-xs uppercase tracking-wider rounded-xl whitespace-nowrap"
             >
-              Review Quotation →
+              Review Price Quote →
             </Link>
           </div>
         )}
@@ -266,9 +266,9 @@ export default async function ProjectDetailPage({
           <div className="bg-[#b7c6c2]/40 border-2 border-black rounded-2xl p-6 mb-6 flex items-start gap-4 neo-shadow">
             <span className="text-3xl">⏳</span>
             <div>
-              <h3 className="font-heading font-black text-lg text-black">Builder Assigned — Preparing Quotation</h3>
+              <h3 className="font-heading font-black text-lg text-black">Builder Assigned — Preparing Price Quote</h3>
               <p className="text-xs text-black/80 font-medium mt-1">
-                A builder has acquired your project and is preparing the total quotation and work schedule.
+                A builder has acquired your project and is preparing the total price quote and work schedule.
               </p>
             </div>
           </div>
@@ -324,10 +324,10 @@ export default async function ProjectDetailPage({
                 <span className="text-3xl">📦</span>
                 <div>
                   <h3 className="font-heading font-black text-xl text-black">
-                    Project Deliverables Ready!
+                    Project Final Files Ready!
                   </h3>
                   <p className="text-xs text-black/80 font-medium mt-1">
-                    Your initial milestone payment covered 100% of the project total. Full source code delivery is ready to access!
+                    Your initial milestone payment covered 100% of the project total. Full source code and final files are ready to access!
                   </p>
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default async function ProjectDetailPage({
                 href={`/projects/${project.id}/delivery`}
                 className="neo-btn px-5 py-3 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl text-center whitespace-nowrap"
               >
-                Access Deliverables →
+                Access Final Files →
               </Link>
             </div>
           )
@@ -348,10 +348,10 @@ export default async function ProjectDetailPage({
               <span className="text-3xl">📦</span>
               <div>
                 <h3 className="font-heading font-black text-xl text-black">
-                  {project.status === "COMPLETED" ? "Project Completed" : "Project Deliverables Ready!"}
+                  {project.status === "COMPLETED" ? "Project Completed" : "Project Final Files Ready!"}
                 </h3>
                 <p className="text-xs text-black/80 font-medium mt-1">
-                  Final payment is verified and source code delivery is unlocked.
+                  Final payment is verified and source code and final files are unlocked.
                 </p>
               </div>
             </div>
@@ -359,7 +359,7 @@ export default async function ProjectDetailPage({
               href={`/projects/${project.id}/delivery`}
               className="neo-btn px-5 py-3 bg-black text-white text-xs font-heading font-black uppercase tracking-wider rounded-xl text-center whitespace-nowrap"
             >
-              Access Deliverables →
+              Access Final Files →
             </Link>
           </div>
         )}

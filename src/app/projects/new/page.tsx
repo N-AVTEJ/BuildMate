@@ -72,7 +72,7 @@ export default function NewProjectPage() {
 
       router.push(`/projects/${data.project.id}`);
     } catch (err: any) {
-      setError(err.message || "An error occurred while creating project.");
+      setError(err.message || "An error occurred while submitting project request.");
     } finally {
       setIsSubmitting(false);
     }
@@ -88,7 +88,7 @@ export default function NewProjectPage() {
           >
             ← Back to Projects
           </Link>
-          <h1 className="text-3xl font-cabinet font-black text-[#171e19] tracking-tight uppercase">Create New Project</h1>
+          <h1 className="text-3xl font-cabinet font-black text-[#171e19] tracking-tight uppercase">Request a Project</h1>
           <p className="text-sm font-bold text-gray-700 mt-1">
             Submit your project requirements to find verified builders.
           </p>
@@ -247,7 +247,7 @@ export default function NewProjectPage() {
               disabled={isSubmitting || !formData.integrityAck}
               className="neo-btn w-full inline-flex justify-center items-center px-4 py-3 bg-[#171e19] text-[#ffe17c] text-sm font-black uppercase tracking-wider border-2 border-black neo-shadow disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              {isSubmitting ? "Submitting Project..." : "Submit Project →"}
+              {isSubmitting ? "Submitting Project Request..." : "Submit Project Request →"}
             </button>
           </div>
         </form>

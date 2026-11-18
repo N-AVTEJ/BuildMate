@@ -6,7 +6,7 @@ import { projects, quotations } from "@/db/schema";
 import { getOptionalAuth } from "@/lib/auth/guards";
 import { QuotationResponseActions } from "@/components/projects/quotation-response-actions";
 import { PortalHeader } from "@/components/navigation/portal-header";
-import { formatProjectStatus } from "@/lib/project-status-format";
+import { formatClientProjectStatus } from "@/lib/project-status-format";
 
 export default async function ClientQuotationReviewPage({
   params,
@@ -79,14 +79,14 @@ export default async function ClientQuotationReviewPage({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <span className="font-heading font-black text-[11px] uppercase tracking-wider bg-black text-[#ffe17c] px-2.5 py-1 border border-black rounded inline-block">
-                  Quotation Review
+                  Price Quote Review
                 </span>
                 <h1 className="font-heading font-black text-2xl sm:text-3xl text-black mt-2 tracking-tight">
                   {project.title}
                 </h1>
               </div>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-black bg-white self-start sm:self-auto neo-shadow-sm">
-                {formatProjectStatus(project.status)}
+                {formatClientProjectStatus(project.status)}
               </span>
             </div>
             <p className="text-xs text-black/70 mt-1 font-mono font-bold">{project.projectCode}</p>
@@ -95,7 +95,7 @@ export default async function ClientQuotationReviewPage({
           <div className="p-6 sm:p-8 space-y-6">
             {!latestQuotation ? (
               <div className="p-5 bg-[#fffdf0] rounded-xl border-2 border-black text-sm text-black/80 font-medium">
-                No quotation has been submitted for this project yet.
+                No price quote has been submitted for this project yet.
               </div>
             ) : (
               <>
@@ -105,25 +105,25 @@ export default async function ClientQuotationReviewPage({
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Total Quotation</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Total Price Quote</span>
                       <span className="text-2xl font-heading font-black text-black mt-1 block">
                         ₹{latestQuotation.totalPrice.toLocaleString()}
                       </span>
                       <span className="text-[11px] text-black/60 font-semibold">Total contracted scope</span>
                     </div>
                     <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Initial Milestone</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Advance Payment</span>
                       <span className="text-2xl font-heading font-black text-emerald-700 mt-1 block">
                         ₹{latestQuotation.advanceAmount.toLocaleString()}
                       </span>
-                      <span className="text-[11px] text-emerald-800 font-bold">Due before dev begins</span>
+                      <span className="text-[11px] text-emerald-800 font-bold">Due before development begins</span>
                     </div>
                     <div className="bg-white p-4 rounded-xl border-2 border-black neo-shadow-sm">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Remaining Balance</span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-black/60 block">Final Payment</span>
                       <span className="text-2xl font-heading font-black text-black mt-1 block">
                         ₹{latestQuotation.remainingAmount.toLocaleString()}
                       </span>
-                      <span className="text-[11px] text-black/60 font-semibold">Due upon verified delivery</span>
+                      <span className="text-[11px] text-black/60 font-semibold">Due upon verified final files</span>
                     </div>
                   </div>
                 </div>
@@ -133,9 +133,9 @@ export default async function ClientQuotationReviewPage({
                     Important Terms upon Acceptance:
                   </div>
                   <ul className="list-disc list-inside space-y-1 font-medium">
-                    <li>Accepting this quotation will create an immutable Scope Version 1 snapshot.</li>
-                    <li>The project status will proceed to <strong className="text-black font-black">Awaiting Initial Milestone</strong>.</li>
-                    <li>Any future changes to scope or cost will require a formal Change Request.</li>
+                    <li>Accepting this price quote will finalize project requirements.</li>
+                    <li>The project status will proceed to <strong className="text-black font-black">Waiting for Advance Payment</strong>.</li>
+                    <li>Any future changes to requirements or cost will require a formal Change Request.</li>
                   </ul>
                 </div>
 
@@ -148,7 +148,7 @@ export default async function ClientQuotationReviewPage({
                 {project.status !== "QUOTATION_SENT" && (
                   <div className="p-4 bg-[#fffdf0] rounded-xl border-2 border-black text-sm text-black flex items-center justify-between">
                     <span className="font-medium">
-                      Quotation status: <strong className="font-heading font-black">{latestQuotation.status}</strong> (Project is {formatProjectStatus(project.status)})
+                      Price quote status: <strong className="font-heading font-black">{latestQuotation.status}</strong> (Project is {formatClientProjectStatus(project.status)})
                     </span>
                     <Link
                       href={`/projects/${project.id}`}
